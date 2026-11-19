@@ -46,7 +46,7 @@ ReplayOptionsSelector::ReplayOptionsSelector(ICaptureContext &ctx, bool actions,
   if(!m_Ctx.Replay().BlockAccessInvoke(
          [this](ICaptureAccess *capture) { m_GPUs = capture->GetAvailableGPUs(); }))
   {
-    ICaptureFile *dummy = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *dummy = GFXDEBUG_OpenCaptureFile();
 
     // fetch available GPUs
     m_GPUs = dummy->GetAvailableGPUs();

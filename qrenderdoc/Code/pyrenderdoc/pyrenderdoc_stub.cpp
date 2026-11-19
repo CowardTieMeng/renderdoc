@@ -77,7 +77,7 @@ extern "C" PyObject *DoFunctionCall(PyObject *object, PyObject *args)
   return PyObject_Call(object, args, NULL);
 }
 
-extern "C" RENDERDOC_EXPORT_API int _rd_python_minor_version()
+extern "C" GFXDEBUG_EXPORT_API int _rd_python_minor_version()
 {
   return PY_MINOR_VERSION;
 }

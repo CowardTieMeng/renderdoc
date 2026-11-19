@@ -70,12 +70,12 @@
 
 CaptureContext::CaptureContext(PersistentConfig &cfg) : m_Config(cfg)
 {
-  RENDERDOC_PROFILEFUNCTION();
+  GFXDEBUG_PROFILEFUNCTION();
 
   m_CaptureLoaded = false;
   m_LoadInProgress = false;
 
-  RENDERDOC_RegisterMemoryRegion(this, sizeof(CaptureContext));
+  GFXDEBUG_RegisterMemoryRegion(this, sizeof(CaptureContext));
 
   memset(&m_APIProps, 0, sizeof(m_APIProps));
 
@@ -91,7 +91,7 @@ CaptureContext::CaptureContext(PersistentConfig &cfg) : m_Config(cfg)
 
   m_QtHelper = new MiniQtHelper(*this);
 
-  qApp->setApplicationVersion(QString::fromLatin1(RENDERDOC_GetVersionString()));
+  qApp->setApplicationVersion(QString::fromLatin1(GFXDEBUG_GetVersionString()));
 
   PythonContext::setCtxGlobal(*this);
 
@@ -316,7 +316,7 @@ CaptureContext::~CaptureContext()
   delete m_ExtensionWatcher;
 
   delete m_QtHelper;
-  RENDERDOC_UnregisterMemoryRegion(this);
+  GFXDEBUG_UnregisterMemoryRegion(this);
   delete m_Icon;
   m_Replay.CloseThread();
   delete m_MainWindow;
@@ -498,12 +498,12 @@ rdcarray<ExtensionMetadata> CaptureContext::GetInstalledExtensions()
                 int minor = match.captured(2).toInt(&ok);
 
                 // if it needs a higher major version, we can't load it
-                if(major > RENDERDOC_VERSION_MAJOR)
+                if(major > GFXDEBUG_VERSION_MAJOR)
                   badversion = true;
 
                 // if major versions are the same and it needs a higher minor, we can't load it
                 // either
-                if(major == RENDERDOC_VERSION_MAJOR && minor > RENDERDOC_VERSION_MINOR)
+                if(major == GFXDEBUG_VERSION_MAJOR && minor > GFXDEBUG_VERSION_MINOR)
                   badversion = true;
               }
             }
@@ -937,7 +937,7 @@ void CaptureContext::CleanMenu(QAction *action)
 void CaptureContext::LoadCapture(const rdcstr &captureFile, const ReplayOptions &opts,
                                  const rdcstr &origFilename, bool temporary, bool local)
 {
-  RENDERDOC_PROFILEFUNCTION();
+  GFXDEBUG_PROFILEFUNCTION();
 
   CloseCapture();
 
@@ -1124,9 +1124,9 @@ void CaptureContext::LoadCaptureThreaded(const QString &captureFile, const Repla
 
     m_WinSystems = r->GetSupportedWindowSystems();
 
-#if defined(RENDERDOC_PLATFORM_WIN32)
+#if defined(GFXDEBUG_PLATFORM_WIN32)
     m_CurWinSystem = WindowingSystem::Win32;
-#elif defined(RENDERDOC_PLATFORM_LINUX)
+#elif defined(GFXDEBUG_PLATFORM_LINUX)
     m_CurWinSystem = WindowingSystem::Unknown;
 
     if(QGuiApplication::platformName() == lit("wayland"))
@@ -1169,7 +1169,7 @@ void CaptureContext::LoadCaptureThreaded(const QString &captureFile, const Repla
         m_X11Display = QX11Info::display();
     }
 
-#elif defined(RENDERDOC_PLATFORM_APPLE)
+#elif defined(GFXDEBUG_PLATFORM_APPLE)
     m_CurWinSystem = WindowingSystem::MacOS;
 #endif
 
@@ -1365,7 +1365,7 @@ void CaptureContext::RecompressCapture()
   else
   {
     // for remote files we open a new short-lived handle on the temporary file
-    tempCap = cap = RENDERDOC_OpenCaptureFile();
+    tempCap = cap = GFXDEBUG_OpenCaptureFile();
     cap->OpenFile(tempFilename, "rdc", NULL);
   }
 
@@ -1617,7 +1617,7 @@ bool CaptureContext::ImportCapture(const CaptureFileFormat &fmt, const rdcstr &i
   float progress = 0.0f;
 
   LambdaThread *th = new LambdaThread([rdcfile, importfile, ext, &progress, &result]() {
-    ICaptureFile *file = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *file = GFXDEBUG_OpenCaptureFile();
 
     result = file->OpenFile(importfile, ext.toUtf8().data(),
                             [&progress](float p) { progress = p * 0.5f; });
@@ -1676,7 +1676,7 @@ void CaptureContext::ExportCapture(const CaptureFileFormat &fmt, const rdcstr &e
 
   if(!file)
   {
-    local = file = RENDERDOC_OpenCaptureFile();
+    local = file = GFXDEBUG_OpenCaptureFile();
     result = file->OpenFile(m_CaptureFile, "rdc", NULL);
   }
 
@@ -1723,7 +1723,7 @@ void CaptureContext::ExportCapture(const CaptureFileFormat &fmt, const rdcstr &e
 void CaptureContext::SetEventID(const rdcarray<ICaptureViewer *> &exclude, uint32_t selectedEventID,
                                 uint32_t eventId, bool force)
 {
-  RENDERDOC_PROFILEFUNCTION();
+  GFXDEBUG_PROFILEFUNCTION();
 
   if(!IsCaptureLoaded())
     return;
@@ -2316,7 +2316,7 @@ void CaptureContext::SetResourceCustomName(ResourceId id, const rdcstr &name)
   RefreshUIStatus({}, true, true);
 }
 
-#if defined(RENDERDOC_PLATFORM_APPLE)
+#if defined(GFXDEBUG_PLATFORM_APPLE)
 extern "C" void *makeNSViewMetalCompatible(void *handle);
 #endif
 
@@ -2329,7 +2329,7 @@ WindowingData CaptureContext::CreateWindowingData(QWidget *window)
 
   return CreateWin32WindowingData((HWND)window->winId());
 
-#elif defined(RENDERDOC_PLATFORM_LINUX)
+#elif defined(GFXDEBUG_PLATFORM_LINUX)
 
   if(m_CurWinSystem == WindowingSystem::Wayland)
   {
@@ -2352,7 +2352,7 @@ WindowingData CaptureContext::CreateWindowingData(QWidget *window)
     return CreateHeadlessWindowingData(1, 1);
   }
 
-#elif defined(RENDERDOC_PLATFORM_APPLE)
+#elif defined(GFXDEBUG_PLATFORM_APPLE)
 
   void *view = (void *)window->winId();
 

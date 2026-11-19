@@ -145,14 +145,14 @@ void UpdateDialog::on_update_clicked()
       // just a sanity check to make sure we don't hit some unexpected case and infinite loop
       uint32_t prevIdent = nextIdent;
 
-      nextIdent = RENDERDOC_EnumerateRemoteTargets("localhost", nextIdent);
+      nextIdent = GFXDEBUG_EnumerateRemoteTargets("localhost", nextIdent);
 
       if(nextIdent == 0 || prevIdent >= nextIdent)
         break;
 
       running++;
 
-      ITargetControl *conn = RENDERDOC_CreateTargetControl("localhost", nextIdent, "updater", false);
+      ITargetControl *conn = GFXDEBUG_CreateTargetControl("localhost", nextIdent, "updater", false);
 
       if(conn)
       {
@@ -255,8 +255,8 @@ void UpdateDialog::on_update_clicked()
 
       bool success = true;
 
-      QString dll = lit("renderdoc.dll");
-      QString cmd = lit("renderdoccmd.exe");
+      QString dll = lit("gfxdebug.dll");
+      QString cmd = lit("gfxdebugcmd.exe");
 
       QFile::remove(dir.absoluteFilePath(dll));
       QFile::remove(dir.absoluteFilePath(cmd));

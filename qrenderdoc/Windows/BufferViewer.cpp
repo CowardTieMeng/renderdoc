@@ -269,7 +269,7 @@ class ArcballWrapper : public CameraWrapper
 public:
   ArcballWrapper(ICaptureContext &ctx) : CameraWrapper(ctx)
   {
-    m_Cam = RENDERDOC_InitCamera(CameraType::Arcball);
+    m_Cam = GFXDEBUG_InitCamera(CameraType::Arcball);
   }
   virtual ~ArcballWrapper() { m_Cam->Shutdown(); }
   ICamera *camera() override { return m_Cam; }
@@ -376,7 +376,7 @@ class FlycamWrapper : public CameraWrapper
 public:
   FlycamWrapper(ICaptureContext &ctx) : CameraWrapper(ctx)
   {
-    m_Cam = RENDERDOC_InitCamera(CameraType::FPSLook);
+    m_Cam = GFXDEBUG_InitCamera(CameraType::FPSLook);
   }
   virtual ~FlycamWrapper() { m_Cam->Shutdown(); }
   ICamera *camera() override { return m_Cam; }
@@ -1291,7 +1291,7 @@ public:
 
             if(prop.perprimitive)
             {
-              uint32_t prim = row / RENDERDOC_NumVerticesPerPrimitive(config.topology);
+              uint32_t prim = row / GFXDEBUG_NumVerticesPerPrimitive(config.topology);
               data += config.perPrimitiveOffset;
               data += config.perPrimitiveStride * prim;
             }
@@ -3605,7 +3605,7 @@ void BufferViewer::OnEventChanged(uint32_t eventId)
         bufdata->postOut1 = r->GetPostVSData(0, bufdata->inConfig.curView, MeshDataStage::TaskOut);
         bufdata->postOut2 = r->GetPostVSData(0, bufdata->inConfig.curView, MeshDataStage::MeshOut);
 
-        const uint32_t vertsPerPrim = RENDERDOC_NumVerticesPerPrimitive(bufdata->postOut2.topology);
+        const uint32_t vertsPerPrim = GFXDEBUG_NumVerticesPerPrimitive(bufdata->postOut2.topology);
 
         // apply mesh/task filtering to mesh data here, which will also propagate to preview
         if(m_FilteredMeshGroup != ~0U)

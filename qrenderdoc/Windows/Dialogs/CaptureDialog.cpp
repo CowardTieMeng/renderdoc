@@ -196,7 +196,7 @@ CaptureDialog::CaptureDialog(ICaptureContext &ctx, OnCaptureMethod captureCallba
 
   // Set up warning for host layer config
   initWarning(ui->vulkanLayerWarn);
-  ui->vulkanLayerWarn->setVisible(RENDERDOC_NeedVulkanLayerRegistration(NULL));
+  ui->vulkanLayerWarn->setVisible(GFXDEBUG_NeedVulkanLayerRegistration(NULL));
   QObject::connect(ui->vulkanLayerWarn, &RDLabel::clicked, this,
                    &CaptureDialog::vulkanLayerWarn_mouseClick);
 
@@ -339,7 +339,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 
   VulkanLayerRegistrationInfo info;
 
-  RENDERDOC_NeedVulkanLayerRegistration(&info);
+  GFXDEBUG_NeedVulkanLayerRegistration(&info);
 
   const bool hasOtherJSON = bool(info.flags & VulkanLayerFlags::OtherInstallsRegistered);
   const bool thisRegistered = bool(info.flags & VulkanLayerFlags::ThisInstallRegistered);
@@ -467,7 +467,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
     if(run)
     {
       auto regComplete = [this, admin]() {
-        bool needReg = RENDERDOC_NeedVulkanLayerRegistration(NULL);
+        bool needReg = GFXDEBUG_NeedVulkanLayerRegistration(NULL);
         ui->vulkanLayerWarn->setVisible(needReg);
 
         (void)admin;
@@ -494,7 +494,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
         QDir binDir = QFileInfo(qApp->applicationFilePath()).absoluteDir();
 
-        QString cmd = lit("renderdoccmd");
+        QString cmd = lit("gfxdebugcmd");
 
         if(binDir.exists(cmd))
         {
@@ -559,7 +559,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
       }
     }
 
-    ui->vulkanLayerWarn->setVisible(RENDERDOC_NeedVulkanLayerRegistration(NULL));
+    ui->vulkanLayerWarn->setVisible(GFXDEBUG_NeedVulkanLayerRegistration(NULL));
   }
 }
 
@@ -570,7 +570,7 @@ void CaptureDialog::CheckAndroidSetup(QString &filename)
 
   LambdaThread *scan = new LambdaThread([this, filename]() {
     rdcstr host = m_Ctx.Replay().CurrentRemote().Hostname();
-    RENDERDOC_CheckAndroidPackage(host, filename, &m_AndroidFlags);
+    GFXDEBUG_CheckAndroidPackage(host, filename, &m_AndroidFlags);
 
     const bool debuggable = bool(m_AndroidFlags & AndroidFlags::Debuggable);
     const bool hasroot = bool(m_AndroidFlags & AndroidFlags::RootAccess);
@@ -640,7 +640,7 @@ void CaptureDialog::on_processRefesh_clicked()
 
 bool CaptureDialog::checkAllowClose()
 {
-  if(RENDERDOC_IsGlobalHookActive())
+  if(GFXDEBUG_IsGlobalHookActive())
   {
     RDDialog::critical(this, tr("Global hook active"),
                        tr("Cannot close this window while global hook is active."));
@@ -823,14 +823,14 @@ void CaptureDialog::on_toggleGlobal_clicked()
 
     ui->toggleGlobal->setText(tr("Disable Global Hook"));
 
-    if(RENDERDOC_IsGlobalHookActive())
-      RENDERDOC_StopGlobalHook();
+    if(GFXDEBUG_IsGlobalHookActive())
+      GFXDEBUG_StopGlobalHook();
 
     QString exe = ui->exePath->text();
 
     QString capturefile = m_Ctx.TempCaptureFilename(QFileInfo(exe).baseName());
 
-    ResultDetails success = RENDERDOC_StartGlobalHook(exe, capturefile, Settings().options);
+    ResultDetails success = GFXDEBUG_StartGlobalHook(exe, capturefile, Settings().options);
 
     if(!success.OK())
     {
@@ -852,8 +852,8 @@ void CaptureDialog::on_toggleGlobal_clicked()
   else
   {
     // not checked
-    if(RENDERDOC_IsGlobalHookActive())
-      RENDERDOC_StopGlobalHook();
+    if(GFXDEBUG_IsGlobalHookActive())
+      GFXDEBUG_StopGlobalHook();
 
     setEnabledMultiple(enableDisableWidgets, true);
 
@@ -1124,7 +1124,7 @@ CaptureSettings CaptureDialog::LoadSettingsFromDisk(const rdcstr &filename)
 void CaptureDialog::UpdateGlobalHook()
 {
   ui->globalGroup->setVisible(!IsInjectMode() && m_Ctx.Config().AllowGlobalHook &&
-                              RENDERDOC_CanGlobalHook());
+                              GFXDEBUG_CanGlobalHook());
 
   if(ui->exePath->text().length() >= 4)
   {

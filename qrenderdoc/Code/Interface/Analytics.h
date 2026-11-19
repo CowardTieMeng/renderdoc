@@ -27,7 +27,7 @@
 // This file controls the telemetry/analytics functionality in RenderDoc.
 //
 // If you don't care about any details and just want to make sure this is turned off for your builds
-// then go below to #define RENDERDOC_ANALYTICS_ENABLE and change it to 0. That will cease all
+// then go below to #define GFXDEBUG_ANALYTICS_ENABLE and change it to 0. That will cease all
 // recording and reporting of analytics data. It won't delete any previously recorded analytics and
 // won't stop any other builds from working, since the code that knows about what the analytics is
 // will be compiled out.
@@ -50,14 +50,14 @@
 // Once the report is sent, the database is reset and begins the next period.
 
 // this is the root switch that can turn off *all* analytics code globally
-#define RENDERDOC_ANALYTICS_ENABLE 1
+#define GFXDEBUG_ANALYTICS_ENABLE 1
 
 // we don't want any of this to be accessible to script, only code.
 #if !defined(SWIG) && !defined(SWIG_GENERATED)
 
 // We also compile out all of the code if analytics are disabled so there's not even a code
 // reference to where the data is collected.
-#if RENDERDOC_ANALYTICS_ENABLE
+#if GFXDEBUG_ANALYTICS_ENABLE
 
 struct AnalyticsAverage
 {

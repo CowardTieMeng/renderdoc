@@ -2174,8 +2174,8 @@ void PythonShell::createExtension_clicked()
 	"url": "https://github.com/example/example"
 }
 )")
-                           .arg(RENDERDOC_VERSION_MAJOR)
-                           .arg(RENDERDOC_VERSION_MINOR)
+                           .arg(GFXDEBUG_VERSION_MAJOR)
+                           .arg(GFXDEBUG_VERSION_MINOR)
                            .arg(paths.back())
                            .arg(extName);
 

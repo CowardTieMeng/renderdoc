@@ -912,7 +912,7 @@ struct CaptureAccessInvoker : ICaptureAccess
 
   bool HasCallstacks() { return InvokeRetFunction<bool>(&ICaptureAccess::HasCallstacks); }
 
-  ResultDetails InitResolver(bool interactive, RENDERDOC_ProgressCallback progress = NULL)
+  ResultDetails InitResolver(bool interactive, GFXDEBUG_ProgressCallback progress = NULL)
   {
     return InvokeRetFunction<ResultDetails>(&ICaptureAccess::InitResolver, interactive, progress);
   }

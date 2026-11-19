@@ -35,7 +35,7 @@
 #include "Windows/Dialogs/AnalyticsPromptDialog.h"
 #include "QRDInterface.h"
 
-#if RENDERDOC_ANALYTICS_ENABLE
+#if GFXDEBUG_ANALYTICS_ENABLE
 
 template <>
 inline rdcliteral TypeName<int32_t>()
@@ -611,7 +611,7 @@ void Analytics::Prompt(ICaptureContext &ctx, PersistentConfig &config)
   }
 }
 
-#else    // RENDERDOC_ANALYTICS_ENABLE
+#else    // GFXDEBUG_ANALYTICS_ENABLE
 
 namespace Analytics
 {

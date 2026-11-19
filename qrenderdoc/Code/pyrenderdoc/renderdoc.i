@@ -4,7 +4,7 @@
 %feature("autodoc:noret", "1");
 
 // just define linux platform to make sure things compile with no extra __declspec attributes
-#define RENDERDOC_PLATFORM_LINUX
+#define GFXDEBUG_PLATFORM_LINUX
 
 // we don't need these for the interface, they just confuse things
 #define NO_ENUM_CLASS_OPERATORS
@@ -56,9 +56,9 @@ inline PyObject *PyWeakref_GetObject_emu(PyObject *ref)
 // ignore warning about redundant declaration of typedef (byte)
 #pragma SWIG nowarn=322
 
-// strip off the RENDERDOC_ namespace prefix, it's unnecessary. We list this first since we want
+// strip off the GFXDEBUG_ namespace prefix, it's unnecessary. We list this first since we want
 // any other subsequent renames to override it.
-%rename("%(strip:[RENDERDOC_])s") "";
+%rename("%(strip:[GFXDEBUG_])s") "";
 
 // rename the interfaces to remove the I prefix
 %rename("%(regex:/^I([A-Z].*)/\\1/)s", %$isclass) "";
@@ -132,7 +132,7 @@ VA_IGNORE_REST_OF_FILE
 %ignore rdhalf;
 %ignore bytebuf;
 
-// special handling for RENDERDOC_GetSupportedDeviceProtocols to transform output parameter to a return value
+// special handling for GFXDEBUG_GetSupportedDeviceProtocols to transform output parameter to a return value
 %typemap(in, numinputs=0) rdcarray<rdcstr> *supportedProtocols { $1 = new rdcarray<rdcstr>; }
 %typemap(argout) rdcarray<rdcstr> *supportedProtocols {
   $result = ConvertToPy(*$1);
@@ -140,7 +140,7 @@ VA_IGNORE_REST_OF_FILE
 }
 %typemap(freearg) rdcarray<rdcstr> *supportedProtocols { }
 
-// same for RENDERDOC_CreateRemoteServerConnection
+// same for GFXDEBUG_CreateRemoteServerConnection
 %typemap(in, numinputs=0) IRemoteServer **rend (IRemoteServer *outRenderer) {
   outRenderer = NULL;
   $1 = &outRenderer;
@@ -329,7 +329,7 @@ the built-in ``repr()`` function but it iterates over struct members and prints 
 
 %inline %{
   
-extern "C" PyObject *RENDERDOC_DumpObject(PyObject *obj);
+extern "C" PyObject *GFXDEBUG_DumpObject(PyObject *obj);
 
 %}
 
@@ -510,7 +510,7 @@ PyObject *PassNewObjectToPython(const char *type, void *obj)
   return SWIG_InternalNewPointerObj(obj, t, SWIG_POINTER_OWN);
 }
 
-extern "C" PyObject *RENDERDOC_DumpObject(PyObject *obj)
+extern "C" PyObject *GFXDEBUG_DumpObject(PyObject *obj)
 {
   void *resptr = NULL;
 
@@ -550,7 +550,7 @@ extern "C" PyObject *RENDERDOC_DumpObject(PyObject *obj)
       // don't add callables
       if(PyCallable_Check(entry) == 0)
       {
-        PyObject *childDump = RENDERDOC_DumpObject(entry);
+        PyObject *childDump = GFXDEBUG_DumpObject(entry);
         PyList_Append(ret, childDump);
         Py_XDECREF(childDump);
       }
@@ -595,7 +595,7 @@ extern "C" PyObject *RENDERDOC_DumpObject(PyObject *obj)
           // don't add callables
           if(PyCallable_Check(child) == 0)
           {
-            PyObject *childDump = RENDERDOC_DumpObject(child);
+            PyObject *childDump = GFXDEBUG_DumpObject(child);
             PyDict_SetItem(ret, member, childDump);
             Py_XDECREF(childDump);
           }

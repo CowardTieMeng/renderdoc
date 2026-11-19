@@ -252,7 +252,7 @@ void FetchException(QString &typeStr, QString &valueStr, int &finalLine, QList<Q
 QStringList GetPystubsLocations(QString basePath)
 {
   QString versionSubdir =
-      QFormatStr("v%1_%2").arg(RENDERDOC_VERSION_MAJOR).arg(RENDERDOC_VERSION_MINOR);
+      QFormatStr("v%1_%2").arg(GFXDEBUG_VERSION_MAJOR).arg(GFXDEBUG_VERSION_MINOR);
   QString latestSubdir = lit("latest");
 
   QDir dir(basePath);
@@ -279,12 +279,12 @@ struct StubsVersion
   static StubsVersion Current()
   {
     StubsVersion ret;
-    ret.major = RENDERDOC_VERSION_MAJOR;
-    ret.minor = RENDERDOC_VERSION_MINOR;
-    if(RENDERDOC_STABLE_BUILD)
+    ret.major = GFXDEBUG_VERSION_MAJOR;
+    ret.minor = GFXDEBUG_VERSION_MINOR;
+    if(GFXDEBUG_STABLE_BUILD)
       ret.commit = lit("stable");
     else
-      ret.commit = QString::fromUtf8(RENDERDOC_GetCommitHash());
+      ret.commit = QString::fromUtf8(GFXDEBUG_GetCommitHash());
     return ret;
   }
 
@@ -593,7 +593,7 @@ void PythonContext::GlobalInit(PersistentConfig &config)
   }
 #endif
 
-#if RENDERDOC_STABLE_BUILD == 0
+#if GFXDEBUG_STABLE_BUILD == 0
   // if we're running in the git checkout and we can find the test scripts, add that location to the
   // path
   {
@@ -963,8 +963,8 @@ except:
         Py_XDECREF(syspath);
 
         m_StubRD = PyImport_ImportModule(QFormatStr("v%1_%2.renderdoc")
-                                             .arg(RENDERDOC_VERSION_MAJOR)
-                                             .arg(RENDERDOC_VERSION_MINOR)
+                                             .arg(GFXDEBUG_VERSION_MAJOR)
+                                             .arg(GFXDEBUG_VERSION_MINOR)
                                              .toUtf8()
                                              .data());
 
@@ -975,8 +975,8 @@ except:
         }
 
         m_StubQRD = PyImport_ImportModule(QFormatStr("v%1_%2.qrenderdoc")
-                                              .arg(RENDERDOC_VERSION_MAJOR)
-                                              .arg(RENDERDOC_VERSION_MINOR)
+                                              .arg(GFXDEBUG_VERSION_MAJOR)
+                                              .arg(GFXDEBUG_VERSION_MINOR)
                                               .toUtf8()
                                               .data());
 
@@ -2320,7 +2320,7 @@ PyObject *PythonContext::outstream_write(PyObject *self, PyObject *args)
       }
 
       if(!message.empty())
-        RENDERDOC_LogMessage(redirector->isStdError ? LogType::Warning : LogType::Comment, "EXTN",
+        GFXDEBUG_LogMessage(redirector->isStdError ? LogType::Warning : LogType::Comment, "EXTN",
                              filename, line, message);
     }
   }
@@ -2737,7 +2737,7 @@ extern "C" void HandleException(PyObject *global_handle)
       filename = redirector->extension;
     }
 
-    RENDERDOC_LogMessage(LogType::Error, "EXTN", filename, linenum, exString);
+    GFXDEBUG_LogMessage(LogType::Error, "EXTN", filename, linenum, exString);
   }
 }
 
