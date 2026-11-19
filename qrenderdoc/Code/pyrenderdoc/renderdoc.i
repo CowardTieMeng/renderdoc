@@ -1,4 +1,4 @@
-%module renderdoc
+%module gfxdebug
 
 %feature("autodoc", "0");
 %feature("autodoc:noret", "1");
@@ -374,7 +374,7 @@ EXTEND_ARRAY_CLASS_METHODS(StructuredObjectList)
 EXTEND_ARRAY_CLASS_METHODS(StructuredBufferList)
 
 // If you get an error with add_your_use_of_rdcfixedarray_to_swig_interface missing, add your type here
-// or in qrenderdoc.i, depending on which one is appropriate
+// or in qgfxdebug.i, depending on which one is appropriate
 TEMPLATE_FIXEDARRAY_INSTANTIATE(rdcfixedarray, float, 2)
 TEMPLATE_FIXEDARRAY_INSTANTIATE(rdcfixedarray, float, 4)
 TEMPLATE_FIXEDARRAY_INSTANTIATE(rdcfixedarray, uint32_t, 2)
@@ -400,7 +400,7 @@ TEMPLATE_FIXEDARRAY_INSTANTIATE(rdcfixedarray, int8_t, 16)
 
 // list of array types. These are the concrete types used in rdcarray that will be bound
 // If you get an error with add_your_use_of_rdcarray_to_swig_interface missing, add your type here
-// or in qrenderdoc.i, depending on which one is appropriate
+// or in qgfxdebug.i, depending on which one is appropriate
 TEMPLATE_ARRAY_INSTANTIATE(rdcarray, int)
 TEMPLATE_ARRAY_INSTANTIATE(rdcarray, float)
 TEMPLATE_ARRAY_INSTANTIATE(rdcarray, uint32_t)

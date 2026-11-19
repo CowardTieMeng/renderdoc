@@ -93,7 +93,7 @@ public:
   void finish()
   {
     std::string msg = this->str();
-    GFXDEBUG_LogMessage(LogType::Comment, "EXTN", __FILE__, __LINE__, msg.c_str());
+    GFXDEBUG_LogMessage(LogType::Comment, "EXTN", "", __LINE__, msg.c_str());
     fputs(msg.c_str(), file);
   }
   virtual int sync() override
@@ -103,7 +103,7 @@ public:
     if(idx >= 0)
     {
       rdcstr msg = str.substr(0, idx + 1);
-      GFXDEBUG_LogMessage(LogType::Comment, "EXTN", __FILE__, __LINE__, msg);
+      GFXDEBUG_LogMessage(LogType::Comment, "EXTN", "", __LINE__, msg);
       fputs(msg.c_str(), file);
       str = str.substr(idx + 1);
       this->str("");
@@ -168,7 +168,7 @@ void sharedLogOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 static QString tr(const char *string)
 {
-  return QApplication::translate("qrenderdoc", string);
+  return QApplication::translate("qgfxdebug", string);
 }
 
 void hideOption(QCommandLineOption &opt)
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
   // an optimisation
   qputenv("QT_NO_SUBTRACTOPAQUESIBLINGS", lit("1").toUtf8());
 
-  qInfo() << "QRenderDoc initialising.";
+  qInfo() << "QGfxDebug initialising.";
 
   if(IsRunningAsAdmin())
     qInfo() << "Running as administrator";
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 
       Catch::Session session;
 
-      session.configData().name = "QRenderDoc";
+      session.configData().name = "QGfxDebug";
       session.configData().shouldDebugBreak = Catch::isDebuggerActive();
 
       ret = session.applyCommandLine(argc, mod_argv);
@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
   QApplication application(argc, argv);
 
   QCommandLineParser parser;
-  parser.setApplicationDescription(tr("Qt UI for RenderDoc"));
+  parser.setApplicationDescription(tr("Qt UI for GfxDebug"));
   QCommandLineOption helpOption = parser.addHelpOption();
   QCommandLineOption versionOption = parser.addVersionOption();
 
@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
 
   if(parser.isSet(versionOption))
   {
-    printf("QRenderDoc v%s (%s)\n", MAJOR_MINOR_VERSION_STRING, GFXDEBUG_GetCommitHash());
+    printf("QGfxDebug v%s (%s)\n", MAJOR_MINOR_VERSION_STRING, GFXDEBUG_GetCommitHash());
 #if defined(DISTRIBUTION_VERSION)
     printf("Packaged for %s - %s\n", DISTRIBUTION_NAME, DISTRIBUTION_CONTACT);
 #endif
@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
     qInfo() << "Finishing update as user";
     updateApplied = true;
 
-    // the renderdoccmd updater that runs us is from the old version, so older versions might be
+    // the gfxdebugcmd updater that runs us is from the old version, so older versions might be
     // running us as admin expecting the version number to be updated.
     // if we're not running as admin, this will immediately exit
     GFXDEBUG_UpdateInstalledVersionNumber();
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
       }
       Analytics::Prompt(ctx, config);
 
-      ANALYTIC_SET(Metadata.RenderDocVersion, lit(FULL_VERSION_STRING));
+      ANALYTIC_SET(Metadata.GfxDebugVersion, lit(FULL_VERSION_STRING));
 #if defined(DISTRIBUTION_VERSION)
       ANALYTIC_SET(Metadata.DistributionVersion, lit(DISTRIBUTION_NAME));
 #endif

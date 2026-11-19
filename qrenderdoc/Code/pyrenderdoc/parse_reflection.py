@@ -2171,7 +2171,7 @@ class PyReflector:
                 prefix_filter = node.id
                 while curscope is not None:
                     for k, v in curscope.identifiers.items():
-                        if k.startswith('_renderdoc'):
+                        if k.startswith('_gfxdebug'):
                             continue
                         if any([x.line <= line for x in v]):
                             ret.append(k)

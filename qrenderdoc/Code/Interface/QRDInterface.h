@@ -25,7 +25,7 @@
 #pragma once
 
 // don't add any Qt headers visible to SWIG, as we don't want a Qt dependency for the SWIG-generated
-// qrenderdoc module. Instead we should use public RDC types for any public QRenderDoc headers, and
+// qgfxdebug module. Instead we should use public RDC types for any public QGfxDebug headers, and
 // define conversions to/from Qt types. See rdcstr / QString, rdcpair / QPair, and
 // rdcdatetime / QDateTime.
 #include <functional>
@@ -82,7 +82,7 @@ class QMenu;
 
 #endif
 
-// we depend on the internal RenderDoc API, but the bindings for that are imported entirely
+// we depend on the internal GfxDebug API, but the bindings for that are imported entirely
 #include "renderdoc_replay.h"
 
 typedef rdcpair<rdcstr, rdcstr> rdcstrpair;
@@ -113,7 +113,7 @@ struct CaptureSettings
 
   DOCUMENT(R"(The settings for the capture.
   
-:type: renderdoc.CaptureOptions
+:type: gfxdebug.CaptureOptions
 )");
   CaptureOptions options;
   DOCUMENT(R"(``True`` if the described capture is an inject-into-process instead of a launched executable.
@@ -143,7 +143,7 @@ struct CaptureSettings
   rdcstr commandLine;
   DOCUMENT(R"(The environment changes to apply.
 
-:type: List[renderdoc.EnvironmentModification]
+:type: List[gfxdebug.EnvironmentModification]
 )");
   rdcarray<EnvironmentModification> environment;
   DOCUMENT(R"(The number of queued frames to capture, or 0 if no frames are queued to be captured.
@@ -212,7 +212,7 @@ a given connection, but two connections may have the same ID.
 )");
   rdcdatetime timestamp;
 
-  DOCUMENT(R"(The frame number which was captured. May be ``-1`` if the capture was made via the RenderDoc
+  DOCUMENT(R"(The frame number which was captured. May be ``-1`` if the capture was made via the GfxDebug
 API.
 
 :type: int
@@ -238,7 +238,7 @@ struct IMainWindow
   typedef std::function<void(QWidget *focusWidget)> ShortcutCallback;
 
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`MainWindow` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -319,9 +319,9 @@ This window is retrieved by calling :meth:`CaptureContext.GetEventBrowser`.
   :param CaptureContext context: The current capture context.
   :param str filter: The name of the filter function.
   :param str params: The parameters to the filter function.
-  :param int eventId: The event's :data:`eventId <renderdoc.APIEvent.eventId>`.
-  :param renderdoc.SDChunk chunk: The structured data chunk for this event.
-  :param renderdoc.ActionDescription action: The action that contains this event. If the event is
+  :param int eventId: The event's :data:`eventId <gfxdebug.APIEvent.eventId>`.
+  :param gfxdebug.SDChunk chunk: The structured data chunk for this event.
+  :param gfxdebug.ActionDescription action: The action that contains this event. If the event is
     the action itself then the event ID will be equal.
   :param str name: The name of the event as shown in the event browser, for string-based filtering.
   :return: Whether or not this event matches the filter
@@ -373,7 +373,7 @@ struct IEventBrowser
       AutoCompleteCallback;
 
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`EventBrowser` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -384,7 +384,7 @@ QWidget.
   DOCUMENT("Updates the duration column if the selected time unit changes.");
   virtual void UpdateDurationColumn() = 0;
 
-  DOCUMENT(R"(Uses the existing caching in the event browser to return a :class:`~renderdoc.APIEvent`
+  DOCUMENT(R"(Uses the existing caching in the event browser to return a :class:`~gfxdebug.APIEvent`
 for a specified EID.
 
 If no capture is loaded or the EID doesn't correspond to a known event, an empty struct will be
@@ -392,12 +392,12 @@ returned.
 
 :param int eventId: The EID to look up.
 :return: The event corresponding to the EID, or an empty struct if no such EID exists.
-:rtype: renderdoc.APIEvent
+:rtype: gfxdebug.APIEvent
 )");
   virtual APIEvent GetAPIEventForEID(uint32_t eventId) = 0;
 
   DOCUMENT(R"(Uses the existing caching in the event browser to return a
-:class:`~renderdoc.ActionDescription` for a specified EID. This action may not be the exact EID
+:class:`~gfxdebug.ActionDescription` for a specified EID. This action may not be the exact EID
 specified, but it will be the action that the EID is associated with. I.e. if you specify the EID for
 a state setting event the next action will be returned.
 
@@ -405,7 +405,7 @@ If no capture is loaded or the EID doesn't correspond to a known event, ``None``
 
 :param int eventId: The EID to look up.
 :return: The action containing the EID, or ``None`` if no such EID exists.
-:rtype: Optional[renderdoc.ActionDescription]
+:rtype: Optional[gfxdebug.ActionDescription]
 )");
   virtual const ActionDescription *GetActionForEID(uint32_t eventId) = 0;
 
@@ -447,7 +447,7 @@ expression.
 :param str description: The description of the filter function. This should explain the available
   parameters (if applicable) and what the filter does. It will be used for documenting to users
   what each filter means.
-:param Callable[[CaptureContext,str,str,int,renderdoc.SDChunk,renderdoc.ActionDescription,str], bool] filter: The
+:param Callable[[CaptureContext,str,str,int,gfxdebug.SDChunk,gfxdebug.ActionDescription,str], bool] filter: The
   callback to call for each candidate event to perform filtering.
   Callback function signature must match :func:`EventFilterCallback`.
 :param Optional[Callable[[CaptureContext,str,str], str]] parser=None: **Optional parameter**. The callback to
@@ -565,7 +565,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetAPIInspector`.
 struct IAPIInspector
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`APIInspector` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -578,7 +578,7 @@ QWidget.
 
   DOCUMENT(R"(Expand the API view to reveal a given parameter and select it.
 
-:param renderdoc.SDObject param: The parameter to reveal and select.
+:param gfxdebug.SDObject param: The parameter to reveal and select.
 )");
   virtual void RevealParameter(SDObject *param) = 0;
 
@@ -596,7 +596,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetAnnotationViewer`.
 struct IAnnotationViewer
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`AnnotationViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -721,7 +721,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetPipelineViewer`.
 struct IPipelineStateViewer
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`PipelineStateViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -731,7 +731,7 @@ QWidget.
 
   DOCUMENT(R"(Prompt the user to save the binary form of the given shader to disk.
 
-:param renderdoc.ShaderReflection shader: The shader reflection data to save.
+:param gfxdebug.ShaderReflection shader: The shader reflection data to save.
 :return: ``True`` if the shader was saved successfully, ``False`` if an error occurred.
 :rtype: bool
 )");
@@ -763,13 +763,13 @@ DOCUMENT(R"(Specifies a type of followed resource for the :class:`TextureViewer`
 .. data:: ReadWrite
 
   The index specifies a resource within the given shader's
-  :data:`~renderdoc.ShaderReflection.readWriteResources`. The array element
+  :data:`~gfxdebug.ShaderReflection.readWriteResources`. The array element
   then specifies the index within that resource's array, if applicable.
 
 .. data:: ReadOnly
 
   The index specifies a resource within the given shader's
-  :data:`~renderdoc.ShaderReflection.readOnlyResources`. The array element
+  :data:`~gfxdebug.ShaderReflection.readOnlyResources`. The array element
   then specifies the index within that resource's array, if applicable.
 
 .. data:: OutputDepthResolve
@@ -792,7 +792,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetTextureViewer`.
 struct ITextureViewer
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`TextureViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -802,9 +802,9 @@ QWidget.
 
   DOCUMENT(R"(Open a texture view, optionally raising this window to the foreground.
 
-:param renderdoc.ResourceId resourceId: The ID of the texture to view.
-:param renderdoc.CompType typeCast: If possible interpret the texture with this type instead of its
-  normal type. If set to :data:`~renderdoc.CompType.Typeless` then no cast is applied, otherwise
+:param gfxdebug.ResourceId resourceId: The ID of the texture to view.
+:param gfxdebug.CompType typeCast: If possible interpret the texture with this type instead of its
+  normal type. If set to :data:`~gfxdebug.CompType.Typeless` then no cast is applied, otherwise
   where allowed the texture data will be reinterpreted - e.g. from unsigned integers to floats, or
   to unsigned normalised values.
 :param bool focus: ``True`` if the :class:`TextureViewer` should be raised.
@@ -814,7 +814,7 @@ QWidget.
   DOCUMENT(R"(Select the 'following' view and choose which resource slot to follow.
 
 :param FollowType followType: The type of followed resource.
-:param renderdoc.ShaderStage stage: The shader stage of the shader reflection data to look up.
+:param gfxdebug.ShaderStage stage: The shader stage of the shader reflection data to look up.
 :param int index: The index within the given resource list (if applicable) to follow.
 :param int arrayElement: The index within the given resource array (if applicable) to follow.
 )");
@@ -824,21 +824,21 @@ QWidget.
   DOCUMENT(R"(Return which resource is currently being displayed in the active tab.
 
 :return: The ID of the resource being displayed.
-:rtype: renderdoc.ResourceId
+:rtype: gfxdebug.ResourceId
 )");
   virtual ResourceId GetCurrentResource() = 0;
 
   DOCUMENT(R"(Return which subresource is currently selected for viewing.
 
 :return: The subresource currently selected.
-:rtype: renderdoc.Subresource
+:rtype: gfxdebug.Subresource
 )");
   virtual Subresource GetSelectedSubresource() = 0;
 
   DOCUMENT(R"(Select a particular subresource within the currently selected texture. Any out of
 bounds parameters will be clamped to the available subresources.
 
-:param renderdoc.Subresource sub: The subresource to select.
+:param gfxdebug.Subresource sub: The subresource to select.
 )");
   virtual void SetSelectedSubresource(Subresource sub) = 0;
 
@@ -861,13 +861,13 @@ If no location is currently selected or there is no current texture, this will r
   DOCUMENT(R"(Return the currently selected texture overlay.
 
 :return: The currently selected texture overlay.
-:rtype: renderdoc.DebugOverlay
+:rtype: gfxdebug.DebugOverlay
 )");
   virtual DebugOverlay GetTextureOverlay() = 0;
 
   DOCUMENT(R"(Changes the currently selected overlay the given pixel location in the current texture.
 
-:param renderdoc.DebugOverlay overlay: The overlay to enable.
+:param gfxdebug.DebugOverlay overlay: The overlay to enable.
 )");
   virtual void SetTextureOverlay(DebugOverlay overlay) = 0;
 
@@ -881,7 +881,7 @@ If no location is currently selected or there is no current texture, this will r
   DOCUMENT(R"(Return the currently configured texture display structure.
 
 :return: The current texture display.
-:rtype: renderdoc.TextureDisplay
+:rtype: gfxdebug.TextureDisplay
 )");
   virtual TextureDisplay GetTextureDisplay() = 0;
 
@@ -959,7 +959,7 @@ A raw buffer viewer can be opened by calling :meth:`CaptureContext.ViewBuffer`,
 struct IBufferViewer
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`BufferViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -970,7 +970,7 @@ QWidget.
   DOCUMENT(R"(Scroll to the given row in the given stage's data.
 
 :param int row: the row to scroll to.
-:param renderdoc.MeshDataStage stage=renderdoc.MeshDataStage.VSIn: **Optional parameter**. The stage of the
+:param gfxdebug.MeshDataStage stage=gfxdebug.MeshDataStage.VSIn: **Optional parameter**. The stage of the
   geometry pipeline to scroll within. Ignored for non-mesh buffer viewers.
 )");
   virtual void ScrollToRow(int32_t row, MeshDataStage stage = MeshDataStage::VSIn) = 0;
@@ -978,14 +978,14 @@ QWidget.
   DOCUMENT(R"(Scroll to the given column in the given stage's data.
 
 :param int column: the column to scroll to.
-:param renderdoc.MeshDataStage stage=renderdoc.MeshDataStage.VSIn: **Optional parameter**. The stage of the
+:param gfxdebug.MeshDataStage stage=gfxdebug.MeshDataStage.VSIn: **Optional parameter**. The stage of the
   geometry pipeline to scroll within. Ignored for non-mesh buffer viewers.
 )");
   virtual void ScrollToColumn(int32_t column, MeshDataStage stage = MeshDataStage::VSIn) = 0;
 
   DOCUMENT(R"(Ensure the given stage's data is visible and raised, if it wasn't before.
 
-:param renderdoc.MeshDataStage stage: The stage of the geometry pipeline to show data for.
+:param gfxdebug.MeshDataStage stage: The stage of the geometry pipeline to show data for.
 )");
   virtual void ShowMeshData(MeshDataStage stage) = 0;
 
@@ -1006,7 +1006,7 @@ buffer view.
   DOCUMENT(R"(For a mesh view, set the current preview stage. This is ignored when called on a raw
 buffer view.
 
-:param renderdoc.MeshDataStage stage: The stage to show
+:param gfxdebug.MeshDataStage stage: The stage to show
 )");
   virtual void SetPreviewStage(MeshDataStage stage) = 0;
 
@@ -1024,7 +1024,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetResourceInspector`.
 struct IResourceInspector
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`ResourceInspector` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1034,20 +1034,20 @@ QWidget.
 
   DOCUMENT(R"(Change the current resource being inspected.
 
-:param renderdoc.ResourceId id: The ID of the resource to inspect.
+:param gfxdebug.ResourceId id: The ID of the resource to inspect.
 )");
   virtual void Inspect(ResourceId id) = 0;
 
   DOCUMENT(R"(Return which resource is currently being inspected.
 
 :return: The ID of the resource being inspected.
-:rtype: renderdoc.ResourceId
+:rtype: gfxdebug.ResourceId
 )");
   virtual ResourceId CurrentResource() = 0;
 
   DOCUMENT(R"(Expand the resource initialisation chunks to reveal and select a given parameter.
 
-:param renderdoc.SDObject param: The parameter to reveal and select.
+:param gfxdebug.SDObject param: The parameter to reveal and select.
 )");
   virtual void RevealParameter(SDObject *param) = 0;
 
@@ -1078,7 +1078,7 @@ struct ICaptureConnection
   typedef std::function<void(ICaptureConnection *)> ClosedCallback;
 
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`CaptureConnection` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1117,8 +1117,8 @@ itself automatically.
   DOCUMENT(R"(Lists the names of APIs that have been used in the program. These APIs may not all
 be actively in use, as APIs are not removed from this list once they have been observed.
 
-Note that some APIs may be listed here that RenderDoc does not support, but does recognise. You
-should not assume that these names will match those in the :class:`~renderdoc.GraphicsAPI` enum.
+Note that some APIs may be listed here that GfxDebug does not support, but does recognise. You
+should not assume that these names will match those in the :class:`~gfxdebug.GraphicsAPI` enum.
 
 :return: The set of API names that have been used in the program.
 :rtype: List[str]
@@ -1274,7 +1274,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetCaptureDialog`.
 struct ICaptureDialog
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`CaptureDialog` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1314,7 +1314,7 @@ QWidget.
 
   DOCUMENT(R"(Sets the list of environment modifications to apply when launching.
 
-:param List[renderdoc.EnvironmentModification] modifications: The list of modifications to apply.
+:param List[gfxdebug.EnvironmentModification] modifications: The list of modifications to apply.
 )");
   virtual void SetEnvironmentModifications(const rdcarray<EnvironmentModification> &modifications) = 0;
 
@@ -1370,7 +1370,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetDebugMessageView`.
 struct IDebugMessageView
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`DebugMessageView` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1392,7 +1392,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetDiagnosticLogView`.
 struct IDiagnosticLogView
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`DiagnosticLogView` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1414,7 +1414,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetCommentView`.
 struct ICommentView
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`CommentView` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1449,7 +1449,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetStatisticsViewer`.
 struct IStatisticsViewer
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`StatisticsViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1469,7 +1469,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetTimelineBar`.
 struct ITimelineBar
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`TimelineBar` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1479,14 +1479,14 @@ QWidget.
 
   DOCUMENT(R"(Highlights the frame usage of the specified resource.
 
-:param renderdoc.ResourceId id: The ID of the resource to highlight.
+:param gfxdebug.ResourceId id: The ID of the resource to highlight.
 )");
   virtual void HighlightResourceUsage(ResourceId id) = 0;
 
   DOCUMENT(R"(Highlights the modifications in a frame of a given resource.
 
-:param renderdoc.ResourceId id: The ID of the resource that is being modified.
-:param List[renderdoc.PixelModification] history: A list of pixel events to display.
+:param gfxdebug.ResourceId id: The ID of the resource that is being modified.
+:param List[gfxdebug.PixelModification] history: A list of pixel events to display.
 )");
   virtual void HighlightHistory(ResourceId id, const rdcarray<PixelModification> &history) = 0;
 
@@ -1504,7 +1504,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetPerformanceCounterV
 struct IPerformanceCounterViewer
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`PerformanceCounterViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1529,7 +1529,7 @@ This window is retrieved by calling :meth:`CaptureContext.GetPythonShell`.
 struct IPythonShell
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`PythonShell` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1651,10 +1651,10 @@ This window is retrieved by calling :meth:`CaptureContext.ViewShader`,
 
   :param CaptureContext context: The current capture context.
   :param ShaderViewer viewer: The open shader viewer.
-  :param renderdoc.ResourceId id: The id of the shader being replaced.
-  :param renderdoc.ShaderStage stage: The shader stage of the shader being replaced.
-  :param renderdoc.ShaderEncoding encoding: The encoding of the files being passed.
-  :param renderdoc.ShaderCompileFlags flags: The flags to use during compilation.
+  :param gfxdebug.ResourceId id: The id of the shader being replaced.
+  :param gfxdebug.ShaderStage stage: The shader stage of the shader being replaced.
+  :param gfxdebug.ShaderEncoding encoding: The encoding of the files being passed.
+  :param gfxdebug.ShaderCompileFlags flags: The flags to use during compilation.
   :param str entryFunc: The name of the entry point.
   :param bytes source: The byte buffer containing the source - may just be text depending on the
     encoding.
@@ -1667,7 +1667,7 @@ This window is retrieved by calling :meth:`CaptureContext.ViewShader`,
 
   :param CaptureContext context: The current capture context.
   :param ShaderViewer viewer: The open shader viewer.
-  :param renderdoc.ResourceId id: The id of the shader being replaced.
+  :param gfxdebug.ResourceId id: The id of the shader being replaced.
 )");
 struct IShaderViewer
 {
@@ -1677,7 +1677,7 @@ struct IShaderViewer
   typedef std::function<void(ICaptureContext *, IShaderViewer *, ResourceId)> RevertCallback;
 
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`ShaderViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1749,7 +1749,7 @@ This window is retrieved by calling :meth:`CaptureContext.ViewShaderMessages`.
 struct IShaderMessageViewer
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`ShaderMessageViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1767,7 +1767,7 @@ QWidget.
   DOCUMENT(R"(Return the shader messages displayed in this viewer.
 
 :return: The shader messages.
-:rtype: List[renderdoc.ShaderMessage]
+:rtype: List[gfxdebug.ShaderMessage]
 )");
   virtual rdcarray<ShaderMessage> GetShaderMessages() = 0;
 
@@ -1793,7 +1793,7 @@ This window is retrieved by calling :meth:`CaptureContext.ViewDescriptorStore` o
 struct IDescriptorViewer
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`DescriptorViewer` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1815,7 +1815,7 @@ This window is retrieved by calling :meth:`CaptureContext.ViewPixelHistory`.
 struct IPixelHistoryView
 {
   DOCUMENT(R"(Retrieves the PySide2 QWidget for this :class:`PixelHistoryView` if PySide2 is available, or otherwise
-returns a unique opaque pointer that can be passed back to any RenderDoc functions expecting a
+returns a unique opaque pointer that can be passed back to any GfxDebug functions expecting a
 QWidget.
 
 :return: Return the widget handle, either a PySide2 handle or an opaque handle.
@@ -1825,7 +1825,7 @@ QWidget.
 
   DOCUMENT(R"(Set the history displayed in this window.
 
-:param List[renderdoc.PixelModification] history: A list of pixel events to display.
+:param List[gfxdebug.PixelModification] history: A list of pixel events to display.
 )");
   virtual void SetHistory(const rdcarray<PixelModification> &history) = 0;
 
@@ -1870,21 +1870,21 @@ effective current event, since for example selecting a marker region will change
 to be the last event inside that region, to be consistent with selecting an item reflecting the
 current state after that item.
 
-The selected event shows the :data:`eventId <renderdoc.APIEvent.eventId>` that was actually selected,
+The selected event shows the :data:`eventId <gfxdebug.APIEvent.eventId>` that was actually selected,
 which will usually but not always be the same as the current effective
-:data:`eventId <renderdoc.APIEvent.eventId>`.
+:data:`eventId <gfxdebug.APIEvent.eventId>`.
 
 The distinction for this callback is not normally desired, instead use :meth:`OnEventChanged` to
 be notified whenever the current event changes. The API inspector uses this to display API events up
 to a marker region.
 
-:param int eventId: The new :data:`eventId <renderdoc.APIEvent.eventId>`.
+:param int eventId: The new :data:`eventId <gfxdebug.APIEvent.eventId>`.
 )");
   virtual void OnSelectedEventChanged(uint32_t eventId) = 0;
 
   DOCUMENT(R"(Called whenever the effective current event changes.
 
-:param int eventId: The new :data:`eventId <renderdoc.APIEvent.eventId>`.
+:param int eventId: The new :data:`eventId <gfxdebug.APIEvent.eventId>`.
 )");
   virtual void OnEventChanged(uint32_t eventId) = 0;
 
@@ -1898,7 +1898,7 @@ DECLARE_REFLECTION_STRUCT(ICaptureViewer *);
 
 DOCUMENT(R"(A manager for accessing the underlying replay information that isn't already abstracted
 in UI side structures. This manager controls and serialises access to the underlying
-:class:`~renderdoc.ReplayController`, as well as handling remote server connections.
+:class:`~gfxdebug.ReplayController`, as well as handling remote server connections.
 
 This manager is retrieved by calling :meth:`CaptureContext.Replay`.
 
@@ -1906,7 +1906,7 @@ This manager is retrieved by calling :meth:`CaptureContext.Replay`.
 
   Not a member function - the signature for any ``ReplayInvokeCallback`` callbacks.
 
-  :param renderdoc.ReplayController controller: The controller to access. Must not be cached or
+  :param gfxdebug.ReplayController controller: The controller to access. Must not be cached or
     used after the callback returns.
 
 .. function:: DirectoryBrowseCallback(path, entries)
@@ -1914,7 +1914,7 @@ This manager is retrieved by calling :meth:`CaptureContext.Replay`.
   Not a member function - the signature for any ``DirectoryBrowseCallback`` callbacks.
 
   :param str path: The path that was queried for.
-  :param List[renderdoc.PathEntry] entries: The entries underneath the path, as relevant.
+  :param List[gfxdebug.PathEntry] entries: The entries underneath the path, as relevant.
 )");
 struct IReplayManager
 {
@@ -1932,7 +1932,7 @@ struct IReplayManager
 
 :param RemoteHost host: The host to connect to.
 :return: Whether or not the connection was successful.
-:rtype: renderdoc.ResultDetails
+:rtype: gfxdebug.ResultDetails
 )");
   virtual ResultDetails ConnectToRemoteServer(RemoteHost host) = 0;
 
@@ -1945,7 +1945,7 @@ struct IReplayManager
   DOCUMENT("Ping the remote server to ensure the connection is still alive.");
   virtual void PingRemote() = 0;
 
-  DOCUMENT("Cancels the active replay loop. See :meth:`~renderdoc.ReplayController.ReplayLoop`.");
+  DOCUMENT("Cancels the active replay loop. See :meth:`~gfxdebug.ReplayController.ReplayLoop`.");
   virtual void CancelReplayLoop() = 0;
 
   DOCUMENT(R"(Retrieves the host that the manager is currently connected to.
@@ -1958,7 +1958,7 @@ struct IReplayManager
   DOCUMENT(R"(Retrieves the capture access handle for the currently open file.
 
 :return: The file handle active, or ``None`` if no capture is open.
-:rtype: Optional[renderdoc.CaptureAccess]
+:rtype: Optional[gfxdebug.CaptureAccess]
 )");
   virtual ICaptureAccess *GetCaptureAccess() = 0;
 
@@ -1969,7 +1969,7 @@ will be usable.
 
 :return: The file handle active, or ``None`` if no capture is open or the capture is only available
   remotely.
-:rtype: Optional[renderdoc.CaptureFile]
+:rtype: Optional[gfxdebug.CaptureFile]
 )");
   virtual ICaptureFile *GetCaptureFile() = 0;
 
@@ -1982,14 +1982,14 @@ This happens either locally, or on the remote server, depending on whether a con
   directory containing the executable is used.
 :param str cmdLine: The command line to use when running the executable, it will be processed in a
   platform specific way to generate arguments.
-:param List[renderdoc.EnvironmentModification] env: Any environment changes that should be made when
+:param List[gfxdebug.EnvironmentModification] env: Any environment changes that should be made when
   running the program.
 :param str capturefile: The location to save any captures, if running locally.
-:param renderdoc.CaptureOptions opts: The capture options to use when injecting into the program.
-:return: The :class:`~renderdoc.ExecuteResult` indicating both the status of the operation (success
+:param gfxdebug.CaptureOptions opts: The capture options to use when injecting into the program.
+:return: The :class:`~gfxdebug.ExecuteResult` indicating both the status of the operation (success
   or failure) and any reason for failure, or else the ident where the new application is listening
   for target control if everything succeeded.
-:rtype: renderdoc.ExecuteResult
+:rtype: gfxdebug.ExecuteResult
 )");
   virtual ExecuteResult ExecuteAndInject(const rdcstr &exe, const rdcstr &workingDir,
                                          const rdcstr &cmdLine,
@@ -2010,7 +2010,7 @@ blocking fashion on the current thread.
 
 :param bool synchronous: If a capture is open, then ``True`` will use :meth:`BlockInvoke` to call
   the callback. Otherwise if ``False`` then :meth:`AsyncInvoke` will be used.
-:param Callable[[str, List[renderdoc.PathEntry]], None] callback: The function to callback on the
+:param Callable[[str, List[gfxdebug.PathEntry]], None] callback: The function to callback on the
   replay thread.
   Callback function signature must match :func:`DirectoryBrowseCallback`.
 )");
@@ -2024,7 +2024,7 @@ blocking fashion on the current thread.
 :param str path: The path to query the contents of.
 :param bool synchronous: If a capture is open, then ``True`` will use :meth:`BlockInvoke` to call
   the callback. Otherwise if ``False`` then :meth:`AsyncInvoke` will be used.
-:param Callable[[str, List[renderdoc.PathEntry]], None] callback: The function to callback on the
+:param Callable[[str, List[gfxdebug.PathEntry]], None] callback: The function to callback on the
   replay thread.
   Callback function signature must match :func:`DirectoryBrowseCallback`.
 )");
@@ -2073,7 +2073,7 @@ new tagged invoke comes in, we remove any other requests in the queue before it 
 
 If no tag is present, the callback will be processed as normal.
 
-:param Callable[[renderdoc.ReplayController], None] method: The function to callback on the replay thread.
+:param Callable[[gfxdebug.ReplayController], None] method: The function to callback on the replay thread.
   Callback function signature must match :func:`ReplayInvokeCallback`.
 :param str tag="": **Optional parameter**. The tag to identify this callback.
 )");
@@ -2093,7 +2093,7 @@ If no tag is present, the callback will be processed as normal.
   // same docstring.
   DOCUMENT(R"(Make a blocking invoke call onto the replay thread.
 
-:param Callable[[renderdoc.ReplayController], None] method: The function to callback on the replay thread.
+:param Callable[[gfxdebug.ReplayController], None] method: The function to callback on the replay thread.
   Callback function signature must match :func:`ReplayInvokeCallback`.
 )");
   virtual void BlockInvoke(ReplayInvokeCallback method) = 0;
@@ -2284,7 +2284,7 @@ A description of a bookmark on an event
 )");
 struct EventBookmark
 {
-  DOCUMENT(R"(The :data:`eventId <renderdoc.APIEvent.eventId>` at which this bookmark is placed.
+  DOCUMENT(R"(The :data:`eventId <gfxdebug.APIEvent.eventId>` at which this bookmark is placed.
 
 :type: int
 )");
@@ -2310,19 +2310,19 @@ DECLARE_REFLECTION_STRUCT(EventBookmark);
 DOCUMENT("Controlling interface for interop with RGP tool.");
 struct IRGPInterop
 {
-  DOCUMENT(R"(Return true if the given :data:`eventId <renderdoc.APIEvent.eventId>` has and
+  DOCUMENT(R"(Return true if the given :data:`eventId <gfxdebug.APIEvent.eventId>` has and
 equivalent in RGP.
 
-:param int eventId: The :data:`eventId <renderdoc.APIEvent.eventId>` to query for.
+:param int eventId: The :data:`eventId <gfxdebug.APIEvent.eventId>` to query for.
 :return: ``True`` if there is an equivalent. This only confirms the equivalent exists, not that it
   will be selectable in all cases.
 :rtype: bool
 )");
   virtual bool HasRGPEvent(uint32_t eventId) = 0;
 
-  DOCUMENT(R"(Select the given :data:`eventId <renderdoc.APIEvent.eventId>` equivalent in RGP.
+  DOCUMENT(R"(Select the given :data:`eventId <gfxdebug.APIEvent.eventId>` equivalent in RGP.
 
-:param int eventId: The :data:`eventId <renderdoc.APIEvent.eventId>` to query for.
+:param int eventId: The :data:`eventId <gfxdebug.APIEvent.eventId>` to query for.
 :return: ``True`` if the selection request succeeded. This only confirms the request was sent, not
   that the event was selected in RGP.
 :rtype: bool
@@ -2341,7 +2341,7 @@ DECLARE_REFLECTION_STRUCT(IRGPInterop);
 DOCUMENT(R"(
 The capture context that the python script is running in.
 
-Available as a ``pyrenderdoc`` global variable in any python scripts run from RenderDoc's UI.
+Available as a ``pygfxdebug`` global variable in any python scripts run from GfxDebug's UI.
 )")
 struct ICaptureContext
 {
@@ -2357,7 +2357,7 @@ data.
   DOCUMENT(R"(Open a capture file for replay.
 
 :param str captureFile: The actual path to the capture file.
-:param renderdoc.ReplayOptions opts: The options controlling how the capture should be replayed.
+:param gfxdebug.ReplayOptions opts: The options controlling how the capture should be replayed.
 :param str origFilename: The original filename, if the capture was copied remotely for replay.
 :param bool temporary: ``True`` if this is a temporary capture which should prompt the user for
   either save or delete on close.
@@ -2387,13 +2387,13 @@ time.
   virtual void CloseCapture() = 0;
 
   //////////////////////////////////////////////////////////////
-  DOCUMENT(R"(Returns a blocking version of :class:`renderdoc.ReplayController`, which provides the
+  DOCUMENT(R"(Returns a blocking version of :class:`gfxdebug.ReplayController`, which provides the
 same interface but will block for all calls and run them on the correct replay thread. This is
 provided only as a convenience to avoid calling :meth:`Replay` to obtain the
 :class:`ReplayManager` and use that to directly invoke asynchronously or synchronously onto the
 replay thread.
 
-This function will return ``None`` if no :class:`renderdoc.ReplayController` is available, for
+This function will return ``None`` if no :class:`gfxdebug.ReplayController` is available, for
 example if there is no capture loaded.
 
 The returned object *must not* be used if the capture is closed for any reason. It is strongly
@@ -2403,8 +2403,8 @@ recommended that you do not cache this object and use it only in local areas of 
   Care should be taken to ensure that this object is not confused with any other controller that is
   non-blocking.
 
-:return: A blocking version of the :class:`renderdoc.ReplayController`.
-:rtype: Optional[renderdoc.ReplayController]
+:return: A blocking version of the :class:`gfxdebug.ReplayController`.
+:rtype: Optional[gfxdebug.ReplayController]
 )");
   //////////////////////////////////////////////////////////////
   // This function is implemented only for python! it will return NULL unconditionally
@@ -2417,7 +2417,7 @@ This converts the file to a specified temporary .rdc and loads it, closing any e
 
 The capture must be available locally, if it's not this function will fail.
 
-:param renderdoc.CaptureFileFormat fmt: The capture file format to import from.
+:param gfxdebug.CaptureFileFormat fmt: The capture file format to import from.
 :param str importfile: The path to import from.
 :param str rdcfile: The temporary path to save the rdc file to.
 :return: ``True`` if the import operation was successful and the capture was loaded.
@@ -2430,7 +2430,7 @@ The capture must be available locally, if it's not this function will fail.
 
 The capture must be available locally, if it's not this function will fail.
 
-:param renderdoc.CaptureFileFormat fmt: The capture file format to export to.
+:param gfxdebug.CaptureFileFormat fmt: The capture file format to export to.
 :param str exportfile: The path to export the capture file to.
 )");
   virtual void ExportCapture(const CaptureFileFormat &fmt, const rdcstr &exportfile) = 0;
@@ -2439,12 +2439,12 @@ The capture must be available locally, if it's not this function will fail.
 
 :param List[CaptureViewer] exclude: A list of viewers to exclude from being notified of this change,
   to stop infinite recursion.
-:param int selectedEventId: The selected :data:`eventId <renderdoc.APIEvent.eventId>`. See
+:param int selectedEventId: The selected :data:`eventId <gfxdebug.APIEvent.eventId>`. See
   :meth:`CaptureViewer.OnSelectedEventChanged` for more information.
-:param int eventId: The new current :data:`eventId <renderdoc.APIEvent.eventId>`. See
+:param int eventId: The new current :data:`eventId <gfxdebug.APIEvent.eventId>`. See
   :meth:`CaptureViewer.OnEventChanged` for more information.
 :param bool force=False: **Optional parameter**. if ``True`` then the replay will 'move' even if it is moving
-  to the same :data:`eventId <renderdoc.APIEvent.eventId>` as it's currently on.
+  to the same :data:`eventId <gfxdebug.APIEvent.eventId>` as it's currently on.
 )");
   virtual void SetEventID(const rdcarray<ICaptureViewer *> &exclude, uint32_t selectedEventId,
                           uint32_t eventId, bool force = false) = 0;
@@ -2455,7 +2455,7 @@ been made.
 
   DOCUMENT(R"(Determine if a resource has been replaced. See :meth:`RegisterReplacement`.
 
-:param renderdoc.ResourceId id: The id of the resource to check.
+:param gfxdebug.ResourceId id: The id of the resource to check.
 :return: ``True`` if the resource has been replaced.
 :rtype: bool
 )");
@@ -2464,30 +2464,30 @@ been made.
   DOCUMENT(R"(Return the id of a replacement for the given resource. See
 :meth:`RegisterReplacement` and :meth:`IsResourceReplaced`.
 
-:param renderdoc.ResourceId id: The id of the resource to check.
+:param gfxdebug.ResourceId id: The id of the resource to check.
 :return: The replacement id, or a null id if the resource hasn't been replaced
-:rtype: renderdoc.ResourceId
+:rtype: gfxdebug.ResourceId
 )");
   virtual ResourceId GetResourceReplacement(ResourceId id) = 0;
 
   DOCUMENT(R"(Register that a resource has replaced, so that the UI can be updated to reflect the
 change.
 
-This should be called at the same time as :meth:`~renderdoc.ReplayController.ReplaceResource`.
+This should be called at the same time as :meth:`~gfxdebug.ReplayController.ReplaceResource`.
 
-:param renderdoc.ResourceId from: The id of the resource being replaced.
-:param renderdoc.ResourceId to: The id of the resource replacing it.
+:param gfxdebug.ResourceId from: The id of the resource being replaced.
+:param gfxdebug.ResourceId to: The id of the resource replacing it.
 )");
   virtual void RegisterReplacement(ResourceId from, ResourceId to) = 0;
 
   DOCUMENT(R"(Register that a replacement has been removed, so that the UI can be updated to reflect
 the change.
 
-This should be called at the same time as :meth:`~renderdoc.ReplayController.RemoveReplacement`.
+This should be called at the same time as :meth:`~gfxdebug.ReplayController.RemoveReplacement`.
 
 See :meth:`RegisterReplacement`.
 
-:param renderdoc.ResourceId id: The id of the original resource that was previously replaced.
+:param gfxdebug.ResourceId id: The id of the original resource that was previously replaced.
 )");
   virtual void UnregisterReplacement(ResourceId id) = 0;
 
@@ -2506,7 +2506,7 @@ See :meth:`RegisterReplacement`.
   //////////////////////////////////////////////////////////////////////////////
   // Accessors
 
-  DOCUMENT(R"(Retrieve the replay manager for access to the internal RenderDoc replay controller.
+  DOCUMENT(R"(Retrieve the replay manager for access to the internal GfxDebug replay controller.
 
 :return: The current replay manager.
 :rtype: ReplayManager
@@ -2553,7 +2553,7 @@ temporary and treated like any other capture.
   DOCUMENT(R"(If a capture is loaded, return the current fatal error status.
 
 :return: If a capture is currently loaded, return the fatal error status.
-:rtype: renderdoc.ResultDetails
+:rtype: gfxdebug.ResultDetails
 )");
   virtual ResultDetails GetFatalError() = 0;
 
@@ -2572,48 +2572,48 @@ the UI which aren't reflected in the capture file on disk.
 )");
   virtual CaptureModifications GetCaptureModifications() = 0;
 
-  DOCUMENT(R"(Retrieve the :class:`~renderdoc.FrameDescription` for the currently loaded capture.
+  DOCUMENT(R"(Retrieve the :class:`~gfxdebug.FrameDescription` for the currently loaded capture.
 
 :return: The frame information.
-:rtype: renderdoc.FrameDescription
+:rtype: gfxdebug.FrameDescription
 )");
   virtual FrameDescription FrameInfo() = 0;
 
-  DOCUMENT(R"(Retrieve the :class:`~renderdoc.APIProperties` for the currently loaded capture.
+  DOCUMENT(R"(Retrieve the :class:`~gfxdebug.APIProperties` for the currently loaded capture.
 
 :return: The API properties.
-:rtype: renderdoc.APIProperties
+:rtype: gfxdebug.APIProperties
 )");
   virtual APIProperties APIProps() = 0;
 
-  DOCUMENT(R"(Retrieve the list of :class:`~renderdoc.ShaderEncoding` that are available for
+  DOCUMENT(R"(Retrieve the list of :class:`~gfxdebug.ShaderEncoding` that are available for
 building target shaders for the currently loaded capture. See
-:meth:`~renderdoc.ReplayController.BuildTargetShader`.
+:meth:`~gfxdebug.ReplayController.BuildTargetShader`.
 
 :return: The available encodings.
-:rtype: List[renderdoc.ShaderEncoding]
+:rtype: List[gfxdebug.ShaderEncoding]
 )");
   virtual rdcarray<ShaderEncoding> TargetShaderEncodings() = 0;
 
-  DOCUMENT(R"(Retrieve the list of :class:`~renderdoc.ShaderEncoding` that are available for
+  DOCUMENT(R"(Retrieve the list of :class:`~gfxdebug.ShaderEncoding` that are available for
 building custom shaders for the currently loaded capture. See
-:meth:`~renderdoc.ReplayController.BuildCustomShader`.
+:meth:`~gfxdebug.ReplayController.BuildCustomShader`.
 
 :return: The available encodings.
-:rtype: List[renderdoc.ShaderEncoding]
+:rtype: List[gfxdebug.ShaderEncoding]
 )");
   virtual rdcarray<ShaderEncoding> CustomShaderEncodings() = 0;
 
-  DOCUMENT(R"(Retrieve the list of prefixes for each :class:`~renderdoc.ShaderEncoding` that should
+  DOCUMENT(R"(Retrieve the list of prefixes for each :class:`~gfxdebug.ShaderEncoding` that should
 be added to custom compiled shaders. See
-:meth:`~renderdoc.ReplayController.GetCustomShaderSourcePrefixes`.
+:meth:`~gfxdebug.ReplayController.GetCustomShaderSourcePrefixes`.
 
 :return: A list of pairs, listing a prefix for each shader encoding referenced.
-:rtype: List[renderdoc.ShaderSourcePrefix]
+:rtype: List[gfxdebug.ShaderSourcePrefix]
 )");
   virtual rdcarray<ShaderSourcePrefix> CustomShaderSourcePrefixes() = 0;
 
-  DOCUMENT(R"(Retrieve the currently selected :data:`eventId <renderdoc.APIEvent.eventId>`.
+  DOCUMENT(R"(Retrieve the currently selected :data:`eventId <gfxdebug.APIEvent.eventId>`.
 
 In most cases, prefer using :meth:`CurEvent`. See :meth:`CaptureViewer.OnSelectedEventChanged` for more
 information for how this differs.
@@ -2623,7 +2623,7 @@ information for how this differs.
 )");
   virtual uint32_t CurSelectedEvent() = 0;
 
-  DOCUMENT(R"(Retrieve the current :data:`eventId <renderdoc.APIEvent.eventId>`.
+  DOCUMENT(R"(Retrieve the current :data:`eventId <gfxdebug.APIEvent.eventId>`.
 
 :return: The current event.
 :rtype: int
@@ -2636,50 +2636,50 @@ In most cases, prefer using :meth:`CurAction`. See :meth:`CaptureViewer.OnSelect
 more information for how this differs.
 
 :return: The currently selected action.
-:rtype: renderdoc.ActionDescription
+:rtype: gfxdebug.ActionDescription
 )");
   virtual const ActionDescription *CurSelectedAction() = 0;
 
   DOCUMENT(R"(Retrieve the current action.
 
 :return: The current action, or ``None`` if no action is selected.
-:rtype: Optional[renderdoc.ActionDescription]
+:rtype: Optional[gfxdebug.ActionDescription]
 )");
   virtual const ActionDescription *CurAction() = 0;
 
   DOCUMENT(R"(Retrieve the first action in the capture.
 
 :return: The first action.
-:rtype: Optional[renderdoc.ActionDescription]
+:rtype: Optional[gfxdebug.ActionDescription]
 )");
   virtual const ActionDescription *GetFirstAction() = 0;
 
   DOCUMENT(R"(Retrieve the last action in the capture.
 
 :return: The last action.
-:rtype: Optional[renderdoc.ActionDescription]
+:rtype: Optional[gfxdebug.ActionDescription]
 )");
   virtual const ActionDescription *GetLastAction() = 0;
 
   DOCUMENT(R"(Retrieve the root list of actions in the current capture.
 
 :return: The root actions.
-:rtype: List[renderdoc.ActionDescription]
+:rtype: List[gfxdebug.ActionDescription]
 )");
   virtual const rdcarray<ActionDescription> &CurRootActions() = 0;
 
   DOCUMENT(R"(Retrieve the information about a particular resource.
 
-:param renderdoc.ResourceId id: The ID of the resource to query about.
+:param gfxdebug.ResourceId id: The ID of the resource to query about.
 :return: The information about a resource, or ``None`` if the ID does not correspond to a resource.
-:rtype: Optional[renderdoc.ResourceDescription]
+:rtype: Optional[gfxdebug.ResourceDescription]
 )");
   virtual const ResourceDescription *GetResource(ResourceId id) const = 0;
 
   DOCUMENT(R"(Retrieve the list of resources in the current capture.
 
 :return: The list of resources.
-:rtype: List[renderdoc.ResourceDescription]
+:rtype: List[gfxdebug.ResourceDescription]
 )");
   virtual const rdcarray<ResourceDescription> &GetResources() = 0;
 
@@ -2690,7 +2690,7 @@ This will first check to see if a custom name has been set for the resource, and
 in the capture, either a name set via API-specific debug methods, or an auto-generated name based on
 the resource type.
 
-:param renderdoc.ResourceId id: The ID of the resource to query.
+:param gfxdebug.ResourceId id: The ID of the resource to query.
 :return: The current name of the resource.
 :rtype: str
 )");
@@ -2699,7 +2699,7 @@ the resource type.
   DOCUMENT(R"(Returns the same name as :meth:`GetResourceName` but without any added suffix, e.g. to
 indicate the resource's status such as (Edited).
 
-:param renderdoc.ResourceId id: The ID of the resource to query.
+:param gfxdebug.ResourceId id: The ID of the resource to query.
 :return: The unsuffixed resource name.
 :rtype: str
 )");
@@ -2711,7 +2711,7 @@ during capture time or with :meth:`SetResourceCustomName`.
 If not, the name is just auto-generated based on the ID and resource type, so depending on
 circumstance it may be preferable to omit the name.
 
-:param renderdoc.ResourceId id: The ID of the resource to query.
+:param gfxdebug.ResourceId id: The ID of the resource to query.
 :return: Whether the name for the resource has just been auto-generated.
 :rtype: bool
 )");
@@ -2724,7 +2724,7 @@ generated just from the ID, or if it has been set to some human readable name. T
 only check if a name has been set in the UI itself, a resource could still have a custom name that
 was set programmatically during capture time.
 
-:param renderdoc.ResourceId id: The ID of the resource to query.
+:param gfxdebug.ResourceId id: The ID of the resource to query.
 :return: Whether the name for the resource has been customised with :meth:`SetResourceCustomName`.
 :rtype: bool
 )");
@@ -2739,7 +2739,7 @@ To remove a custom name that has been set previously, specify the empty string a
 custom name will be removed, and instead :meth:`GetResourceName` will fall back to returning any
 name fetched from the capture.
 
-:param renderdoc.ResourceId id: The ID of the resource to name.
+:param gfxdebug.ResourceId id: The ID of the resource to name.
 :param str name: The name to provide, or an empty string to remove any previous custom name.
 )");
   virtual void SetResourceCustomName(ResourceId id, const rdcstr &name) = 0;
@@ -2760,50 +2760,50 @@ considered out of date
 
   DOCUMENT(R"(Retrieve the information about a particular texture.
 
-:param renderdoc.ResourceId id: The ID of the texture to query about.
+:param gfxdebug.ResourceId id: The ID of the texture to query about.
 :return: The information about a texture, or ``None`` if the ID does not correspond to a texture.
-:rtype: Optional[renderdoc.TextureDescription]
+:rtype: Optional[gfxdebug.TextureDescription]
 )");
   virtual TextureDescription *GetTexture(ResourceId id) = 0;
 
   DOCUMENT(R"(Retrieve the list of textures in the current capture.
 
 :return: The list of textures.
-:rtype: List[renderdoc.TextureDescription]
+:rtype: List[gfxdebug.TextureDescription]
 )");
   virtual const rdcarray<TextureDescription> &GetTextures() = 0;
 
   DOCUMENT(R"(Retrieve the information about a particular buffer.
 
-:param renderdoc.ResourceId id: The ID of the buffer to query about.
+:param gfxdebug.ResourceId id: The ID of the buffer to query about.
 :return: The information about a buffer, or ``None`` if the ID does not correspond to a buffer.
-:rtype: Optional[renderdoc.BufferDescription]
+:rtype: Optional[gfxdebug.BufferDescription]
 )");
   virtual BufferDescription *GetBuffer(ResourceId id) = 0;
 
   DOCUMENT(R"(Retrieve the list of buffers in the current capture.
 
 :return: The list of buffers.
-:rtype: List[renderdoc.BufferDescription]
+:rtype: List[gfxdebug.BufferDescription]
 )");
   virtual const rdcarray<BufferDescription> &GetBuffers() const = 0;
 
   DOCUMENT(R"(Retrieve the information about a particular descriptor store.
 
-:param renderdoc.ResourceId id: The ID of the buffer to query about.
+:param gfxdebug.ResourceId id: The ID of the buffer to query about.
 :return: The information about a descriptor store, or ``None`` if the ID does not correspond to a
   descriptor store.
-:rtype: Optional[renderdoc.DescriptorStoreDescription]
+:rtype: Optional[gfxdebug.DescriptorStoreDescription]
 )");
   virtual DescriptorStoreDescription *GetDescriptorStore(ResourceId id) = 0;
 
   DOCUMENT(R"(Retrieve the information about an action at a given
-:data:`eventId <renderdoc.APIEvent.eventId>`.
+:data:`eventId <gfxdebug.APIEvent.eventId>`.
 
-:param int eventId: The :data:`eventId <renderdoc.APIEvent.eventId>` to query for.
+:param int eventId: The :data:`eventId <gfxdebug.APIEvent.eventId>` to query for.
 :return: The information about the action, or ``None`` if the
-  :data:`eventId <renderdoc.APIEvent.eventId>` doesn't correspond to an action.
-:rtype: Optional[renderdoc.ActionDescription]
+  :data:`eventId <gfxdebug.APIEvent.eventId>` doesn't correspond to an action.
+:rtype: Optional[gfxdebug.ActionDescription]
 )");
   virtual const ActionDescription *GetAction(uint32_t eventId) = 0;
 
@@ -2843,29 +2843,29 @@ called.
 )");
   virtual IRGPInterop *GetRGPInterop() = 0;
 
-  DOCUMENT(R"(Retrieve the :class:`~renderdoc.SDFile` for the currently open capture.
+  DOCUMENT(R"(Retrieve the :class:`~gfxdebug.SDFile` for the currently open capture.
 
 :return: The structured file.
-:rtype: renderdoc.SDFile
+:rtype: gfxdebug.SDFile
 )");
   virtual const SDFile &GetStructuredFile() = 0;
 
   DOCUMENT(R"(Retrieve the current windowing system in use.
 
 :return: The active windowing system.
-:rtype: renderdoc.WindowingSystem
+:rtype: gfxdebug.WindowingSystem
 )");
   virtual WindowingSystem CurWindowingSystem() = 0;
 
   DOCUMENT(R"(Create an opaque pointer suitable for passing to
-:meth:`~renderdoc.ReplayController.CreateOutput` or other functions that expect windowing data.
+:meth:`~gfxdebug.ReplayController.CreateOutput` or other functions that expect windowing data.
 
 .. note::
   This function must be called on the main UI thread.
 
 :param QWidget window: The window to create windowing data for.
 :return: The windowing data.
-:rtype: renderdoc.WindowingData
+:rtype: gfxdebug.WindowingData
 )");
   virtual WindowingData CreateWindowingData(QWidget *window) = 0;
 
@@ -2873,7 +2873,7 @@ called.
 as well as messages generated during replay and analysis.
 
 :return: The debug messages generated to date.
-:rtype: List[renderdoc.DebugMessage]
+:rtype: List[gfxdebug.DebugMessage]
 )");
   virtual const rdcarray<DebugMessage> &DebugMessages() = 0;
 
@@ -2889,7 +2889,7 @@ as well as messages generated during replay and analysis.
 
   DOCUMENT(R"(Add messages into the list returned by :meth:`DebugMessages`. Initially set to unread.
 
-:param List[renderdoc.DebugMessage] msgs: A list of debug messages to add.
+:param List[gfxdebug.DebugMessage] msgs: A list of debug messages to add.
 )");
   virtual void AddMessages(const rdcarray<DebugMessage> &msgs) = 0;
 
@@ -3261,19 +3261,19 @@ place if needed.
 
   DOCUMENT(R"(Show a new :class:`ShaderViewer` window, showing an editable view of a given shader.
 
-:param renderdoc.ResourceId id: The shader object, if applicable, that's being edited. If this edit
+:param gfxdebug.ResourceId id: The shader object, if applicable, that's being edited. If this edit
   corresponds to no shader object (such as if it's a custom shader) this can be a null ID.
-:param renderdoc.ShaderStage stage: The shader stage for this shader.
+:param gfxdebug.ShaderStage stage: The shader stage for this shader.
 :param str entryPoint: The entry point to be used when compiling the edited shader.
 :param List[Tuple[str,str]] files: The source files, with each tuple being a pair of the filename
   and the file contents.
-:param renderdoc.KnownShaderTool knownTool: The preferred tool to use to compile, if known.
-:param renderdoc.ShaderEncoding shaderEncoding: The encoding of the input files.
-:param renderdoc.ShaderCompileFlags flags: The flags originally used to compile the shader.
-:param Callable[[CaptureContext,ShaderViewer,renderdoc.ResourceId,renderdoc.ShaderStage,renderdoc.ShaderEncoding,renderdoc.ShaderCompileFlags, str, bytes], None] saveCallback: The
+:param gfxdebug.KnownShaderTool knownTool: The preferred tool to use to compile, if known.
+:param gfxdebug.ShaderEncoding shaderEncoding: The encoding of the input files.
+:param gfxdebug.ShaderCompileFlags flags: The flags originally used to compile the shader.
+:param Callable[[CaptureContext,ShaderViewer,gfxdebug.ResourceId,gfxdebug.ShaderStage,gfxdebug.ShaderEncoding,gfxdebug.ShaderCompileFlags, str, bytes], None] saveCallback: The
   callback function to call when a save/update is triggered.
   Callback function signature must match :func:`SaveCallback`.
-:param Callable[[CaptureContext, ShaderViewer, renderdoc.ResourceId], None] revertCallback: The
+:param Callable[[CaptureContext, ShaderViewer, gfxdebug.ResourceId], None] revertCallback: The
   callback function to call when the shader is to be reverted - either by user request or because
   the shader viewer was closed.
   Callback function signature must match :func:`RevertCallback`.
@@ -3289,10 +3289,10 @@ place if needed.
   DOCUMENT(R"(Show a new :class:`ShaderViewer` window, showing a read-only view of a debug trace
 through the execution of a given shader.
 
-:param renderdoc.ShaderReflection shader: The reflection data for the shader to view.
-:param renderdoc.ResourceId pipeline: The pipeline state object, if applicable, that this shader is
+:param gfxdebug.ShaderReflection shader: The reflection data for the shader to view.
+:param gfxdebug.ResourceId pipeline: The pipeline state object, if applicable, that this shader is
   bound to.
-:param renderdoc.ShaderDebugTrace trace: The execution trace of the debugged shader.
+:param gfxdebug.ShaderDebugTrace trace: The execution trace of the debugged shader.
 :param str debugContext: A human-readable context string describing which invocation of this shader
   was debugged. For example 'Pixel 12,34 at eventId 678'.
 :return: The new :class:`ShaderViewer` window opened, but not shown.
@@ -3303,8 +3303,8 @@ through the execution of a given shader.
 
   DOCUMENT(R"(Show a new :class:`ShaderViewer` window, showing a read-only view of a given shader.
 
-:param renderdoc.ShaderReflection shader: The reflection data for the shader to view.
-:param renderdoc.ResourceId pipeline: The pipeline state object, if applicable, that this shader is
+:param gfxdebug.ShaderReflection shader: The reflection data for the shader to view.
+:param gfxdebug.ResourceId pipeline: The pipeline state object, if applicable, that this shader is
   bound to.
 :return: The new :class:`ShaderViewer` window opened, but not shown.
 :rtype: ShaderViewer
@@ -3313,7 +3313,7 @@ through the execution of a given shader.
 
   DOCUMENT(R"(Show a new :class:`ShaderMessageViewer` window, showing the current event's messages.
 
-:param renderdoc.ShaderStageMask stages: The initial stages being viewed.
+:param gfxdebug.ShaderStageMask stages: The initial stages being viewed.
 :return: The new :class:`ShaderMessageViewer` window opened, but not shown.
 :rtype: ShaderMessageViewer
 )");
@@ -3322,7 +3322,7 @@ through the execution of a given shader.
   DOCUMENT(R"(Show a new :class:`DescriptorViewer` window, showing the full raw contents of a
 descriptor store.
 
-:param renderdoc.ResourceId id: The ID of the descriptor store to fetch data from.
+:param gfxdebug.ResourceId id: The ID of the descriptor store to fetch data from.
 :return: The new :class:`DescriptorViewer` window opened, but not shown.
 :rtype: DescriptorViewer
 )");
@@ -3338,8 +3338,8 @@ the lists are not the same length, only indices up to the minimum of the two len
 This function should not be used to view the entirety of a descriptor store - in that case the
 :func:`ViewDescriptorStore` function will be more efficient.
 
-:param List[renderdoc.Descriptor] descriptors: The list of descriptors to process and show.
-:param List[renderdoc.SamplerDescriptor] samplerDescriptors: The list of sampler descriptors to process and
+:param List[gfxdebug.Descriptor] descriptors: The list of descriptors to process and show.
+:param List[gfxdebug.SamplerDescriptor] samplerDescriptors: The list of sampler descriptors to process and
   show.
 :return: The new :class:`DescriptorViewer` window opened, but not shown.
 :rtype: DescriptorViewer
@@ -3351,7 +3351,7 @@ This function should not be used to view the entirety of a descriptor store - in
 
 :param int byteOffset: The offset in bytes to the start of the buffer data to show.
 :param int byteSize: The number of bytes in the buffer to show.
-:param renderdoc.ResourceId id: The ID of the buffer to fetch data from.
+:param gfxdebug.ResourceId id: The ID of the buffer to fetch data from.
 :param str format="": **Optional parameter**. A HLSL/GLSL style formatting string.
 :return: The new :class:`BufferViewer` window opened, but not shown.
 :rtype: BufferViewer
@@ -3362,8 +3362,8 @@ This function should not be used to view the entirety of a descriptor store - in
   DOCUMENT(R"(Show a new :class:`BufferViewer` window, showing a read-only view of a texture's raw
 bytes.
 
-:param renderdoc.ResourceId id: The ID of the texture itself.
-:param renderdoc.Subresource sub: The subresource within this texture to use.
+:param gfxdebug.ResourceId id: The ID of the texture itself.
+:param gfxdebug.Subresource sub: The subresource within this texture to use.
 :param str format="": **Optional parameter**. A HLSL/GLSL style formatting string.
 :return: The new :class:`BufferViewer` window opened, but not shown.
 :rtype: BufferViewer
@@ -3374,7 +3374,7 @@ bytes.
   DOCUMENT(R"(Show a new :class:`BufferViewer` window, showing a read-only view of a the
 variables in a constant buffer with their values.
 
-:param renderdoc.ShaderStage stage: The stage that the constant buffer is bound to.
+:param gfxdebug.ShaderStage stage: The stage that the constant buffer is bound to.
 :param int slot: The index in the shader's constant buffer list to look up.
 :param int idx: For APIs that support arrayed resource binds, the index in the constant buffer
   array.
@@ -3386,11 +3386,11 @@ variables in a constant buffer with their values.
   DOCUMENT(R"(Show a new :class:`PixelHistoryView` window, showing the results from a pixel history
 operation.
 
-:param renderdoc.ResourceId id: The ID of the texture to show the history of.
+:param gfxdebug.ResourceId id: The ID of the texture to show the history of.
 :param int x: The x co-ordinate of the pixel to search for.
 :param int y: The y co-ordinate of the pixel to search for.
 :param int view: The layered or multiview rendering view index of the pixel to search for.
-:param renderdoc.TextureDisplay display: The texture display configuration to use when looking up
+:param gfxdebug.TextureDisplay display: The texture display configuration to use when looking up
   the history.
 :return: The new :class:`PixelHistoryView` window opened, but not shown.
 :rtype: PixelHistoryView
@@ -3437,53 +3437,53 @@ currently docked.
   virtual void AddDockWindow(QWidget *newWindow, DockReference ref, QWidget *refWindow,
                              float percentage = 0.5f) = 0;
 
-  DOCUMENT(R"(Retrieve the current :class:`~renderdoc.D3D11State` pipeline state.
+  DOCUMENT(R"(Retrieve the current :class:`~gfxdebug.D3D11State` pipeline state.
 
 The return value will be ``None`` if the capture is not using the D3D11 API.
 You should determine the API of the capture first before fetching it.
 
 :return: The current D3D11 pipeline state.
-:rtype: Optional[renderdoc.D3D11State]
+:rtype: Optional[gfxdebug.D3D11State]
 )");
   virtual const D3D11Pipe::State *CurD3D11PipelineState() = 0;
 
-  DOCUMENT(R"(Retrieve the current :class:`~renderdoc.D3D12State` pipeline state.
+  DOCUMENT(R"(Retrieve the current :class:`~gfxdebug.D3D12State` pipeline state.
 
 The return value will be ``None`` if the capture is not using the D3D12 API.
 You should determine the API of the capture first before fetching it.
 
 :return: The current D3D12 pipeline state.
-:rtype: Optional[renderdoc.D3D12State]
+:rtype: Optional[gfxdebug.D3D12State]
 )");
   virtual const D3D12Pipe::State *CurD3D12PipelineState() = 0;
 
-  DOCUMENT(R"(Retrieve the current :class:`~renderdoc.GLState` pipeline state.
+  DOCUMENT(R"(Retrieve the current :class:`~gfxdebug.GLState` pipeline state.
 
 The return value will be ``None`` if the capture is not using the OpenGL API.
 You should determine the API of the capture first before fetching it.
 
 :return: The current OpenGL pipeline state.
-:rtype: Optional[renderdoc.GLState]
+:rtype: Optional[gfxdebug.GLState]
 )");
   virtual const GLPipe::State *CurGLPipelineState() = 0;
 
-  DOCUMENT(R"(Retrieve the current :class:`~renderdoc.VKState` pipeline state.
+  DOCUMENT(R"(Retrieve the current :class:`~gfxdebug.VKState` pipeline state.
 
 The return value will be ``None`` if the capture is not using the Vulkan API.
 You should determine the API of the capture first before fetching it.
 
 :return: The current Vulkan pipeline state.
-:rtype: Optional[renderdoc.VKState]
+:rtype: Optional[gfxdebug.VKState]
 )");
   virtual const VKPipe::State *CurVulkanPipelineState() = 0;
 
-  DOCUMENT(R"(Retrieve the current :class:`~renderdoc.PipeState` abstracted pipeline state.
+  DOCUMENT(R"(Retrieve the current :class:`~gfxdebug.PipeState` abstracted pipeline state.
 
 This pipeline state will always be valid, and allows queries that will work regardless of the
 capture's API.
 
 :return: The current API-agnostic abstracted pipeline state.
-:rtype: renderdoc.PipeState
+:rtype: gfxdebug.PipeState
 )");
   virtual const PipeState &CurPipelineState() = 0;
 

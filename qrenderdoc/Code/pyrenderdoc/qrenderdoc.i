@@ -1,5 +1,5 @@
 
-%module(docstring="This is the API to QRenderDoc's high-level UI panels and functionality.") qrenderdoc
+%module(docstring="This is the API to QGfxDebug's high-level UI panels and functionality.") qgfxdebug
 
 %feature("autodoc", "0");
 
@@ -57,7 +57,7 @@ VA_IGNORE_REST_OF_FILE
 
 %include "pyconversion.i"
 
-// import the renderdoc interface that we depend on
+// import the gfxdebug interface that we depend on
 %import "renderdoc.i"
 
 TEMPLATE_ARRAY_DECLARE(rdcarray);
@@ -198,7 +198,7 @@ TEMPLATE_ARRAY_INSTANTIATE(rdcarray, ParseError)
 
     PyObject *globals = PyEval_GetGlobals();
     if(globals)
-      global_internal_handle = PyDict_GetItemString(globals, "_renderdoc_internal");
+      global_internal_handle = PyDict_GetItemString(globals, "_gfxdebug_internal");
 
     SetThreadBlocking(global_internal_handle, true);
 

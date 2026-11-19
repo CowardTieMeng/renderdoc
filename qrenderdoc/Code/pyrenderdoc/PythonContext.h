@@ -136,7 +136,7 @@ public:
   static void RemoveDebuggableThread();
 
   // for extension callbacks we want to pass the python wrapper
-  static ICaptureContext *GetExtensionPyrenderdoc() { return m_CtxWrapper; }
+  static ICaptureContext *GetExtensionPygfxdebug() { return m_CtxWrapper; }
   static PythonContext *GetExtensionContext() { return m_ExtensionContext; }
 
 signals:
@@ -175,8 +175,8 @@ private:
   static PyObject *m_StubQRD;
   static QAtomicInt m_DeferredInit;
 
-  // the pyrenderdoc wrapper around ICaptureContext
-  static PyObject *m_pyrenderdoc;
+  // the pygfxdebug wrapper around ICaptureContext
+  static PyObject *m_pygfxdebug;
   static ICaptureContext *m_CtxWrapper;
 
   // a statically created PythonContext for extension events/output.

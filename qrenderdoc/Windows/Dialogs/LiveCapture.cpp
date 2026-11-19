@@ -1191,7 +1191,7 @@ void LiveCapture::on_previewSplit_splitterMoved(int pos, int index)
 
 void LiveCapture::on_apiIcon_clicked(QMouseEvent *event)
 {
-  QDesktopServices::openUrl(QUrl(lit("https://renderdoc.org/docs/in_application_api.html")));
+  QDesktopServices::openUrl(QUrl(lit("https://gfxdebug.org/docs/in_application_api.html")));
 }
 
 void LiveCapture::captures_keyPress(QKeyEvent *e)

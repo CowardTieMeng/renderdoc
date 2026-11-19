@@ -52,7 +52,7 @@ PyTypeObject **SbkPySide2_QtWidgetsTypes = NULL;
 // for non-windows, this message is displayed at CMake time.
 #ifdef _MSC_VER
 #pragma message( \
-    "Building without PySide2 - Qt will not be accessible in python scripting. See https://github.com/baldurk/renderdoc/wiki/PySide2")
+    "Building without PySide2 - Qt will not be accessible in python scripting. See https://github.com/baldurk/gfxdebug/wiki/PySide2")
 #endif
 
 #endif
@@ -80,12 +80,12 @@ PyTypeObject **SbkPySide2_QtWidgetsTypes = NULL;
 bool CheckCoreInterface(rdcstr &log);
 bool CheckQtInterface(rdcstr &log);
 
-// defined in SWIG-generated renderdoc_python.cpp
-extern "C" PyObject *PyInit_renderdoc(void);
+// defined in SWIG-generated gfxdebug_python.cpp
+extern "C" PyObject *PyInit_gfxdebug(void);
 extern "C" PyObject *PassObjectToPython(const char *type, void *obj);
 extern "C" PyObject *PassNewObjectToPython(const char *type, void *obj);
-// this one is in qrenderdoc_python.cpp
-extern "C" PyObject *PyInit_qrenderdoc(void);
+// this one is in qgfxdebug_python.cpp
+extern "C" PyObject *PyInit_qgfxdebug(void);
 extern "C" PyObject *WrapBareQWidget(QWidget *);
 extern "C" QWidget *UnwrapBareQWidget(PyObject *);
 
@@ -117,7 +117,7 @@ static inline QString ToQStr(PyObject *value)
   return QString();
 }
 
-static wchar_t program_name[] = L"qrenderdoc";
+static wchar_t program_name[] = L"qgfxdebug";
 static wchar_t python_home[1024] = {0};
 
 struct OutputRedirector
@@ -150,7 +150,7 @@ PyObject *PythonContext::m_CallWrapper = NULL;
 PyObject *PythonContext::m_Reflector = NULL;
 PyObject *PythonContext::m_StubRD = NULL;
 PyObject *PythonContext::m_StubQRD = NULL;
-PyObject *PythonContext::m_pyrenderdoc = NULL;
+PyObject *PythonContext::m_pygfxdebug = NULL;
 ICaptureContext *PythonContext::m_CtxWrapper = NULL;
 QAtomicInt PythonContext::m_DeferredInit = 0;
 PyObject *PythonContext::m_CallWrapperGlobals = NULL;
@@ -401,12 +401,12 @@ void PythonContext::GenerateStubs(const rdcarray<rdcstr> &extraPaths)
     }
 
     PyObject *args =
-        Py_BuildValue("(Os)", PyDict_GetItemString(main_dict, "renderdoc"), target.toUtf8().data());
+        Py_BuildValue("(Os)", PyDict_GetItemString(main_dict, "gfxdebug"), target.toUtf8().data());
     PyObject *retval = PyObject_CallObject(gen, args);
 
     if(!retval)
     {
-      qCritical() << "Didn't generate renderdoc stubs";
+      qCritical() << "Didn't generate gfxdebug stubs";
       HandleException(NULL);
     }
 
@@ -414,12 +414,12 @@ void PythonContext::GenerateStubs(const rdcarray<rdcstr> &extraPaths)
     Py_XDECREF(args);
 
     args =
-        Py_BuildValue("(Os)", PyDict_GetItemString(main_dict, "qrenderdoc"), target.toUtf8().data());
+        Py_BuildValue("(Os)", PyDict_GetItemString(main_dict, "qgfxdebug"), target.toUtf8().data());
     retval = PyObject_CallObject(gen, args);
 
     if(!retval)
     {
-      qCritical() << "Didn't generate qrenderdoc stubs";
+      qCritical() << "Didn't generate qgfxdebug stubs";
       HandleException(NULL);
     }
 
@@ -457,8 +457,8 @@ void PythonContext::GlobalInit(PersistentConfig &config)
   // for the exception signal
   qRegisterMetaType<QList<QString>>("QList<QString>");
 
-  PyImport_AppendInittab("renderdoc", &PyInit_renderdoc);
-  PyImport_AppendInittab("qrenderdoc", &PyInit_qrenderdoc);
+  PyImport_AppendInittab("gfxdebug", &PyInit_gfxdebug);
+  PyImport_AppendInittab("qgfxdebug", &PyInit_qgfxdebug);
 
 #if PY_VERSION_HEX > 0x030B0000
   PyConfig pyconfig;
@@ -467,12 +467,12 @@ void PythonContext::GlobalInit(PersistentConfig &config)
   pyconfig.parse_argv = 0;
 #endif
 
-#if defined(STATIC_QRENDERDOC)
+#if defined(STATIC_QGFXDEBUG)
   // add the location where our libs will be for statically-linked python installs
   {
     QDir bin = QFileInfo(QCoreApplication::applicationFilePath()).absoluteDir();
 
-    QString pylibs = QDir::cleanPath(bin.absoluteFilePath(lit("../share/renderdoc/pylibs")));
+    QString pylibs = QDir::cleanPath(bin.absoluteFilePath(lit("../share/gfxdebug/pylibs")));
 
     pylibs.toWCharArray(python_home);
 
@@ -508,7 +508,7 @@ void PythonContext::GlobalInit(PersistentConfig &config)
   PyEval_InitThreads();
 #endif
 
-  OutputRedirectorType.tp_name = "renderdoc_output_redirector";
+  OutputRedirectorType.tp_name = "gfxdebug_output_redirector";
   OutputRedirectorType.tp_basicsize = sizeof(OutputRedirector);
   OutputRedirectorType.tp_flags = Py_TPFLAGS_DEFAULT;
   OutputRedirectorType.tp_doc =
@@ -523,8 +523,8 @@ void PythonContext::GlobalInit(PersistentConfig &config)
 
   PyObject *main_module = PyImport_AddModule("__main__");
 
-  PyModule_AddObject(main_module, "renderdoc", PyImport_ImportModule("renderdoc"));
-  PyModule_AddObject(main_module, "qrenderdoc", PyImport_ImportModule("qrenderdoc"));
+  PyModule_AddObject(main_module, "gfxdebug", PyImport_ImportModule("gfxdebug"));
+  PyModule_AddObject(main_module, "qgfxdebug", PyImport_ImportModule("qgfxdebug"));
 
   main_dict = PyModule_GetDict(main_module);
 
@@ -544,8 +544,8 @@ void PythonContext::GlobalInit(PersistentConfig &config)
     PyErr_Clear();
   }
 
-  // sysobj.stdout = renderdoc_output_redirector()
-  // sysobj.stderr = renderdoc_output_redirector()
+  // sysobj.stdout = gfxdebug_output_redirector()
+  // sysobj.stderr = gfxdebug_output_redirector()
   if(PyType_Ready(&OutputRedirectorType) >= 0)
   {
     // for compatibility with earlier versions of python that took a char * instead of const char *
@@ -553,7 +553,7 @@ void PythonContext::GlobalInit(PersistentConfig &config)
 
     PyObject *redirector = PyObject_CallFunction((PyObject *)&OutputRedirectorType, noparams);
     PyObject_SetAttrString(sysobj, "stdout", redirector);
-    PyObject_SetAttrString(sysobj, "_renderdoc_internal", redirector);
+    PyObject_SetAttrString(sysobj, "_gfxdebug_internal", redirector);
 
     OutputRedirector *output = (OutputRedirector *)redirector;
     output->isStdError = 0;
@@ -921,9 +921,9 @@ except:
         QDir dir(QApplication::applicationDirPath());
         dir.cdUp();
         dir.cdUp();
-        dir.cd(lit("qrenderdoc"));
+        dir.cd(lit("qgfxdebug"));
         dir.cd(lit("Code"));
-        dir.cd(lit("pyrenderdoc"));
+        dir.cd(lit("pygfxdebug"));
         filename = dir.absoluteFilePath(lit("parse_reflection.py"));
       }
 #endif
@@ -962,7 +962,7 @@ except:
 
         Py_XDECREF(syspath);
 
-        m_StubRD = PyImport_ImportModule(QFormatStr("v%1_%2.renderdoc")
+        m_StubRD = PyImport_ImportModule(QFormatStr("v%1_%2.gfxdebug")
                                              .arg(GFXDEBUG_VERSION_MAJOR)
                                              .arg(GFXDEBUG_VERSION_MINOR)
                                              .toUtf8()
@@ -970,11 +970,11 @@ except:
 
         if(!m_StubRD)
         {
-          qCritical() << "Failed importing stubs for renderdoc";
+          qCritical() << "Failed importing stubs for gfxdebug";
           HandleException(NULL);
         }
 
-        m_StubQRD = PyImport_ImportModule(QFormatStr("v%1_%2.qrenderdoc")
+        m_StubQRD = PyImport_ImportModule(QFormatStr("v%1_%2.qgfxdebug")
                                               .arg(GFXDEBUG_VERSION_MAJOR)
                                               .arg(GFXDEBUG_VERSION_MINOR)
                                               .toUtf8()
@@ -982,17 +982,17 @@ except:
 
         if(!m_StubQRD)
         {
-          qCritical() << "Failed importing stubs for qrenderdoc";
+          qCritical() << "Failed importing stubs for qgfxdebug";
           HandleException(NULL);
         }
 
         PyObject *alias_modules = PyObject_SafeGetAttrString(m_Reflector, "alias_modules");
 
         if(m_StubRD)
-          PyDict_SetItemString(alias_modules, "renderdoc", m_StubRD);
+          PyDict_SetItemString(alias_modules, "gfxdebug", m_StubRD);
 
         if(m_StubQRD)
-          PyDict_SetItemString(alias_modules, "qrenderdoc", m_StubQRD);
+          PyDict_SetItemString(alias_modules, "qgfxdebug", m_StubQRD);
 
         Py_XDECREF(alias_modules);
 
@@ -1024,7 +1024,7 @@ void PythonContext::setCtxGlobal(ICaptureContext &ctx)
 
   PyGILState_STATE gil = PyGILState_Ensure();
 
-  m_pyrenderdoc =
+  m_pygfxdebug =
       PassObjectToPython((rdcstr(TypeName<ICaptureContext>()) + " *").c_str(), m_CtxWrapper);
 
   PyGILState_Release(gil);
@@ -1054,7 +1054,7 @@ PythonContext::PythonContext(bool extensionContext, QObject *parent) : QObject(p
   PyObject *redirector = PyObject_CallFunction((PyObject *)&OutputRedirectorType, noparams);
   if(redirector)
   {
-    PyDict_SetItemString(context_namespace, "_renderdoc_internal", redirector);
+    PyDict_SetItemString(context_namespace, "_gfxdebug_internal", redirector);
 
     OutputRedirector *output = (OutputRedirector *)redirector;
     output->context = this;
@@ -1063,9 +1063,9 @@ PythonContext::PythonContext(bool extensionContext, QObject *parent) : QObject(p
     Py_XDECREF(redirector);
   }
 
-  if(m_pyrenderdoc)
+  if(m_pygfxdebug)
   {
-    PyDict_SetItemString(context_namespace, "pyrenderdoc", m_pyrenderdoc);
+    PyDict_SetItemString(context_namespace, "pygfxdebug", m_pygfxdebug);
   }
 
   // release the GIL again
@@ -1098,7 +1098,7 @@ bool PythonContext::CheckInterfaces(rdcstr &log)
   errors |= CheckCoreInterface(log);
   errors |= CheckQtInterface(log);
 
-  for(rdcstr module_name : {"renderdoc", "qrenderdoc"})
+  for(rdcstr module_name : {"gfxdebug", "qgfxdebug"})
   {
     PyObject *mod = PyImport_ImportModule(module_name.c_str());
     PyObject *dict = PyModule_GetDict(mod);
@@ -1335,8 +1335,8 @@ QString PythonContext::LoadExtension(ICaptureContext &ctx, const rdcstr &extensi
       ext = PyImport_ReloadModule(extensions[extension]);
   }
 
-  if(!m_pyrenderdoc)
-    qCritical() << "pyrenderdoc variable is NULL";
+  if(!m_pygfxdebug)
+    qCritical() << "pygfxdebug variable is NULL";
 
   // if import succeeded, store this extension module in our map. If import failed, we might have
   // failed a reimport in which case the original module is still there and valid, so don't
@@ -1357,18 +1357,18 @@ QString PythonContext::LoadExtension(ICaptureContext &ctx, const rdcstr &extensi
     redir->block = false;
     redir->extension = extension;
 
-    PyModule_AddObject(ext, "_renderdoc_internal", ext_context);
+    PyModule_AddObject(ext, "_gfxdebug_internal", ext_context);
 
-    Py_XINCREF(m_pyrenderdoc);
+    Py_XINCREF(m_pygfxdebug);
 
-    int pyret = PyModule_AddObject(ext, "pyrenderdoc", m_pyrenderdoc);
+    int pyret = PyModule_AddObject(ext, "pygfxdebug", m_pygfxdebug);
 
     if(pyret != 0)
     {
-      Py_XDECREF(m_pyrenderdoc);
+      Py_XDECREF(m_pygfxdebug);
 
-      qCritical() << "Couldn't set pyrenderdoc global in loaded module";
-      ret += tr("Couldn't set pyrenderdoc global in loaded module\n");
+      qCritical() << "Couldn't set pygfxdebug global in loaded module";
+      ret += tr("Couldn't set pygfxdebug global in loaded module\n");
       ext = NULL;
     }
   }
@@ -1383,15 +1383,15 @@ QString PythonContext::LoadExtension(ICaptureContext &ctx, const rdcstr &extensi
     if(register_func)
     {
       PyObject *retval = NULL;
-      if(m_pyrenderdoc)
+      if(m_pygfxdebug)
       {
         retval =
-            PyObject_CallFunction(register_func, "sO", MAJOR_MINOR_VERSION_STRING, m_pyrenderdoc);
+            PyObject_CallFunction(register_func, "sO", MAJOR_MINOR_VERSION_STRING, m_pygfxdebug);
       }
       else
       {
-        qCritical() << "Internal error passing pyrenderdoc to extension register()";
-        ret += tr("Internal error passing pyrenderdoc to extension register()\n");
+        qCritical() << "Internal error passing pygfxdebug to extension register()";
+        ret += tr("Internal error passing pygfxdebug to extension register()\n");
       }
 
       Py_XDECREF(register_func);
@@ -1417,7 +1417,7 @@ QString PythonContext::LoadExtension(ICaptureContext &ctx, const rdcstr &extensi
     ext = NULL;
   }
 
-  Py_XDECREF(m_pyrenderdoc);
+  Py_XDECREF(m_pygfxdebug);
 
   if(ext)
   {
@@ -1596,7 +1596,7 @@ void PythonContext::executeString(const QString &filename, const QString &source
     {
       settrace = PyObject_SafeGetAttrString(sys, "settrace");
       gettrace = PyObject_SafeGetAttrString(sys, "gettrace");
-      tracer = PyDict_GetItemString(context_namespace, "_renderdoc_internal");
+      tracer = PyDict_GetItemString(context_namespace, "_gfxdebug_internal");
     }
 
     if(settrace && gettrace && tracer)
@@ -1786,7 +1786,7 @@ void PythonContext::reflectSource(QString src)
 
   if(refl)
   {
-    PyDict_SetItemString(context_namespace, "_renderdoc_refl", refl);
+    PyDict_SetItemString(context_namespace, "_gfxdebug_refl", refl);
 
     Py_XDECREF(refl);
   }
@@ -1800,7 +1800,7 @@ void PythonContext::reflectSource(QString src)
 
 void PythonContext::makeHelpContext()
 {
-  // expand out members of renderdoc and qrenderdoc using the stubs
+  // expand out members of gfxdebug and qgfxdebug using the stubs
   if(m_DeferredInit == 0)
   {
     for(int i = 0; i < 50 && m_DeferredInit == 0; i++)
@@ -1842,8 +1842,8 @@ del publicise_module
   PyDict_DelItemString(context_namespace, "stub_rd");
   PyDict_DelItemString(context_namespace, "stub_qrd");
 
-  if(PyDict_ContainsString(context_namespace, "pyrenderdoc"))
-    PyDict_DelItemString(context_namespace, "pyrenderdoc");
+  if(PyDict_ContainsString(context_namespace, "pygfxdebug"))
+    PyDict_DelItemString(context_namespace, "pygfxdebug");
   if(PyDict_ContainsString(context_namespace, "sys"))
     PyDict_DelItemString(context_namespace, "sys");
 
@@ -1856,7 +1856,7 @@ QString PythonContext::tooltipForLoc(int line, int col)
 {
   PyGILState_STATE gil = PyGILState_Ensure();
 
-  PyObject *refl = PyDict_GetItemString(context_namespace, "_renderdoc_refl");
+  PyObject *refl = PyDict_GetItemString(context_namespace, "_gfxdebug_refl");
 
   if(!refl)
   {
@@ -1887,7 +1887,7 @@ QString PythonContext::typenameForLoc(int line, int col)
 {
   PyGILState_STATE gil = PyGILState_Ensure();
 
-  PyObject *refl = PyDict_GetItemString(context_namespace, "_renderdoc_refl");
+  PyObject *refl = PyDict_GetItemString(context_namespace, "_gfxdebug_refl");
 
   if(!refl)
   {
@@ -1948,7 +1948,7 @@ QList<QPair<QString, QString>> PythonContext::completionOptions(int line, QStrin
 
   PyGILState_STATE gil = PyGILState_Ensure();
 
-  PyObject *refl = PyDict_GetItemString(context_namespace, "_renderdoc_refl");
+  PyObject *refl = PyDict_GetItemString(context_namespace, "_gfxdebug_refl");
 
   if(!refl)
   {
@@ -1995,7 +1995,7 @@ QString PythonContext::tryFunctionCompletion(int line, QString expr)
 {
   PyGILState_STATE gil = PyGILState_Ensure();
 
-  PyObject *refl = PyDict_GetItemString(context_namespace, "_renderdoc_refl");
+  PyObject *refl = PyDict_GetItemString(context_namespace, "_gfxdebug_refl");
 
   if(!refl)
   {
@@ -2261,7 +2261,7 @@ PyObject *PythonContext::outstream_write(PyObject *self, PyObject *args)
         if(globals)
         {
           OutputRedirector *global =
-              (OutputRedirector *)PyDict_GetItemString(globals, "_renderdoc_internal");
+              (OutputRedirector *)PyDict_GetItemString(globals, "_gfxdebug_internal");
           if(global)
           {
             context = global->context;
@@ -2627,7 +2627,7 @@ extern "C" PyObject *GetCurrentGlobalHandle()
 {
   PyObject *frame_global_handle = NULL;
 
-  // walk the frames until we find one with _renderdoc_internal. If we call a function in another
+  // walk the frames until we find one with _gfxdebug_internal. If we call a function in another
   // module the globals may not have the entry, but the root level is expected to.
   {
     PyFrameObject *frame = PyEval_GetFrame();
@@ -2638,7 +2638,7 @@ extern "C" PyObject *GetCurrentGlobalHandle()
     while(frame)
     {
       PyObject *globals = PyFrame_GetGlobals(frame);
-      frame_global_handle = PyDict_GetItemString(globals, "_renderdoc_internal");
+      frame_global_handle = PyDict_GetItemString(globals, "_gfxdebug_internal");
       Py_XDECREF(globals);
 
       // first get the next frame without decrefing the current
@@ -2667,7 +2667,7 @@ extern "C" PyObject *GetCurrentGlobalHandle()
   PyObject *sys = PyImport_ImportModule("sys");
   if(sys)
   {
-    PyObject *ret = PyObject_SafeGetAttrString(sys, "_renderdoc_internal");
+    PyObject *ret = PyObject_SafeGetAttrString(sys, "_gfxdebug_internal");
 
     Py_XDECREF(sys);
     Py_XDECREF(ret);

@@ -67,10 +67,10 @@ public:
   void CheckStatus();
 
   DOCUMENT(R"(Runs the command specified in :meth:`RunCommand`. Returns
-:class:`~renderdoc.ResultDetails` which indicates success or the type of failure.
+:class:`~gfxdebug.ResultDetails` which indicates success or the type of failure.
 
 :return: The result from launching the remote server.
-:rtype: renderdoc.ResultDetails
+:rtype: gfxdebug.ResultDetails
 )");
   ResultDetails Launch();
 
@@ -141,16 +141,16 @@ public:
 
   DOCUMENT(R"(Create a connection to the remote server.
 
-:return: The status of opening the capture, whether success or failure, and a :class:`~renderdoc.RemoteServer`
+:return: The status of opening the capture, whether success or failure, and a :class:`~gfxdebug.RemoteServer`
   instance if it were successful
-:rtype: Tuple[renderdoc.ResultDetails, renderdoc.RemoteServer]
+:rtype: Tuple[gfxdebug.ResultDetails, gfxdebug.RemoteServer]
 )");
   ResultDetails Connect(IRemoteServer **server);
 
   DOCUMENT(R"(
-:return: The :class:`~renderdoc.DeviceProtocolController` for this host, or ``None`` if no protocol
+:return: The :class:`~gfxdebug.DeviceProtocolController` for this host, or ``None`` if no protocol
   is in use
-:rtype: Optional[renderdoc.DeviceProtocolController]
+:rtype: Optional[gfxdebug.DeviceProtocolController]
 )");
   IDeviceProtocolController *Protocol() const { return m_protocol; }
   DOCUMENT(R"(

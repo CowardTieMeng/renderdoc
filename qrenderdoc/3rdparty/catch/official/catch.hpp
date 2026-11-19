@@ -552,7 +552,7 @@ namespace Catch {
 }
 
 #define CATCH_INTERNAL_LINEINFO \
-    ::Catch::SourceLineInfo( __FILE__, static_cast<std::size_t>( __LINE__ ) )
+    ::Catch::SourceLineInfo( "", static_cast<std::size_t>( __LINE__ ) )
 
 // end catch_common.h
 namespace Catch {

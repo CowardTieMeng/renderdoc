@@ -131,7 +131,7 @@ CaptureContext::CaptureContext(PersistentConfig &cfg) : m_Config(cfg)
       {
         title = tr("Device Lost error");
         text = tr("%1.\n\n"
-                  "This may be due to an application bug, a RenderDoc bug, or insufficient "
+                  "This may be due to an application bug, a GfxDebug bug, or insufficient "
                   "resources on the system to analyse the capture.\n\n"
                   "It is recommended that you run your application with API validation enabled, as "
                   "API usage errors can cause this kind of problem.")
@@ -166,7 +166,7 @@ CaptureContext::CaptureContext(PersistentConfig &cfg) : m_Config(cfg)
         if(CrashDialog::HasCaptureReady(m_Config))
         {
           text +=
-              tr("If you think this may be a RenderDoc bug please click the button below to report "
+              tr("If you think this may be a GfxDebug bug please click the button below to report "
                  "it, "
                  "but note that this will require you to upload the capture for reproduction as "
                  "otherwise it is impossible to tell what the problem may be.");
@@ -179,7 +179,7 @@ CaptureContext::CaptureContext(PersistentConfig &cfg) : m_Config(cfg)
                     "Your capture is too lage to upload as a crash report so this can't be "
                     "automatically reported. "
                     "Please email me at <a "
-                    "href=\"mailto:baldurk@baldurk.org?subject=RenderDoc%20Unrecoverable%20error\">"
+                    "href=\"mailto:baldurk@baldurk.org?subject=GfxDebug%20Unrecoverable%20error\">"
                     "baldurk@baldurk.org</a> with information and I can help investigate.</html>")
                      .arg(text);
         }
@@ -260,7 +260,7 @@ CaptureContext::CaptureContext(PersistentConfig &cfg) : m_Config(cfg)
 
           QMessageBox::StandardButton res = RDDialog::question(
               NULL, tr("Possible python crash detected"),
-              tr("A previous instance of RenderDoc crashed while loading python extensions.\n\n"
+              tr("A previous instance of GfxDebug crashed while loading python extensions.\n\n"
                  "These extensions were enabled:\n%1\n"
                  "Would you like to disable python extensions?")
                   .arg(extNames));
@@ -369,9 +369,9 @@ rdcstr CaptureContext::TempCaptureFilename(const rdcstr &appname)
   {
     dir = QDir(QDir::tempPath());
 
-    dir.mkdir(lit("RenderDoc"));
+    dir.mkdir(lit("GfxDebug"));
 
-    dir = QDir(dir.absoluteFilePath(lit("RenderDoc")));
+    dir = QDir(dir.absoluteFilePath(lit("GfxDebug")));
   }
 
   return dir.absoluteFilePath(
@@ -480,9 +480,9 @@ rdcarray<ExtensionMetadata> CaptureContext::GetInstalledExtensions()
             ext.extensionURL = rdcstr();
           }
 
-          if(json.contains(lit("minimum_renderdoc")))
+          if(json.contains(lit("minimum_gfxdebug")))
           {
-            QString minVer = json[lit("minimum_renderdoc")].toString();
+            QString minVer = json[lit("minimum_gfxdebug")].toString();
 
             QRegularExpression re(lit("([0-9]*).([0-9]*)"));
             QRegularExpressionMatch match = re.match(minVer);
@@ -511,7 +511,7 @@ rdcarray<ExtensionMetadata> CaptureContext::GetInstalledExtensions()
             if(!ok)
             {
               qCritical() << "Extension" << QString(ext.name)
-                          << "is corrupt, minimum_renderdoc doesn't match a MAJOR.MINOR version";
+                          << "is corrupt, minimum_gfxdebug doesn't match a MAJOR.MINOR version";
               continue;
             }
 
@@ -519,7 +519,7 @@ rdcarray<ExtensionMetadata> CaptureContext::GetInstalledExtensions()
             {
               if(!m_BadVerExtensions.contains(rdcstr(package)))
               {
-                qInfo() << "Extension" << QString(ext.name) << "declares minimum_renderdoc"
+                qInfo() << "Extension" << QString(ext.name) << "declares minimum_gfxdebug"
                         << minVer << "so skipping";
                 m_BadVerExtensions.push_back(rdcstr(package));
               }
@@ -627,7 +627,7 @@ void CaptureContext::RegisterWindowMenu(WindowMenu base, const rdcarray<rdcstr> 
   }
 
   std::function<void()> slotcallback = [callback]() {
-    callback(PythonContext::GetExtensionPyrenderdoc(), {});
+    callback(PythonContext::GetExtensionPygfxdebug(), {});
   };
 
   // if it's a new menu, GetBaseMenu already did the work, so skip the 0th element of submenus
@@ -705,7 +705,7 @@ void CaptureContext::MenuDisplaying(ContextMenu contextMenu, QMenu *menu,
 
         PythonContext::ConvertPyArgs(data, args);
 
-        item->callback(PythonContext::GetExtensionPyrenderdoc(), args);
+        item->callback(PythonContext::GetExtensionPygfxdebug(), args);
 
         PythonContext::FreePyArgs(args);
       });
@@ -725,7 +725,7 @@ void CaptureContext::MenuDisplaying(PanelMenu panelMenu, QMenu *menu, QWidget *e
 
         PythonContext::ConvertPyArgs(data, args);
 
-        item->callback(PythonContext::GetExtensionPyrenderdoc(), args);
+        item->callback(PythonContext::GetExtensionPygfxdebug(), args);
 
         PythonContext::FreePyArgs(args);
       });
@@ -1146,7 +1146,7 @@ void CaptureContext::LoadCaptureThreaded(const QString &captureFile, const Repla
       {
         RDDialog::critical(NULL, tr("No wayland support"),
                            tr("Replay doesn't support Wayland surfaces - check you compiled this "
-                              "build of RenderDoc with Wayland support enabled."));
+                              "build of GfxDebug with Wayland support enabled."));
       }
     }
     else
@@ -2192,7 +2192,7 @@ bool CaptureContext::OpenRGPProfile(const rdcstr &filename)
   {
     RDDialog::critical(m_MainWindow, tr("Error opening RGP"),
                        tr("Invalid filename specified to open as RGP Profile\n%1\n"
-                          "Please restart RenderDoc and try again.")
+                          "Please restart GfxDebug and try again.")
                            .arg(QString(filename)));
     return false;
   }

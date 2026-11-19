@@ -352,9 +352,9 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
   {
     QString msg =
         tr("There is an unfixable problem with your vulkan layer configuration.\n\n"
-           "This is most commonly caused by having a distribution-provided package of RenderDoc "
-           "installed, which cannot be modified by another build of RenderDoc.\n\n"
-           "Please consult the RenderDoc documentation, or package/distribution documentation on "
+           "This is most commonly caused by having a distribution-provided package of GfxDebug "
+           "installed, which cannot be modified by another build of GfxDebug.\n\n"
+           "Please consult the GfxDebug documentation, or package/distribution documentation on "
            "linux. ");
 
     if(info.otherJSONs.size() > 1)
@@ -370,17 +370,17 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
   }
 
   QString msg =
-      tr("Vulkan capture happens through the API's layer mechanism. RenderDoc has detected that ");
+      tr("Vulkan capture happens through the API's layer mechanism. GfxDebug has detected that ");
 
   if(hasOtherJSON)
   {
     if(info.otherJSONs.size() > 1)
       msg +=
-          tr("there are other conflicting RenderDoc builds registered already. They must be "
+          tr("there are other conflicting GfxDebug builds registered already. They must be "
              "disabled so that vulkan programs can be captured without crashes.");
     else
       msg +=
-          tr("there is another conflicting RenderDoc build registered already. It must be disabled "
+          tr("there is another conflicting GfxDebug build registered already. It must be disabled "
              "so that vulkan programs can be captured without crashes.");
 
     if(!thisRegistered)
@@ -424,7 +424,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 
   if(needElevation)
     msg +=
-        tr("Due to some builds being in privileged locations, RenderDoc must elevate permissions "
+        tr("Due to some builds being in privileged locations, GfxDebug must elevate permissions "
            "to update them.\n\n");
 
   msg += tr("This is a one-off change, it won't be needed again unless the installation moves.");
@@ -446,11 +446,11 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 
       if(needElevation)
         msg +=
-            tr("\n\nNote that RenderDoc needs to elevate permissions to update the registration "
+            tr("\n\nNote that GfxDebug needs to elevate permissions to update the registration "
                "regardless.");
       else
         msg +=
-            tr("\n\nNote that RenderDoc will need to elevate permissions to register at system "
+            tr("\n\nNote that GfxDebug will need to elevate permissions to register at system "
                "level.");
 
       QMessageBox::StandardButton elevate =
@@ -489,7 +489,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 
       if(admin)
       {
-// linux sometimes can't run GUI apps as root, so we have to run renderdoccmd. Check that it's
+// linux sometimes can't run GUI apps as root, so we have to run gfxdebugcmd. Check that it's
 // installed, error if not, then invoke it.
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
         QDir binDir = QFileInfo(qApp->applicationFilePath()).absoluteDir();
@@ -508,10 +508,10 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
           if(inPath.isEmpty())
           {
             RDDialog::critical(
-                this, tr("Can't locate renderdoccmd"),
-                tr("On linux we must run renderdoccmd as root to register the layer, because "
-                   "graphical applications like qrenderdoc may fail to launch.\n\n"
-                   "renderdoccmd could not be located either next to this qrenderdoc executable or "
+                this, tr("Can't locate gfxdebugcmd"),
+                tr("On linux we must run gfxdebugcmd as root to register the layer, because "
+                   "graphical applications like qgfxdebug may fail to launch.\n\n"
+                   "gfxdebugcmd could not be located either next to this qgfxdebug executable or "
                    "in PATH."));
             return;
           }
@@ -519,25 +519,25 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
           // it's in the path, we can continue
         }
 
-        QStringList renderdoccmdParams;
+        QStringList gfxdebugcmdParams;
 
-        renderdoccmdParams << lit("vulkanlayer");
-        renderdoccmdParams << lit("--register");
+        gfxdebugcmdParams << lit("vulkanlayer");
+        gfxdebugcmdParams << lit("--register");
         if(system)
-          renderdoccmdParams << lit("--system");
+          gfxdebugcmdParams << lit("--system");
         else
-          renderdoccmdParams << lit("--user");
+          gfxdebugcmdParams << lit("--user");
 
-        if(!RunProcessAsAdmin(cmd, renderdoccmdParams, this, true, regComplete))
+        if(!RunProcessAsAdmin(cmd, gfxdebugcmdParams, this, true, regComplete))
           regComplete();
 #else
-        QStringList qrenderdocParams;
+        QStringList qgfxdebugParams;
 
-        qrenderdocParams << lit("--install_vulkan_layer");
+        qgfxdebugParams << lit("--install_vulkan_layer");
         if(system)
-          qrenderdocParams << lit("root");
+          qgfxdebugParams << lit("root");
 
-        if(!RunProcessAsAdmin(qApp->applicationFilePath(), qrenderdocParams, this, false, regComplete))
+        if(!RunProcessAsAdmin(qApp->applicationFilePath(), qgfxdebugParams, this, false, regComplete))
           regComplete();
 #endif
         return;
@@ -778,7 +778,7 @@ void CaptureDialog::on_toggleGlobal_clicked()
     {
       QMessageBox::StandardButton res = RDDialog::question(
           this, tr("Restart as admin?"),
-          tr("RenderDoc needs to restart with administrator privileges. Restart?"),
+          tr("GfxDebug needs to restart with administrator privileges. Restart?"),
           RDDialog::YesNoCancel);
 
       if(res == QMessageBox::Yes)
@@ -1132,7 +1132,7 @@ void CaptureDialog::UpdateGlobalHook()
     QString text = tr("Global hooking is risky!\nBe sure you know what you're doing.");
 
     if(ui->toggleGlobal->isChecked())
-      text += tr("\nEmergency restore @ %TEMP%\\RenderDoc_RestoreGlobalHook.reg");
+      text += tr("\nEmergency restore @ %TEMP%\\GfxDebug_RestoreGlobalHook.reg");
 
     ui->globalLabel->setText(text);
   }

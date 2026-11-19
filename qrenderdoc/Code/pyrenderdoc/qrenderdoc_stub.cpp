@@ -27,7 +27,7 @@
 #define SWIG_GENERATED
 #include "Code/Interface/QRDInterface.h"
 
-// we only support the qrenderdoc module for docs generation, so it doesn't matter that these stub
+// we only support the qgfxdebug module for docs generation, so it doesn't matter that these stub
 // functions aren't valid
 
 ////////////////////////////////////////////////////////////////////////////////

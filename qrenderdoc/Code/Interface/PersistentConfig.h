@@ -91,9 +91,9 @@ struct ShaderProcessingTool
       return output < o.output;
     return false;
   }
-  DOCUMENT(R"(The :class:`~renderdoc.KnownShaderTool` identifying which known tool this program is.
+  DOCUMENT(R"(The :class:`~gfxdebug.KnownShaderTool` identifying which known tool this program is.
 
-:type: renderdoc.KnownShaderTool
+:type: gfxdebug.KnownShaderTool
 )");
   KnownShaderTool tool = KnownShaderTool::Unknown;
   DOCUMENT(R"(The human-readable name of the program.
@@ -113,12 +113,12 @@ struct ShaderProcessingTool
   rdcstr args;
   DOCUMENT(R"(The input that this program expects.
 
-:type: renderdoc.ShaderEncoding
+:type: gfxdebug.ShaderEncoding
 )");
   ShaderEncoding input = ShaderEncoding::Unknown;
   DOCUMENT(R"(The output that this program provides.
 
-:type: renderdoc.ShaderEncoding
+:type: gfxdebug.ShaderEncoding
 )");
   ShaderEncoding output = ShaderEncoding::Unknown;
 
@@ -132,7 +132,7 @@ struct ShaderProcessingTool
   DOCUMENT(R"(Runs this program to disassemble a given shader reflection.
 
 :param QWidget window: A handle to the window to use when showing a progress bar or error messages.
-:param renderdoc.ShaderReflection shader: The shader to disassemble.
+:param gfxdebug.ShaderReflection shader: The shader to disassemble.
 :param str args: arguments to pass to the tool. The default arguments can be obtained using
   :meth:`DefaultArguments` which can then be customised as desired. Passing an empty string uses the
   default arguments.
@@ -147,7 +147,7 @@ struct ShaderProcessingTool
 :param QWidget window: A handle to the window to use when showing a progress bar or error messages.
 :param str source: The source code, preprocessed into a single file.
 :param str entryPoint: The name of the entry point in the shader to compile.
-:param renderdoc.ShaderStage stage: The pipeline stage that this shader represents.
+:param gfxdebug.ShaderStage stage: The pipeline stage that this shader represents.
 :param str spirvVer: The version of SPIR-V in use for this shader, or an empty string for defaults.
   The current version can be obtained from reflection data via the ``@spirver`` compile flag.
 :param str args: arguments to pass to the tool. The default arguments can be obtained using
@@ -167,7 +167,7 @@ private:
 DECLARE_REFLECTION_STRUCT(ShaderProcessingTool);
 
 #if !defined(SWIG)
-#define BUGREPORT_URL "https://renderdoc.org/bugreporter"
+#define BUGREPORT_URL "https://gfxdebug.org/bugreporter"
 #endif
 
 DOCUMENT(R"(
@@ -305,10 +305,10 @@ DECLARE_REFLECTION_STRUCT(BugReport);
   CONFIG_SETTING_VAL(public, QString, rdcstr, DefaultCaptureSaveDirectory, "")                     \
                                                                                                    \
   DOCUMENT(                                                                                        \
-      "A :class:`~renderdoc.ReplayOptions` containing the configured default replay options to "   \
+      "A :class:`~gfxdebug.ReplayOptions` containing the configured default replay options to "   \
       "use in most scenarios when no specific options are given.\n"                                \
       "\n:"                                                                                        \
-      "type: renderdoc.ReplayOptions");                                                            \
+      "type: gfxdebug.ReplayOptions");                                                            \
   CONFIG_SETTING(public, QVariant, ReplayOptions, DefaultReplayOptions)                            \
                                                                                                    \
   DOCUMENT(                                                                                        \
@@ -778,7 +778,7 @@ DECLARE_REFLECTION_STRUCT(BugReport);
                                                                                                    \
   DOCUMENT("");                                                                                    \
   DOCUMENT(                                                                                        \
-      "``False`` if :class:`~renderdoc.ResourceUsage` should combine resource usage across "       \
+      "``False`` if :class:`~gfxdebug.ResourceUsage` should combine resource usage across "       \
       "marker boundaries.\n"                                                                       \
       "\n:"                                                                                        \
       "Defaults to ``False``."                                                                     \
@@ -962,7 +962,7 @@ propagated and will not be forgotten in the case of crash or otherwise unexpecte
   DOCUMENT(R"(Closes the config file so that subsequent calls to Save() will not write to disk at
 the file the config was loaded from.
 
-This function is rarely directly used, except in the case where RenderDoc is relaunching itself and
+This function is rarely directly used, except in the case where GfxDebug is relaunching itself and
 wants to avoid file locking conflicts between the closing instance saving, and the loading instance
 loading. It can explicitly save and close before relaunching.
 )");

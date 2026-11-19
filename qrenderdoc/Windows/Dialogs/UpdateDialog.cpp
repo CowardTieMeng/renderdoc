@@ -106,7 +106,7 @@ void UpdateDialog::closeEvent(QCloseEvent *e)
 void UpdateDialog::on_releaseNotes_clicked()
 {
   QDesktopServices::openUrl(
-      QUrl(lit("https://github.com/baldurk/renderdoc/releases/tag/v%1").arg(m_NewVer)));
+      QUrl(lit("https://github.com/baldurk/gfxdebug/releases/tag/v%1").arg(m_NewVer)));
 }
 
 void UpdateDialog::on_close_clicked()
@@ -125,8 +125,8 @@ void UpdateDialog::on_close_clicked()
 void UpdateDialog::on_update_clicked()
 {
   QMessageBox::StandardButton res =
-      RDDialog::question(this, tr("RenderDoc Update"),
-                         tr("This will close RenderDoc immediately - if you have any "
+      RDDialog::question(this, tr("GfxDebug Update"),
+                         tr("This will close GfxDebug immediately - if you have any "
                             "unsaved work, save it first!\n"
                             "Continue?"),
                          QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
@@ -168,8 +168,8 @@ void UpdateDialog::on_update_clicked()
     if(running > 0)
     {
       RDDialog::critical(
-          this, tr("RenderDoc in use"),
-          tr("RenderDoc is currently capturing, cannot update until the program%1 closed:\n\n")
+          this, tr("GfxDebug in use"),
+          tr("GfxDebug is currently capturing, cannot update until the program%1 closed:\n\n")
                   .arg(running > 1 ? lit("s are") : lit(" is")) +
               runningPrograms);
       return;
@@ -229,8 +229,8 @@ void UpdateDialog::on_update_clicked()
 
       QDir dir(QDir::tempPath());
 
-      dir.mkdir(lit("RenderDocUpdate"));
-      dir.cd(lit("RenderDocUpdate"));
+      dir.mkdir(lit("GfxDebugUpdate"));
+      dir.cd(lit("GfxDebugUpdate"));
 
       QString path = dir.absoluteFilePath(lit("update.zip"));
 

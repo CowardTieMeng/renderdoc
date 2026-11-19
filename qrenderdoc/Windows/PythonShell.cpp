@@ -2070,10 +2070,10 @@ void PythonShell::createExtension_clicked()
       return;
     }
 
-    if(extName.startsWith(lit("renderdoc.")))
+    if(extName.startsWith(lit("gfxdebug.")))
     {
       RDDialog::critical(&dialog, tr("Invalid extension name"),
-                         tr("Extension name conflicts with builtin module 'renderdoc'."));
+                         tr("Extension name conflicts with builtin module 'gfxdebug'."));
       return;
     }
 
@@ -2168,7 +2168,7 @@ void PythonShell::createExtension_clicked()
 	"extension_api": 1,
 	"name": "%3",
 	"version": "1.0",
-	"minimum_renderdoc": "%1.%2",
+	"minimum_gfxdebug": "%1.%2",
 	"description": "Template extension %4",
 	"author": "My Name <my.email@example.com>",
 	"url": "https://github.com/example/example"
@@ -2190,13 +2190,13 @@ void PythonShell::createExtension_clicked()
       if(init.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
       {
         init.write(R"(
-# Blank RenderDoc UI extension
+# Blank GfxDebug UI extension
 
-import renderdoc as rd
-import qrenderdoc as qrd
+import gfxdebug as rd
+import qgfxdebug as qrd
 
-def register(version: str, pyrenderdoc: qrd.CaptureContext):
-    print(f"New UI extension loaded in RenderDoc {version}")
+def register(version: str, pygfxdebug: qrd.CaptureContext):
+    print(f"New UI extension loaded in GfxDebug {version}")
 
 def unregister():
     print(f"New UI extension being unloaded")
@@ -2418,10 +2418,10 @@ void PythonShell::interactive_keypress(QKeyEvent *event)
 
 QString PythonShell::scriptHeader()
 {
-  return tr(R"(RenderDoc Python console, powered by python %1.
-The 'pyrenderdoc' object is the current CaptureContext instance.
-The 'renderdoc' and 'qrenderdoc' modules are available.
-Documentation is available: https://renderdoc.org/docs/python_api/index.html)")
+  return tr(R"(GfxDebug Python console, powered by python %1.
+The 'pygfxdebug' object is the current CaptureContext instance.
+The 'gfxdebug' and 'qgfxdebug' modules are available.
+Documentation is available: https://gfxdebug.org/docs/python_api/index.html)")
       .arg(PythonContext::versionString());
 }
 
