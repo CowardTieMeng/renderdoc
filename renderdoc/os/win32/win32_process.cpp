@@ -1250,9 +1250,13 @@ RDResult BackupAndChangeRegistry(GlobalHookData &hookdata, const rdcstr &shimpat
   // level. If short paths are disabled we'll get the long path back, we *always* expect the path to
   // get shorter because the shim filename is bigger than 8.3.
 
-  DWORD nativeShortSize = GetShortPathNameW(StringFormat::UTF82Wide(shimpathNative).c_str(), NULL,
-                                            (DWORD)shimpathNative.length());
-  if(nativeShortSize == (DWORD)shimpathNative.length() + 1)
+  wchar_t shortbuf[MAX_PATH] = {0};
+  DWORD len =
+      GetShortPathNameW(StringFormat::UTF82Wide(shimpathNative).c_str(), shortbuf, MAX_PATH);
+  rdcwstr shortpath =
+      (len > 0 && shortbuf[0]) ? rdcwstr(shortbuf) : StringFormat::UTF82Wide(shimpathNative);
+
+  if(wcschr(shortpath.c_str(), L' ') != NULL)
   {
     RETURN_ERROR_RESULT(
         ResultCode::FileIOFailed,
@@ -1260,12 +1264,16 @@ RDResult BackupAndChangeRegistry(GlobalHookData &hookdata, const rdcstr &shimpat
         "For the global hook, short paths must be enabled where GfxDebug is installed.");
   }
 
+  rdcwstr shortpathWow32;
   if(!shimpathWow32.empty())
   {
-    DWORD wow32ShortSize = GetShortPathNameW(StringFormat::UTF82Wide(shimpathWow32).c_str(), NULL,
-                                             (DWORD)shimpathWow32.length());
+    wchar_t shortbuf32[MAX_PATH] = {0};
+    DWORD wow32Len =
+        GetShortPathNameW(StringFormat::UTF82Wide(shimpathWow32).c_str(), shortbuf32, MAX_PATH);
+    shortpathWow32 =
+        (wow32Len > 0 && shortbuf32[0]) ? rdcwstr(shortbuf32) : StringFormat::UTF82Wide(shimpathWow32);
 
-    if(wow32ShortSize == (DWORD)shimpathWow32.length() + 1)
+    if(wcschr(shortpathWow32.c_str(), L' ') != NULL)
     {
       RETURN_ERROR_RESULT(
           ResultCode::FileIOFailed,
@@ -1313,12 +1321,8 @@ RDResult BackupAndChangeRegistry(GlobalHookData &hookdata, const rdcstr &shimpat
   ret = RegSetValueExA(keyNative, "LoadAppInit_DLLs", 0, REG_DWORD, (const BYTE *)&one, sizeof(one));
   REG_CHECK("Could not set LoadAppInit_DLLs");
 
-  rdcwstr shortpath(shimpathNative.size());
-  GetShortPathNameW(StringFormat::UTF82Wide(shimpathNative).c_str(), shortpath.data(),
-                    (DWORD)shortpath.length());
-
-  ret = RegSetValueExW(keyNative, L"AppInit_DLLs", 0, REG_SZ, (const BYTE *)shortpath.data(),
-                       DWORD(shortpath.length() * sizeof(wchar_t)));
+  ret = RegSetValueExW(keyNative, L"AppInit_DLLs", 0, REG_SZ, (const BYTE *)shortpath.c_str(),
+                       DWORD((shortpath.length() + 1) * sizeof(wchar_t)));
   REG_CHECK("Could not set AppInit_DLLs");
 
   // if we're doing Wow32, repeat the process for those keys
@@ -1342,12 +1346,8 @@ RDResult BackupAndChangeRegistry(GlobalHookData &hookdata, const rdcstr &shimpat
     ret = RegSetValueExA(keyWow32, "LoadAppInit_DLLs", 0, REG_DWORD, (const BYTE *)&one, sizeof(one));
     REG_CHECK("Could not set LoadAppInit_DLLs");
 
-    shortpath = rdcwstr(shimpathWow32.size());
-    GetShortPathNameW(StringFormat::UTF82Wide(shimpathWow32).c_str(), shortpath.data(),
-                      (DWORD)shortpath.length());
-
-    ret = RegSetValueExW(keyWow32, L"AppInit_DLLs", 0, REG_SZ, (const BYTE *)shortpath.data(),
-                         DWORD(shortpath.length() * sizeof(wchar_t)));
+    ret = RegSetValueExW(keyWow32, L"AppInit_DLLs", 0, REG_SZ, (const BYTE *)shortpathWow32.c_str(),
+                         DWORD((shortpathWow32.length() + 1) * sizeof(wchar_t)));
     REG_CHECK("Could not set AppInit_DLLs");
   }
 
@@ -1426,11 +1426,14 @@ void RestoreRegistry(const GlobalHookData &hookdata)
   REG_CHECK("Could not open AppInit key");
 
 #if ENABLED(RDOC_X64)
-  ret = RegCreateKeyExA(HKEY_LOCAL_MACHINE,
-                        "SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Windows", 0,
-                        NULL, 0, KEY_READ | KEY_WRITE, NULL, &keyWow32, NULL);
+  if(hookdata.dataWow32.pipe != NULL)
+  {
+    ret = RegCreateKeyExA(HKEY_LOCAL_MACHINE,
+                          "SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Windows",
+                          0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &keyWow32, NULL);
 
-  REG_CHECK("Could not open AppInit key");
+    REG_CHECK("Could not open AppInit key");
+  }
 #endif
 
   // set the native values back to where they were
@@ -1548,6 +1551,12 @@ RDResult Process::StartGlobalHook(const rdcstr &pathmatch, const rdcstr &capture
     cmdpathWow32 = gfxdebugPath + "\\x86\\gfxdebugcmd.exe";
   }
 
+  if(!FileIO::exists(shimpathWow32) || !FileIO::exists(cmdpathWow32))
+  {
+    shimpathWow32.clear();
+    cmdpathWow32.clear();
+  }
+
 #else
 
   // nothing fancy to do here for 32-bit, just point the shim next to our dll.
@@ -1650,62 +1659,65 @@ RDResult Process::StartGlobalHook(const rdcstr &pathmatch, const rdcstr &capture
 
 // repeat the process for the Wow32 gfxdebugcmd
 #if ENABLED(RDOC_X64)
-  params = StringFormat::Fmt(
-      "\"%s\" globalhook --match \"%s\" --capfile \"%s\" --debuglog \"%s\" --capopts \"%s\"",
-      cmdpathWow32.c_str(), pathmatch.c_str(), capturefile.c_str(), debugLogfile.c_str(),
-      optstr.c_str());
-
-  paramsAlloc = StringFormat::UTF82Wide(params);
-
+  if(!cmdpathWow32.empty())
   {
-    SECURITY_ATTRIBUTES pipeSec;
-    pipeSec.nLength = sizeof(SECURITY_ATTRIBUTES);
-    pipeSec.bInheritHandle = TRUE;
-    pipeSec.lpSecurityDescriptor = NULL;
+    params = StringFormat::Fmt(
+        "\"%s\" globalhook --match \"%s\" --capfile \"%s\" --debuglog \"%s\" --capopts \"%s\"",
+        cmdpathWow32.c_str(), pathmatch.c_str(), capturefile.c_str(), debugLogfile.c_str(),
+        optstr.c_str());
 
-    BOOL res;
-    res = CreatePipe(&childEnd, &hookdata.dataWow32.pipe, &pipeSec, 0);
+    paramsAlloc = StringFormat::UTF82Wide(params);
 
-    if(!res)
     {
-      err = GetLastError();
-      RestoreRegistry(hookdata);
-      RETURN_ERROR_RESULT(ResultCode::InternalError, "Could not create 64-bit stdin pipe (err %u)",
-                          err);
+      SECURITY_ATTRIBUTES pipeSec;
+      pipeSec.nLength = sizeof(SECURITY_ATTRIBUTES);
+      pipeSec.bInheritHandle = TRUE;
+      pipeSec.lpSecurityDescriptor = NULL;
+
+      BOOL res;
+      res = CreatePipe(&childEnd, &hookdata.dataWow32.pipe, &pipeSec, 0);
+
+      if(!res)
+      {
+        err = GetLastError();
+        RestoreRegistry(hookdata);
+        RETURN_ERROR_RESULT(ResultCode::InternalError,
+                            "Could not create 64-bit stdin pipe (err %u)", err);
+      }
+
+      res = SetHandleInformation(hookdata.dataWow32.pipe, HANDLE_FLAG_INHERIT, 0);
+
+      if(!res)
+      {
+        err = GetLastError();
+        RestoreRegistry(hookdata);
+        RETURN_ERROR_RESULT(ResultCode::InternalError,
+                            "Could not make 64-bit stdin pipe inheritable (err %u)", err);
+      }
+
+      si.hStdInput = childEnd;
     }
 
-    res = SetHandleInformation(hookdata.dataWow32.pipe, HANDLE_FLAG_INHERIT, 0);
+    retValue = CreateProcessW(NULL, &paramsAlloc[0], &pSec, &tSec, true, CREATE_NEW_CONSOLE, NULL,
+                              NULL, &si, &pi);
 
-    if(!res)
+    err = GetLastError();
+
+    // we don't need this end anymore
+    CloseHandle(childEnd);
+
+    if(retValue == FALSE)
     {
-      err = GetLastError();
+      CloseHandle(hookdata.dataNative.pipe);
+      CloseHandle(hookdata.dataWow32.pipe);
       RestoreRegistry(hookdata);
-      RETURN_ERROR_RESULT(ResultCode::InternalError,
-                          "Could not make 64-bit stdin pipe inheritable (err %u)", err);
+      RETURN_ERROR_RESULT(ResultCode::InternalError, "Can't launch gfxdebugcmd from '%s' (err %u)",
+                          cmdpathWow32.c_str(), err);
     }
 
-    si.hStdInput = childEnd;
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
   }
-
-  retValue = CreateProcessW(NULL, &paramsAlloc[0], &pSec, &tSec, true, CREATE_NEW_CONSOLE, NULL,
-                            NULL, &si, &pi);
-
-  err = GetLastError();
-
-  // we don't need this end anymore
-  CloseHandle(childEnd);
-
-  if(retValue == FALSE)
-  {
-    CloseHandle(hookdata.dataNative.pipe);
-    CloseHandle(hookdata.dataWow32.pipe);
-    RestoreRegistry(hookdata);
-    RETURN_ERROR_RESULT(ResultCode::InternalError, "Can't launch gfxdebugcmd from '%s' (err %u)",
-                        cmdpathWow32.c_str(), err);
-  }
-
-  CloseHandle(pi.hThread);
-  CloseHandle(pi.hProcess);
 #endif
 
   // set static global pointer with our data, and launch the thread
