@@ -251,7 +251,7 @@ private:
       while(*cur)
       {
         // if it is NOT the vulkan env var, append it to our block
-        if(wcsncmp(cur, CONCAT(L, RENDERDOC_VULKAN_LAYER_VAR), sizeof(RENDERDOC_VULKAN_LAYER_VAR) - 1))
+        if(wcsncmp(cur, CONCAT(L, GFXDEBUG_VULKAN_LAYER_VAR), sizeof(GFXDEBUG_VULKAN_LAYER_VAR) - 1))
         {
           envW += cur;
           envW.push_back(L'\0');
@@ -274,7 +274,7 @@ private:
       while(*cur)
       {
         // if it is NOT the vulkan env var, append it to our block
-        if(strncmp(cur, RENDERDOC_VULKAN_LAYER_VAR, sizeof(RENDERDOC_VULKAN_LAYER_VAR) - 1))
+        if(strncmp(cur, GFXDEBUG_VULKAN_LAYER_VAR, sizeof(GFXDEBUG_VULKAN_LAYER_VAR) - 1))
         {
           envA += cur;
           envA.push_back('\0');
@@ -300,11 +300,11 @@ private:
 
       // inherit logfile and capture options
       rdcpair<RDResult, uint32_t> res = Process::InjectIntoProcess(
-          lpProcessInformation->dwProcessId, {}, RenderDoc::Inst().GetCaptureFileTemplate(),
-          RenderDoc::Inst().GetCaptureOptions(), false);
+          lpProcessInformation->dwProcessId, {}, GfxDebug::Inst().GetCaptureFileTemplate(),
+          GfxDebug::Inst().GetCaptureOptions(), false);
 
       if(res.first == ResultCode::Succeeded)
-        RenderDoc::Inst().AddChildProcess((uint32_t)lpProcessInformation->dwProcessId, res.second);
+        GfxDebug::Inst().AddChildProcess((uint32_t)lpProcessInformation->dwProcessId, res.second);
     }
 
     if(resume)
@@ -326,7 +326,7 @@ private:
 
   static bool ShouldInject(LPCWSTR lpApplicationName, LPCWSTR lpCommandLine)
   {
-    if(!RenderDoc::Inst().GetCaptureOptions().hookIntoChildren)
+    if(!GfxDebug::Inst().GetCaptureOptions().hookIntoChildren)
       return false;
 
     bool inject = true;
@@ -337,7 +337,7 @@ private:
     {
       rdcstr app = strlower(StringFormat::Wide2UTF8(lpApplicationName));
 
-      if(app.contains("renderdoccmd.exe") || app.contains("qrenderdoc.exe"))
+      if(app.contains("gfxdebugcmd.exe") || app.contains("qgfxdebug.exe"))
       {
         inject = false;
       }
@@ -346,7 +346,7 @@ private:
     {
       rdcstr cmd = strlower(StringFormat::Wide2UTF8(lpCommandLine));
 
-      if(cmd.contains("renderdoccmd.exe") || cmd.contains("qrenderdoc.exe"))
+      if(cmd.contains("gfxdebugcmd.exe") || cmd.contains("qgfxdebug.exe"))
       {
         inject = false;
       }
@@ -357,7 +357,7 @@ private:
 
   static bool ShouldInject(LPCSTR lpApplicationName, LPCSTR lpCommandLine)
   {
-    if(!RenderDoc::Inst().GetCaptureOptions().hookIntoChildren)
+    if(!GfxDebug::Inst().GetCaptureOptions().hookIntoChildren)
       return false;
 
     return ShouldInject(lpApplicationName ? StringFormat::UTF82Wide(lpApplicationName).c_str() : NULL,

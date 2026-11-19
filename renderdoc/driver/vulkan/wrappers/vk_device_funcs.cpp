@@ -46,13 +46,13 @@ RDOC_CONFIG(bool, Vulkan_Debug_EnableGPUVA, false,
 // capture and replay, and the safer default is not to replay as if we were the original app but
 // with a slightly different workload. So instead we trample what the app reported and put in our
 // own info.
-const static VkApplicationInfo renderdocAppInfo = {
+const static VkApplicationInfo gfxdebugAppInfo = {
     VK_STRUCTURE_TYPE_APPLICATION_INFO,
     NULL,
-    "RenderDoc Capturing App",
-    VK_MAKE_VERSION(RENDERDOC_VERSION_MAJOR, RENDERDOC_VERSION_MINOR, 0),
-    "RenderDoc",
-    VK_MAKE_VERSION(RENDERDOC_VERSION_MAJOR, RENDERDOC_VERSION_MINOR, 0),
+    "GfxDebug Capturing App",
+    VK_MAKE_VERSION(GFXDEBUG_VERSION_MAJOR, GFXDEBUG_VERSION_MINOR, 0),
+    "GfxDebug",
+    VK_MAKE_VERSION(GFXDEBUG_VERSION_MAJOR, GFXDEBUG_VERSION_MINOR, 0),
     VK_API_VERSION_1_0,
 };
 
@@ -117,7 +117,7 @@ static void StripUnwantedLayers(rdcarray<rdcstr> &Layers)
 {
   Layers.removeIf([](const rdcstr &layer) {
     // don't try and create our own layer on replay!
-    if(layer == RENDERDOC_VULKAN_LAYER_NAME)
+    if(layer == GFXDEBUG_VULKAN_LAYER_NAME)
     {
       return true;
     }
@@ -439,7 +439,7 @@ RDResult WrappedVulkan::Initialise(VkInitParams &params, uint64_t sectionVersion
   for(size_t i = 0; i < params.Extensions.size(); i++)
     extscstr[i] = params.Extensions[i].c_str();
 
-  VkApplicationInfo appinfo = renderdocAppInfo;
+  VkApplicationInfo appinfo = gfxdebugAppInfo;
 
   VkInstanceCreateInfo instinfo = {
       VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -586,7 +586,7 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 
   const bool internalInstance =
       (pCreateInfo->pApplicationInfo && pCreateInfo->pApplicationInfo->pApplicationName &&
-       rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "RenderDoc forced instance");
+       rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "GfxDebug forced instance");
 
   VkLayerInstanceCreateInfo *layerCreateInfo = (VkLayerInstanceCreateInfo *)pCreateInfo->pNext;
 
@@ -619,14 +619,14 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 #if DISABLED(RDOC_ANDROID)
   for(uint32_t i = 0; i < modifiedCreateInfo.enabledLayerCount; i++)
   {
-    if(rdcstr(modifiedCreateInfo.ppEnabledLayerNames[i]) == RENDERDOC_VULKAN_LAYER_NAME)
+    if(rdcstr(modifiedCreateInfo.ppEnabledLayerNames[i]) == GFXDEBUG_VULKAN_LAYER_NAME)
     {
       // see if any debug report callbacks were passed in the pNext chain
       VkDebugReportCallbackCreateInfoEXT *report =
           (VkDebugReportCallbackCreateInfoEXT *)pCreateInfo->pNext;
 
       rdcstr msg =
-          "RenderDoc's layer should NEVER be activated manually. Do not include it in "
+          "GfxDebug's layer should NEVER be activated manually. Do not include it in "
           "vkCreateInstance's instance layers.";
 
       RDCERR("%s", msg.c_str());
@@ -670,17 +670,17 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
   {
     if(!IsSupportedExtension(modifiedCreateInfo.ppEnabledExtensionNames[i]))
     {
-      RDCERR("RenderDoc does not support instance extension '%s'.",
+      RDCERR("GfxDebug does not support instance extension '%s'.",
              modifiedCreateInfo.ppEnabledExtensionNames[i]);
       RDCERR(
           "For KHR/EXT extensions file an issue on github to request support: "
-          "https://github.com/baldurk/renderdoc");
+          "https://github.com/baldurk/gfxdebug");
 
       // see if any debug report callbacks were passed in the pNext chain
       VkDebugReportCallbackCreateInfoEXT *report =
           (VkDebugReportCallbackCreateInfoEXT *)pCreateInfo->pNext;
 
-      rdcstr msg = StringFormat::Fmt("RenderDoc does not support requested instance extension: %s.",
+      rdcstr msg = StringFormat::Fmt("GfxDebug does not support requested instance extension: %s.",
                                      modifiedCreateInfo.ppEnabledExtensionNames[i]);
 
       while(report)
@@ -803,8 +803,8 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 
   bool brokenGetDeviceProcAddr = false;
 
-  // override applicationInfo with RenderDoc's, but preserve apiVersion
-  VkApplicationInfo modifiedAppInfo = renderdocAppInfo;
+  // override applicationInfo with GfxDebug's, but preserve apiVersion
+  VkApplicationInfo modifiedAppInfo = gfxdebugAppInfo;
 
   if(modifiedCreateInfo.pApplicationInfo)
   {
@@ -830,7 +830,7 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
   }
 
   // if we forced on API validation, it's also available
-  m_LayersEnabled[VkCheckLayer_unique_objects] |= RenderDoc::Inst().GetCaptureOptions().apiValidation;
+  m_LayersEnabled[VkCheckLayer_unique_objects] |= GfxDebug::Inst().GetCaptureOptions().apiValidation;
 
   VkResult ret = createFunc(&modifiedCreateInfo, NULL, pInstance);
 
@@ -932,7 +932,7 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
   }
   else
   {
-    RenderDoc::Inst().AddDeviceFrameCapturer(LayerDisp(m_Instance), this);
+    GfxDebug::Inst().AddDeviceFrameCapturer(LayerDisp(m_Instance), this);
   }
 
   m_DbgReportCallback = VK_NULL_HANDLE;
@@ -1139,7 +1139,7 @@ void WrappedVulkan::vkDestroyInstance(VkInstance instance, const VkAllocationCal
   // application is well behaved. If not, we just leak.
 
   ObjDisp(m_Instance)->DestroyInstance(Unwrap(m_Instance), NULL);
-  RenderDoc::Inst().RemoveDeviceFrameCapturer(LayerDisp(m_Instance));
+  GfxDebug::Inst().RemoveDeviceFrameCapturer(LayerDisp(m_Instance));
 
   GetResourceManager()->ReleaseWrappedResource(m_Instance);
   m_Instance = VK_NULL_HANDLE;
@@ -1654,7 +1654,7 @@ bool WrappedVulkan::SelectGraphicsComputeQueue(const rdcarray<VkQueueFamilyPrope
     {
       SET_ERROR_RESULT(
           m_FailedReplayResult, ResultCode::APIHardwareUnsupported,
-          "Can't add a queue with required properties for RenderDoc! Unsupported configuration");
+          "Can't add a queue with required properties for GfxDebug! Unsupported configuration");
       return false;
     }
 
@@ -2252,7 +2252,7 @@ bool WrappedVulkan::Serialise_vkCreateDevice(SerialiserType &ser, VkPhysicalDevi
     {
       SET_ERROR_RESULT(
           m_FailedReplayResult, ResultCode::APIHardwareUnsupported,
-          "Can't add a queue with required properties for RenderDoc! Unsupported configuration");
+          "Can't add a queue with required properties for GfxDebug! Unsupported configuration");
       return false;
     }
 
@@ -3897,7 +3897,7 @@ bool WrappedVulkan::Serialise_vkCreateDevice(SerialiserType &ser, VkPhysicalDevi
           "robustBufferAccess is available, but cannot be enabled due to "
           "robustBufferAccessUpdateAfterBind not being avilable and some UpdateAfterBind features "
           "being enabled. "
-          "out of bounds access due to bugs in application or RenderDoc may cause crashes");
+          "out of bounds access due to bugs in application or GfxDebug may cause crashes");
     }
     else
     {
@@ -3907,7 +3907,7 @@ bool WrappedVulkan::Serialise_vkCreateDevice(SerialiserType &ser, VkPhysicalDevi
       else
         RDCWARN(
             "robustBufferAccess = false, out of bounds access due to bugs in application or "
-            "RenderDoc may cause crashes");
+            "GfxDebug may cause crashes");
     }
 
     if(availFeatures.shaderInt64)
@@ -4722,7 +4722,7 @@ bool WrappedVulkan::Serialise_vkCreateDevice(SerialiserType &ser, VkPhysicalDevi
         VkDebugUtilsObjectTagInfoEXT tagInfo = {VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT};
         tagInfo.objectType = VK_OBJECT_TYPE_INSTANCE;
         tagInfo.objectHandle = uint64_t(Unwrap(m_Instance));
-        tagInfo.tagName = RENDERDOC_DescriptorsReservation_UUID;
+        tagInfo.tagName = GFXDEBUG_DescriptorsReservation_UUID;
         tagInfo.tagSize = sizeof(bool);
         bool yes = true;
         tagInfo.pTag = &yes;
@@ -4756,14 +4756,14 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
   {
     if(!IsSupportedExtension(createInfo.ppEnabledExtensionNames[i]))
     {
-      RDCERR("RenderDoc does not support device extension '%s'.",
+      RDCERR("GfxDebug does not support device extension '%s'.",
              createInfo.ppEnabledExtensionNames[i]);
       RDCERR(
           "For KHR/EXT extensions file an issue on github to request support: "
-          "https://github.com/baldurk/renderdoc");
+          "https://github.com/baldurk/gfxdebug");
 
       SendUserDebugMessage(
-          StringFormat::Fmt("RenderDoc does not support requested device extension: %s.",
+          StringFormat::Fmt("GfxDebug does not support requested device extension: %s.",
                             createInfo.ppEnabledExtensionNames[i]));
 
       return VK_ERROR_EXTENSION_NOT_PRESENT;
@@ -4772,7 +4772,7 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
 
   if(m_Device != VK_NULL_HANDLE)
   {
-    SendUserDebugMessage("RenderDoc does not support multiple simultaneous logical devices.");
+    SendUserDebugMessage("GfxDebug does not support multiple simultaneous logical devices.");
     return VK_ERROR_INITIALIZATION_FAILED;
   }
 
@@ -4968,7 +4968,7 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
         "robustBufferAccess is available, but cannot be enabled due to "
         "robustBufferAccessUpdateAfterBind not being avilable and some UpdateAfterBind features "
         "being enabled. "
-        "out of bounds access due to bugs in application or RenderDoc may cause crashes");
+        "out of bounds access due to bugs in application or GfxDebug may cause crashes");
 
     for(const char *e : Extensions)
     {
@@ -4986,7 +4986,7 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
     else
       RDCWARN(
           "robustBufferAccess = false, out of bounds access due to bugs in application or "
-          "RenderDoc may cause crashes");
+          "GfxDebug may cause crashes");
   }
 
   // enable this feature as it's needed at capture time to save MSAA initial states
@@ -5422,10 +5422,10 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
     if(m_PhysicalDeviceData.driverProps.driverID == VK_DRIVER_ID_MESA_RADV &&
        m_PhysicalDeviceData.props.vendorID == 0x1002 && m_PhysicalDeviceData.props.deviceID == 0x163F)
     {
-      CaptureOptions opts = RenderDoc::Inst().GetCaptureOptions();
+      CaptureOptions opts = GfxDebug::Inst().GetCaptureOptions();
       if(opts.softMemoryLimit == 0)
         opts.softMemoryLimit = 200;
-      RenderDoc::Inst().SetCaptureOptions(opts);
+      GfxDebug::Inst().SetCaptureOptions(opts);
       RDCLOG("Forcing 200MB soft memory limit");
     }
 

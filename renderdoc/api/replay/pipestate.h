@@ -39,8 +39,8 @@ available on all APIs.
 For more detailed or precise information without abstraction, access the specific pipeline state
 for the capture that's open.
 
-Available from :meth:`~qrenderdoc.CaptureContext.CurPipelineState` in the UI or
-:meth:`~renderdoc.ReplayController.GetPipelineState` from the replay API directly.
+Available from :meth:`~qgfxdebug.CaptureContext.CurPipelineState` in the UI or
+:meth:`~gfxdebug.ReplayController.GetPipelineState` from the replay API directly.
 )");
 struct PipeState
 {
@@ -49,7 +49,7 @@ public:
   // disallow copy of this object
   PipeState(const PipeState &) = delete;
 
-#if defined(RENDERDOC_EXPORTS)
+#if defined(GFXDEBUG_EXPORTS)
   // we initialise this internally only
   void SetState(const D3D11Pipe::State *d3d11)
   {

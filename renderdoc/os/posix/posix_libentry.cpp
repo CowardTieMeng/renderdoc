@@ -35,9 +35,9 @@ void library_loaded()
   {
     RDCDEBUG("Not creating hooks - in replay app");
 
-    RenderDoc::Inst().SetReplayApp(true);
+    GfxDebug::Inst().SetReplayApp(true);
 
-    RenderDoc::Inst().Initialise();
+    GfxDebug::Inst().Initialise();
 
     LibraryHooks::ReplayInitialise();
 
@@ -45,12 +45,12 @@ void library_loaded()
   }
   else
   {
-    RenderDoc::Inst().Initialise();
+    GfxDebug::Inst().Initialise();
 
     ResetHookingEnvVars();
 
-    rdcstr capturefile = Process::GetEnvVariable("RENDERDOC_CAPFILE");
-    rdcstr opts = Process::GetEnvVariable("RENDERDOC_CAPOPTS");
+    rdcstr capturefile = Process::GetEnvVariable("GFXDEBUG_CAPFILE");
+    rdcstr opts = Process::GetEnvVariable("GFXDEBUG_CAPOPTS");
 
     if(!opts.empty())
     {
@@ -59,12 +59,12 @@ void library_loaded()
 
       RDCLOG("Using delay for debugger %u", optstruct.delayForDebugger);
 
-      RenderDoc::Inst().SetCaptureOptions(optstruct);
+      GfxDebug::Inst().SetCaptureOptions(optstruct);
     }
 
     if(!capturefile.empty())
     {
-      RenderDoc::Inst().SetCaptureFileTemplate(capturefile);
+      GfxDebug::Inst().SetCaptureFileTemplate(capturefile);
     }
 
     rdcstr curfile;

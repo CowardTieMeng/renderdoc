@@ -1044,7 +1044,7 @@ The full current D3D12 pipeline state.
 )");
 struct State
 {
-#if !defined(RENDERDOC_EXPORTS)
+#if !defined(GFXDEBUG_EXPORTS)
   // disallow creation/copy of this object externally
   State() = delete;
   State(const State &) = delete;

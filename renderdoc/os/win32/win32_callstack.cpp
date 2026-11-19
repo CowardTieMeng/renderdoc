@@ -98,7 +98,7 @@ rdcwstr GetSymSearchPath()
   if(len == 0 && GetLastError() == ERROR_ENVVAR_NOT_FOUND)
   {
     // set up a default sympath to look up MS's symbol servers and cache them locally in
-    // RenderDoc's appdata folder.
+    // GfxDebug's appdata folder.
     PWSTR appDataPath;
     SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_SIMPLE_IDLIST | KF_FLAG_DONT_UNEXPAND,
                          NULL, &appDataPath);
@@ -107,9 +107,9 @@ rdcwstr GetSymSearchPath()
 
     sympath = L".;";
     sympath += appdata.c_str();
-    sympath += L"\\renderdoc\\symbols;SRV*";
+    sympath += L"\\gfxdebug\\symbols;SRV*";
     sympath += appdata.c_str();
-    sympath += L"\\renderdoc\\symbols\\symsrv*http://msdl.microsoft.com/download/symbols";
+    sympath += L"\\gfxdebug\\symbols\\symsrv*http://msdl.microsoft.com/download/symbols";
 
     return sympath.c_str();
   }
@@ -435,7 +435,7 @@ class Win32CallstackResolver : public Callstack::StackResolver
 {
 public:
   Win32CallstackResolver(bool interactive, byte *moduleDB, size_t DBSize,
-                         RENDERDOC_ProgressCallback progress);
+                         GFXDEBUG_ProgressCallback progress);
   ~Win32CallstackResolver();
 
   Callstack::AddressDetails GetAddr(uint64_t addr);
@@ -461,8 +461,8 @@ private:
 
 ///////////////////////////////////////////////////
 
-void *renderdocBase = NULL;
-uint32_t renderdocSize = 0;
+void *gfxdebugBase = NULL;
+uint32_t gfxdebugSize = 0;
 
 // gives us an address to identify this dll with
 static int dllLocator = 0;
@@ -557,12 +557,12 @@ static bool InitDbgHelp()
 
     if(result != FALSE)
     {
-      renderdocBase = modinfo.lpBaseOfDll;
-      renderdocSize = modinfo.SizeOfImage;
+      gfxdebugBase = modinfo.lpBaseOfDll;
+      gfxdebugSize = modinfo.SizeOfImage;
     }
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     DIA2::Init();
   }
@@ -681,8 +681,8 @@ void Win32Callstack::Collect()
 
   stack32.resize(num);
 
-  while(!stack32.empty() && (uint64_t)stack32[0] >= (uint64_t)renderdocBase &&
-        (uint64_t)stack32[0] <= (uint64_t)renderdocBase + renderdocSize)
+  while(!stack32.empty() && (uint64_t)stack32[0] >= (uint64_t)gfxdebugBase &&
+        (uint64_t)stack32[0] <= (uint64_t)gfxdebugBase + gfxdebugSize)
   {
     stack32.erase(0, 1);
   }
@@ -696,7 +696,7 @@ Win32Callstack::Win32Callstack()
 {
   bool ret = InitDbgHelp();
 
-  if(ret && renderdocBase != NULL)
+  if(ret && gfxdebugBase != NULL)
     Collect();
 }
 
@@ -740,7 +740,7 @@ rdcstr Win32CallstackResolver::pdbBrowse(rdcstr startingPoint)
 }
 
 Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB, size_t DBSize,
-                                               RENDERDOC_ProgressCallback progress)
+                                               GFXDEBUG_ProgressCallback progress)
 {
   if(Win32_Callstacks_MSDIAPath() == UNINITIALISED_VAR)
   {
@@ -760,7 +760,7 @@ Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB,
     for(;;)
     {
       DWORD read =
-          GetPrivateProfileStringW(L"renderdoc", L"ignores", NULL, inputBuf, sz, configPath.c_str());
+          GetPrivateProfileStringW(L"gfxdebug", L"ignores", NULL, inputBuf, sz, configPath.c_str());
 
       if(read == sz - 1)
       {
@@ -776,7 +776,7 @@ Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB,
     rdcstr ignores = StringFormat::Wide2UTF8(inputBuf);
 
     {
-      DWORD read = GetPrivateProfileStringW(L"renderdoc", L"msdiapath", NULL, inputBuf, sz,
+      DWORD read = GetPrivateProfileStringW(L"gfxdebug", L"msdiapath", NULL, inputBuf, sz,
                                             configPath.c_str());
 
       if(read > 0)
@@ -965,8 +965,8 @@ Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB,
         {
           pdbName = get_dirname(defaultPdb) + "\\" + get_basename(defaultPdb);
 
-          // prompt for new pdbName, unless it's renderdoc or dbghelp, or we're non-interactive
-          if(pdbName.contains("renderdoc.") || pdbName.contains("dbghelp.") ||
+          // prompt for new pdbName, unless it's gfxdebug or dbghelp, or we're non-interactive
+          if(pdbName.contains("gfxdebug.") || pdbName.contains("dbghelp.") ||
              pdbName.contains("symsrv.") || !interactive)
             pdbName = "";
           else
@@ -1004,9 +1004,9 @@ Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB,
 
       RDCWARN("Couldn't get symbols for %s", m.name.c_str());
 
-      // silently ignore renderdoc.dll, dbghelp.dll, and symsrv.dll without asking to permanently
+      // silently ignore gfxdebug.dll, dbghelp.dll, and symsrv.dll without asking to permanently
       // ignore
-      if(m.name.contains("renderdoc.") || m.name.contains("dbghelp.") || m.name.contains("symsrv."))
+      if(m.name.contains("gfxdebug.") || m.name.contains("dbghelp.") || m.name.contains("symsrv."))
         continue;
 
       // if we're not interactive, just continue
@@ -1034,15 +1034,15 @@ Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB,
     modules.push_back(m);
   }
 
-  SDObject *ignoreList = RenderDoc::Inst().SetConfigSetting("Win32.Callstacks.IgnoreList");
+  SDObject *ignoreList = GfxDebug::Inst().SetConfigSetting("Win32.Callstacks.IgnoreList");
   ignoreList->DeleteChildren();
   ignoreList->ReserveChildren(pdbIgnores.size());
   for(rdcstr &i : pdbIgnores)
     ignoreList->AddAndOwnChild(makeSDString("$el"_lit, i));
-  RenderDoc::Inst().SetConfigSetting("Win32.Callstacks.MSDIAPath")->data.str =
+  GfxDebug::Inst().SetConfigSetting("Win32.Callstacks.MSDIAPath")->data.str =
       StringFormat::Wide2UTF8(DIA2::msdiapath);
 
-  RENDERDOC_SaveConfigSettings();
+  GFXDEBUG_SaveConfigSettings();
 }
 
 Win32CallstackResolver::~Win32CallstackResolver()
@@ -1113,7 +1113,7 @@ void Init()
 {
   // if we're capturing, need to initialise immediately to claim ownership and be ready to collect
   // callstacks. On replay we can do this later when needed.
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GfxDebug::Inst().IsReplayApp())
     ::InitDbgHelp();
 }
 
@@ -1128,7 +1128,7 @@ Stackwalk *Create()
 }
 
 StackResolver *MakeResolver(bool interactive, byte *moduleDB, size_t DBSize,
-                            RENDERDOC_ProgressCallback progress)
+                            GFXDEBUG_ProgressCallback progress)
 {
   if(DBSize < 8 || memcmp(moduleDB, "WN32CALL", 8) != 0)
   {

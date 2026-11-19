@@ -26,12 +26,12 @@
 #include "../vk_debug.h"
 #include "api/replay/version.h"
 
-static char fakeRenderDocUUID[VK_UUID_SIZE] = {};
+static char fakeGfxDebugUUID[VK_UUID_SIZE] = {};
 
 void MakeFakeUUID()
 {
   // Assign a fake UUID, so that we get SPIR-V instead of cached shader data, etc.
-  if(fakeRenderDocUUID[0] == 0)
+  if(fakeGfxDebugUUID[0] == 0)
   {
     // The start is "rdoc", and the end is the time that this call was first made
     //
@@ -41,8 +41,8 @@ void MakeFakeUUID()
     // We pass size+1 so that there's room for a null terminator (the UUID doesn't
     // need a null terminator as it's a fixed size non-string array)
     rdcstr uuid = StringFormat::sntimef(Timing::GetUTCTime(), "rdoc%y%m%d%H%M%S");
-    RDCASSERT(uuid.size() == sizeof(fakeRenderDocUUID));
-    memcpy(fakeRenderDocUUID, uuid.c_str(), RDCMIN((size_t)VK_UUID_SIZE, uuid.size()));
+    RDCASSERT(uuid.size() == sizeof(fakeGfxDebugUUID));
+    memcpy(fakeGfxDebugUUID, uuid.c_str(), RDCMIN((size_t)VK_UUID_SIZE, uuid.size()));
   }
 }
 
@@ -919,7 +919,7 @@ void WrappedVulkan::vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice
     }
   }
 
-  // report features depending on extensions not supported in RenderDoc as not supported
+  // report features depending on extensions not supported in GfxDebug as not supported
   VkPhysicalDeviceExtendedDynamicState3FeaturesEXT *dynState3 =
       (VkPhysicalDeviceExtendedDynamicState3FeaturesEXT *)FindNextStruct(
           pFeatures, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT);
@@ -976,7 +976,7 @@ void WrappedVulkan::vkGetPhysicalDeviceProperties2(VkPhysicalDevice physicalDevi
 
   ClampPhysDevAPIVersion(&pProperties->properties, physicalDevice);
 
-  // Internal RenderDoc UUID for:
+  // Internal GfxDebug UUID for:
   //
   // * Shader object binary, so we always get SPIR-V
   // * Optimal image layout, so we never get VK_HOST_IMAGE_COPY_MEMCPY_BIT
@@ -996,15 +996,15 @@ void WrappedVulkan::vkGetPhysicalDeviceProperties2(VkPhysicalDevice physicalDevi
 
   if(shaderObject)
   {
-    memcpy(shaderObject->shaderBinaryUUID, fakeRenderDocUUID, VK_UUID_SIZE);
+    memcpy(shaderObject->shaderBinaryUUID, fakeGfxDebugUUID, VK_UUID_SIZE);
   }
   if(hostImageCopy)
   {
-    memcpy(hostImageCopy->optimalTilingLayoutUUID, fakeRenderDocUUID, VK_UUID_SIZE);
+    memcpy(hostImageCopy->optimalTilingLayoutUUID, fakeGfxDebugUUID, VK_UUID_SIZE);
   }
   if(vulkan14)
   {
-    memcpy(vulkan14->optimalTilingLayoutUUID, fakeRenderDocUUID, VK_UUID_SIZE);
+    memcpy(vulkan14->optimalTilingLayoutUUID, fakeGfxDebugUUID, VK_UUID_SIZE);
   }
 
   VkPhysicalDeviceDescriptorBufferPropertiesEXT *descBufferProperties =
@@ -1355,10 +1355,10 @@ VkResult WrappedVulkan::vkGetPhysicalDeviceToolProperties(VkPhysicalDevice physi
 
   VkPhysicalDeviceToolProperties &props = *(pToolProperties + *pToolCount);
 
-  const rdcstr name = "RenderDoc"_lit;
+  const rdcstr name = "GfxDebug"_lit;
   const rdcstr version = StringFormat::Fmt(
       "%s (%s)", FULL_VERSION_STRING, GitVersionHash[0] == 'N' ? "Unknown revision" : GitVersionHash);
-  const rdcstr description = "Debugging capture layer for RenderDoc"_lit;
+  const rdcstr description = "Debugging capture layer for GfxDebug"_lit;
 
   RDCASSERTMSG("Name is too long for VkPhysicalDeviceToolProperties",
                name.length() < sizeof(props.name));
@@ -1431,7 +1431,7 @@ void WrappedVulkan::vkGetDeviceAccelerationStructureCompatibilityKHR(
 VkResult WrappedVulkan::vkGetShaderBinaryDataEXT(VkDevice device, VkShaderEXT shader,
                                                  size_t *pDataSize, void *pData)
 {
-  // renderdoc doesn't support shader binaries, but should comply with the spec
+  // gfxdebug doesn't support shader binaries, but should comply with the spec
   // so we return four NULL bytes if this function is called and would otherwise
   // return a valid binary
   size_t totalSize = 4;
@@ -1512,7 +1512,7 @@ void WrappedVulkan::vkGetImageSubresourceLayout2(VkDevice device, VkImage image,
 {
   ObjDisp(device)->GetImageSubresourceLayout2(Unwrap(device), Unwrap(image), pSubresource, pLayout);
 
-  // RenderDoc removes calls with VK_HOST_IMAGE_COPY_MEMCPY_BIT flag, so the
+  // GfxDebug removes calls with VK_HOST_IMAGE_COPY_MEMCPY_BIT flag, so the
   // VkSubresourceHostMemcpySize struct chained to VkSubresourceLayout2 is overriden to
   // provide a fixed size.
   VkSubresourceHostMemcpySize *memcpySize = (VkSubresourceHostMemcpySize *)FindNextStruct(
@@ -1534,7 +1534,7 @@ void WrappedVulkan::vkGetImageSubresourceLayout2EXT(VkDevice device, VkImage ima
 {
   ObjDisp(device)->GetImageSubresourceLayout2(Unwrap(device), Unwrap(image), pSubresource, pLayout);
 
-  // RenderDoc removes calls with VK_HOST_IMAGE_COPY_MEMCPY_BIT flag, so the
+  // GfxDebug removes calls with VK_HOST_IMAGE_COPY_MEMCPY_BIT flag, so the
   // VkSubresourceHostMemcpySize struct chained to VkSubresourceLayout2 is overriden to
   // provide a fixed size.
   VkSubresourceHostMemcpySize *memcpySize = (VkSubresourceHostMemcpySize *)FindNextStruct(

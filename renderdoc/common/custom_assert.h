@@ -122,7 +122,7 @@
         failmsg.pop_back();                                                              \
       }                                                                                  \
       rdcstr combinedmsg = assertmsg + (failmsg.empty() ? "" : "(" + failmsg + ")");     \
-      rdcassert(combinedmsg.c_str(), __FILE__, __LINE__, __PRETTY_FUNCTION_SIGNATURE__); \
+      rdcassert(combinedmsg.c_str(), "", __LINE__, __PRETTY_FUNCTION_SIGNATURE__); \
       rdclog_flush();                                                                    \
       RDCBREAK();                                                                        \
     }                                                                                    \

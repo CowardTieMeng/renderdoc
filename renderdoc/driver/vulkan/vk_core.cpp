@@ -173,9 +173,9 @@ uint64_t DescriptorTrieNode::rangeToleranceMask = ~0ULL;
 
 WrappedVulkan::WrappedVulkan()
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(WrappedVulkan));
+  GfxDebug::Inst().RegisterMemoryRegion(this, sizeof(WrappedVulkan));
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(VkMarkerRegion::vk == NULL)
       VkMarkerRegion::vk = this;
@@ -192,7 +192,7 @@ WrappedVulkan::WrappedVulkan()
   m_SectionVersion = VkInitParams::CurrentVersion;
 
   rdcspv::Init();
-  RenderDoc::Inst().RegisterShutdownFunction(&rdcspv::Shutdown);
+  GfxDebug::Inst().RegisterShutdownFunction(&rdcspv::Shutdown);
 
   m_Replay = new VulkanReplay(this);
 
@@ -223,7 +223,7 @@ WrappedVulkan::WrappedVulkan()
   m_QueueFamilyIdx = 0;
   m_DbgReportCallback = VK_NULL_HANDLE;
 
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GfxDebug::Inst().IsReplayApp())
   {
     m_FrameCaptureRecord = GetResourceManager()->AddResourceRecord(ResourceIDGen::GetNewUniqueID());
     m_FrameCaptureRecord->DataInSerialiser = false;
@@ -310,12 +310,12 @@ VkCommandBuffer WrappedVulkan::GetInitStateCmd()
 
     if(IsReplayMode(m_State))
     {
-      VkMarkerRegion::Begin("!!!!RenderDoc Internal: ApplyInitialContents batched list",
+      VkMarkerRegion::Begin("!!!!GfxDebug Internal: ApplyInitialContents batched list",
                             initStateCurCmd);
     }
     else
     {
-      VkMarkerRegion::Begin("!!!!RenderDoc Internal: PrepareInitialContents batched list",
+      VkMarkerRegion::Begin("!!!!GfxDebug Internal: PrepareInitialContents batched list",
                             initStateCurCmd);
     }
   }
@@ -402,7 +402,7 @@ void WrappedVulkan::AddFreeCommandBuffer(VkCommandBuffer cmd)
 void WrappedVulkan::SubmitCmds(VkSemaphore *unwrappedWaitSemaphores,
                                VkPipelineStageFlags *waitStageMask, uint32_t waitSemaphoreCount)
 {
-  RENDERDOC_PROFILEFUNCTION();
+  GFXDEBUG_PROFILEFUNCTION();
   if(HasFatalError())
     return;
 
@@ -484,7 +484,7 @@ void WrappedVulkan::SubmitSemaphores()
 
 void WrappedVulkan::FlushQ()
 {
-  RENDERDOC_PROFILEFUNCTION();
+  GFXDEBUG_PROFILEFUNCTION();
 
   if(HasFatalError())
     return;
@@ -945,7 +945,7 @@ WriteSerialiser &WrappedVulkan::GetThreadSerialiser()
   uint32_t flags = WriteSerialiser::ChunkDuration | WriteSerialiser::ChunkTimestamp |
                    WriteSerialiser::ChunkThreadID;
 
-  if(RenderDoc::Inst().GetCaptureOptions().captureCallstacks)
+  if(GfxDebug::Inst().GetCaptureOptions().captureCallstacks)
     flags |= WriteSerialiser::ChunkCallstack;
 
   ser->SetChunkMetadataRecording(flags);
@@ -2195,12 +2195,12 @@ static const VkExtensionProperties supportedExtensions[] = {
 };
 
 // this is the list of extensions we provide - regardless of whether the ICD supports them
-static const VkExtensionProperties renderdocProvidedDeviceExtensions[] = {
+static const VkExtensionProperties gfxdebugProvidedDeviceExtensions[] = {
     {VK_EXT_DEBUG_MARKER_EXTENSION_NAME, VK_EXT_DEBUG_MARKER_SPEC_VERSION},
     {VK_EXT_TOOLING_INFO_EXTENSION_NAME, VK_EXT_TOOLING_INFO_SPEC_VERSION},
 };
 
-static const VkExtensionProperties renderdocProvidedInstanceExtensions[] = {
+static const VkExtensionProperties gfxdebugProvidedInstanceExtensions[] = {
     {VK_EXT_DEBUG_UTILS_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_SPEC_VERSION},
 };
 
@@ -2603,8 +2603,8 @@ VkResult WrappedVulkan::FilterDeviceExtensionProperties(VkPhysicalDevice physDev
 
     // now we can add extensions that we provide ourselves (note this isn't sorted, but we
     // don't have to sort the results, the sorting was just so we could filter optimally).
-    filtered.append(&renderdocProvidedDeviceExtensions[0],
-                    ARRAY_COUNT(renderdocProvidedDeviceExtensions));
+    filtered.append(&gfxdebugProvidedDeviceExtensions[0],
+                    ARRAY_COUNT(gfxdebugProvidedDeviceExtensions));
   }
 
   filterWarned = true;
@@ -2647,8 +2647,8 @@ VkResult WrappedVulkan::FilterInstanceExtensionProperties(
   {
     // now we can add extensions that we provide ourselves (note this isn't sorted, but we
     // don't have to sort the results, the sorting was just so we could filter optimally).
-    filtered.append(&renderdocProvidedInstanceExtensions[0],
-                    ARRAY_COUNT(renderdocProvidedInstanceExtensions));
+    filtered.append(&gfxdebugProvidedInstanceExtensions[0],
+                    ARRAY_COUNT(gfxdebugProvidedInstanceExtensions));
   }
 
   return FillPropertyCountAndList(&filtered[0], (uint32_t)filtered.size(), pPropertyCount,
@@ -2658,8 +2658,8 @@ VkResult WrappedVulkan::FilterInstanceExtensionProperties(
 VkResult WrappedVulkan::GetProvidedDeviceExtensionProperties(uint32_t *pPropertyCount,
                                                              VkExtensionProperties *pProperties)
 {
-  return FillPropertyCountAndList(renderdocProvidedDeviceExtensions,
-                                  (uint32_t)ARRAY_COUNT(renderdocProvidedDeviceExtensions),
+  return FillPropertyCountAndList(gfxdebugProvidedDeviceExtensions,
+                                  (uint32_t)ARRAY_COUNT(gfxdebugProvidedDeviceExtensions),
                                   pPropertyCount, pProperties);
 }
 
@@ -2699,9 +2699,9 @@ void WrappedVulkan::EndCaptureFrame(VkImage presentImage)
 void WrappedVulkan::FirstFrame()
 {
   // if we have to capture the first frame, begin capturing immediately
-  if(IsBackgroundCapturing(m_State) && RenderDoc::Inst().ShouldTriggerCapture(0))
+  if(IsBackgroundCapturing(m_State) && GfxDebug::Inst().ShouldTriggerCapture(0))
   {
-    RenderDoc::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GfxDebug::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
 
     m_FirstFrameCapture = true;
 
@@ -3037,7 +3037,7 @@ bool WrappedVulkan::EndFrameCapture(DeviceOwnedWindow devWnd)
 
   // gather backbuffer screenshot
   const uint32_t maxSize = 2048;
-  RenderDoc::FramePixels fp;
+  GfxDebug::FramePixels fp;
 
   if(backbuffer != VK_NULL_HANDLE)
   {
@@ -3229,7 +3229,7 @@ bool WrappedVulkan::EndFrameCapture(DeviceOwnedWindow devWnd)
   }
 
   RDCFile *rdc =
-      RenderDoc::Inst().CreateRDC(RDCDriver::Vulkan, m_CapturedFrames.back().frameNumber, fp);
+      GfxDebug::Inst().CreateRDC(RDCDriver::Vulkan, m_CapturedFrames.back().frameNumber, fp);
 
   StreamWriter *captureWriter = NULL;
 
@@ -3365,7 +3365,7 @@ bool WrappedVulkan::EndFrameCapture(DeviceOwnedWindow devWnd)
 
       for(auto it = recordlist.begin(); it != recordlist.end(); ++it)
       {
-        RenderDoc::Inst().SetProgress(CaptureProgress::SerialiseFrameContents, idx / num);
+        GfxDebug::Inst().SetProgress(CaptureProgress::SerialiseFrameContents, idx / num);
         idx += 1.0f;
         it->second->Write(ser);
       }
@@ -3391,7 +3391,7 @@ bool WrappedVulkan::EndFrameCapture(DeviceOwnedWindow devWnd)
 
   m_CaptureFailure = false;
 
-  RenderDoc::Inst().FinishCaptureWriting(rdc, m_CapturedFrames.back().frameNumber);
+  GfxDebug::Inst().FinishCaptureWriting(rdc, m_CapturedFrames.back().frameNumber);
 
   m_State = CaptureState::BackgroundCapturing;
 
@@ -3463,7 +3463,7 @@ bool WrappedVulkan::DiscardFrameCapture(DeviceOwnedWindow devWnd)
 
   RDCLOG("Discarding frame capture.");
 
-  RenderDoc::Inst().FinishCaptureWriting(NULL, m_CapturedFrames.back().frameNumber);
+  GfxDebug::Inst().FinishCaptureWriting(NULL, m_CapturedFrames.back().frameNumber);
 
   m_CapturedFrames.pop_back();
 
@@ -3562,23 +3562,23 @@ bool WrappedVulkan::DiscardFrameCapture(DeviceOwnedWindow devWnd)
 void WrappedVulkan::AdvanceFrame()
 {
   if(IsBackgroundCapturing(m_State))
-    RenderDoc::Inst().Tick();
+    GfxDebug::Inst().Tick();
 
   m_FrameCounter++;    // first present becomes frame #1, this function is at the end of the frame
 }
 
 void WrappedVulkan::Present(DeviceOwnedWindow devWnd)
 {
-  bool activeWindow = devWnd.windowHandle == NULL || RenderDoc::Inst().IsActiveWindow(devWnd);
+  bool activeWindow = devWnd.windowHandle == NULL || GfxDebug::Inst().IsActiveWindow(devWnd);
 
-  RenderDoc::Inst().AddActiveDriver(RDCDriver::Vulkan, true);
+  GfxDebug::Inst().AddActiveDriver(RDCDriver::Vulkan, true);
 
   if(!activeWindow)
   {
     // first present to *any* window, even inactive, terminates frame 0
     if(m_FirstFrameCapture && IsActiveCapturing(m_State))
     {
-      RenderDoc::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+      GfxDebug::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
       m_FirstFrameCapture = false;
     }
 
@@ -3586,11 +3586,11 @@ void WrappedVulkan::Present(DeviceOwnedWindow devWnd)
   }
 
   if(IsActiveCapturing(m_State) && !m_AppControlledCapture)
-    RenderDoc::Inst().EndFrameCapture(devWnd);
+    GfxDebug::Inst().EndFrameCapture(devWnd);
 
-  if(RenderDoc::Inst().ShouldTriggerCapture(m_FrameCounter) && IsBackgroundCapturing(m_State))
+  if(GfxDebug::Inst().ShouldTriggerCapture(m_FrameCounter) && IsBackgroundCapturing(m_State))
   {
-    RenderDoc::Inst().StartFrameCapture(devWnd);
+    GfxDebug::Inst().StartFrameCapture(devWnd);
 
     m_AppControlledCapture = false;
     m_CapturedFrames.back().frameNumber = m_FrameCounter;
@@ -3626,11 +3626,11 @@ void WrappedVulkan::HandleFrameMarkers(const char *marker, VkQueue queue)
 
   if(strstr(marker, "capture-marker,begin_capture") != NULL)
   {
-    RenderDoc::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GfxDebug::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
   if(strstr(marker, "capture-marker,end_capture") != NULL)
   {
-    RenderDoc::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GfxDebug::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 }
 
@@ -3798,7 +3798,7 @@ RDResult WrappedVulkan::ReadLogInitialisation(RDCFile *rdc, bool storeStructured
 
     uint64_t offsetEnd = reader->GetOffset();
 
-    RenderDoc::Inst().SetProgress(LoadProgress::FileInitialRead,
+    GfxDebug::Inst().SetProgress(LoadProgress::FileInitialRead,
                                   float(offsetEnd) / float(reader->GetSize()));
 
     if((SystemChunk)context == SystemChunk::CaptureScope)
@@ -4181,7 +4181,7 @@ RDResult WrappedVulkan::ContextReplayLog(CaptureState readType, uint32_t startEv
     if(m_FatalError != ResultCode::Succeeded)
       return m_FatalError;
 
-    RenderDoc::Inst().SetProgress(
+    GfxDebug::Inst().SetProgress(
         LoadProgress::FrameEventsRead,
         float(m_CurChunkOffset - startOffset) / float(ser.GetReader()->GetSize()));
 
@@ -4269,7 +4269,7 @@ RDResult WrappedVulkan::ContextReplayLog(CaptureState readType, uint32_t startEv
 
 void WrappedVulkan::ApplyInitialContents()
 {
-  RENDERDOC_PROFILEFUNCTION();
+  GFXDEBUG_PROFILEFUNCTION();
   if(HasFatalError())
     return;
 
@@ -5063,11 +5063,11 @@ bool WrappedVulkan::ProcessChunk(ReadSerialiser &ser, VulkanChunk chunk)
       return Serialise_vkCmdBeginCustomResolveEXT(ser, VK_NULL_HANDLE, NULL);
 
     case VulkanChunk::SetQueueAnnotation:
-      return Serialise_SetQueueAnnotation(ser, VK_NULL_HANDLE, rdcstr(), eRENDERDOC_AnnotationMax,
-                                          0, RENDERDOC_AnnotationValue());
+      return Serialise_SetQueueAnnotation(ser, VK_NULL_HANDLE, rdcstr(), eGFXDEBUG_AnnotationMax,
+                                          0, GFXDEBUG_AnnotationValue());
     case VulkanChunk::SetCommandAnnotation:
-      return Serialise_SetCommandAnnotation(ser, VK_NULL_HANDLE, rdcstr(), eRENDERDOC_AnnotationMax,
-                                            0, RENDERDOC_AnnotationValue());
+      return Serialise_SetCommandAnnotation(ser, VK_NULL_HANDLE, rdcstr(), eGFXDEBUG_AnnotationMax,
+                                            0, GFXDEBUG_AnnotationValue());
 
     case VulkanChunk::vkCmdSetCheckpointNV:
       return Serialise_vkCmdSetCheckpointNV(ser, VK_NULL_HANDLE, NULL);
@@ -5247,7 +5247,7 @@ VkResourceRecord *WrappedVulkan::RegisterSurface(WindowingSystem system, void *h
 
   RDCLOG("RegisterSurface() window %p", handle);
 
-  RenderDoc::Inst().AddFrameCapturer(DeviceOwnedWindow(LayerDisp(m_Instance), handle), this);
+  GfxDebug::Inst().AddFrameCapturer(DeviceOwnedWindow(LayerDisp(m_Instance), handle), this);
 
   return (VkResourceRecord *)new PackedWindowHandle(system, handle);
 }
@@ -5274,14 +5274,14 @@ void WrappedVulkan::ReplayLog(uint32_t startEventID, uint32_t endEventID, Replay
 
   if(!partial)
   {
-    VkMarkerRegion::Begin("!!!!RenderDoc Internal: ApplyInitialContents");
+    VkMarkerRegion::Begin("!!!!GfxDebug Internal: ApplyInitialContents");
     ApplyInitialContents();
     VkMarkerRegion::End();
   }
 
   m_State = CaptureState::ActiveReplaying;
 
-  VkMarkerRegion::Set(StringFormat::Fmt("!!!!RenderDoc Internal: RenderDoc Replay %d (%d): %u->%u",
+  VkMarkerRegion::Set(StringFormat::Fmt("!!!!GfxDebug Internal: GfxDebug Replay %d (%d): %u->%u",
                                         (int)replayType, (int)partial, startEventID, endEventID));
 
   {
@@ -5464,7 +5464,7 @@ void WrappedVulkan::ReplayLog(uint32_t startEventID, uint32_t endEventID, Replay
     });
   }
 
-  VkMarkerRegion::Set("!!!!RenderDoc Internal: Done replay");
+  VkMarkerRegion::Set("!!!!GfxDebug Internal: Done replay");
 }
 
 template <typename SerialiserType>
@@ -5646,7 +5646,7 @@ rdcstr WrappedVulkan::GetPhysDeviceCompatString(bool externalResource, bool orig
   {
     return StringFormat::Fmt(
         "This was invalid at capture time.\n"
-        "You must use API validation, as RenderDoc does not handle invalid API use like this.\n\n"
+        "You must use API validation, as GfxDebug does not handle invalid API use like this.\n\n"
         "Captured on device: %s %s, %u.%u.%u",
         ToStr(capture.Vendor()).c_str(), m_OrigPhysicalDeviceData.props.deviceName, capture.Major(),
         capture.Minor(), capture.Patch());

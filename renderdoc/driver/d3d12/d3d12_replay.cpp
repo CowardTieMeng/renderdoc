@@ -184,7 +184,7 @@ void D3D12Replay::CreateResources()
   for(uint64_t i = FIRST_WIN_DSV; i <= LAST_WIN_DSV; i++)
     m_DSVIDs.insert(0, i);
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     CreateSOBuffers();
 
@@ -4570,7 +4570,7 @@ RDResult D3D12_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRepl
       {
         RDCWARN(
             "Loaded d3d12.dll from 12on7 subfolder."
-            "Please use RenderDoc's plugins/d3d12/ subfolder instead");
+            "Please use GfxDebug's plugins/d3d12/ subfolder instead");
       }
       else
       {
@@ -4626,7 +4626,7 @@ RDResult D3D12_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRepl
     {
       RETURN_ERROR_RESULT(ResultCode::APIIncompatibleVersion,
                           "D3D12 capture is incompatible version %llu, newest supported by this "
-                          "build of RenderDoc is %llu",
+                          "build of GfxDebug is %llu",
                           ver, D3D12InitParams::CurrentVersion);
     }
 

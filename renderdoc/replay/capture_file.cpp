@@ -104,9 +104,9 @@ public:
   virtual ~CaptureFile();
 
   ResultDetails OpenFile(const rdcstr &filename, const rdcstr &filetype,
-                         RENDERDOC_ProgressCallback progress);
+                         GFXDEBUG_ProgressCallback progress);
   ResultDetails OpenBuffer(const bytebuf &buffer, const rdcstr &filetype,
-                           RENDERDOC_ProgressCallback progress);
+                           GFXDEBUG_ProgressCallback progress);
   ResultDetails CopyFileTo(const rdcstr &filename);
   void Shutdown() { delete this; }
   ReplaySupport LocalReplaySupport() { return m_Support; }
@@ -115,21 +115,21 @@ public:
   uint64_t TimestampBase() { return m_RDC ? m_RDC->GetTimestampBase() : 0; }
   double TimestampFrequency() { return m_RDC ? m_RDC->GetTimestampFrequency() : 1.0; }
   rdcpair<ResultDetails, IReplayController *> OpenCapture(const ReplayOptions &opts,
-                                                          RENDERDOC_ProgressCallback progress);
+                                                          GFXDEBUG_ProgressCallback progress);
 
   void SetMetadata(const rdcstr &driverName, uint64_t machineIdent, FileType thumbType,
                    uint32_t thumbWidth, uint32_t thumbHeight, const bytebuf &thumbData,
                    uint64_t timeBase, double timeFreq);
 
   ResultDetails Convert(const rdcstr &filename, const rdcstr &filetype, const SDFile *file,
-                        RENDERDOC_ProgressCallback progress);
+                        GFXDEBUG_ProgressCallback progress);
 
   rdcarray<CaptureFileFormat> GetCaptureFileFormats()
   {
-    return RenderDoc::Inst().GetCaptureFileFormats();
+    return GfxDebug::Inst().GetCaptureFileFormats();
   }
 
-  rdcarray<GPUDevice> GetAvailableGPUs() { return RenderDoc::Inst().GetAvailableGPUs(); }
+  rdcarray<GPUDevice> GetAvailableGPUs() { return GfxDebug::Inst().GetAvailableGPUs(); }
   const SDFile &GetStructuredData()
   {
     // decompile to structured data on demand.
@@ -165,7 +165,7 @@ public:
   ResultDetails WriteSection(const SectionProperties &props, const bytebuf &contents);
 
   bool HasCallstacks();
-  ResultDetails InitResolver(bool interactive, RENDERDOC_ProgressCallback progress);
+  ResultDetails InitResolver(bool interactive, GFXDEBUG_ProgressCallback progress);
   rdcarray<rdcstr> GetResolve(const rdcarray<uint64_t> &callstack);
 
   ResultDetails EmbedDependenciesIntoCapture();
@@ -177,7 +177,7 @@ public:
 private:
   ResultDetails Init();
 
-  RDResult InitStructuredData(RENDERDOC_ProgressCallback progress = RENDERDOC_ProgressCallback());
+  RDResult InitStructuredData(GFXDEBUG_ProgressCallback progress = GFXDEBUG_ProgressCallback());
 
   RDCFile *m_RDC = NULL;
   Callstack::StackResolver *m_Resolver = NULL;
@@ -199,9 +199,9 @@ CaptureFile::~CaptureFile()
 }
 
 ResultDetails CaptureFile::OpenFile(const rdcstr &filename, const rdcstr &filetype,
-                                    RENDERDOC_ProgressCallback progress)
+                                    GFXDEBUG_ProgressCallback progress)
 {
-  CaptureImporter importer = RenderDoc::Inst().GetCaptureImporter(filetype);
+  CaptureImporter importer = GfxDebug::Inst().GetCaptureImporter(filetype);
 
   if(importer)
   {
@@ -240,9 +240,9 @@ ResultDetails CaptureFile::OpenFile(const rdcstr &filename, const rdcstr &filety
 }
 
 ResultDetails CaptureFile::OpenBuffer(const bytebuf &buffer, const rdcstr &filetype,
-                                      RENDERDOC_ProgressCallback progress)
+                                      GFXDEBUG_ProgressCallback progress)
 {
-  CaptureImporter importer = RenderDoc::Inst().GetCaptureImporter(filetype);
+  CaptureImporter importer = GfxDebug::Inst().GetCaptureImporter(filetype);
 
   if(importer)
   {
@@ -303,7 +303,7 @@ ResultDetails CaptureFile::Init()
 
   uint64_t fileMachineIdent = m_RDC->GetMachineIdent();
 
-  m_Support = RenderDoc::Inst().HasReplayDriver(driverType) ? ReplaySupport::Supported
+  m_Support = GfxDebug::Inst().HasReplayDriver(driverType) ? ReplaySupport::Supported
                                                             : ReplaySupport::Unsupported;
 
   if(fileMachineIdent != 0)
@@ -324,15 +324,15 @@ ResultDetails CaptureFile::Init()
   return RDResult();
 }
 
-RDResult CaptureFile::InitStructuredData(RENDERDOC_ProgressCallback progress)
+RDResult CaptureFile::InitStructuredData(GFXDEBUG_ProgressCallback progress)
 {
   if(m_StructuredData.chunks.empty())
   {
     if(m_RDC && m_RDC->SectionIndex(SectionType::FrameCapture) >= 0)
     {
-      StructuredProcessor proc = RenderDoc::Inst().GetStructuredProcessor(m_RDC->GetDriver());
+      StructuredProcessor proc = GfxDebug::Inst().GetStructuredProcessor(m_RDC->GetDriver());
 
-      RenderDoc::Inst().SetProgressCallback<LoadProgress>(progress);
+      GfxDebug::Inst().SetProgressCallback<LoadProgress>(progress);
 
       RDResult result;
 
@@ -342,7 +342,7 @@ RDResult CaptureFile::InitStructuredData(RENDERDOC_ProgressCallback progress)
         SET_ERROR_RESULT(result, ResultCode::APIUnsupported,
                          "Can't get structured data for driver %s", m_RDC->GetDriverName().c_str());
 
-      RenderDoc::Inst().SetProgressCallback<LoadProgress>(RENDERDOC_ProgressCallback());
+      GfxDebug::Inst().SetProgressCallback<LoadProgress>(GFXDEBUG_ProgressCallback());
 
       return result;
     }
@@ -355,7 +355,7 @@ RDResult CaptureFile::InitStructuredData(RENDERDOC_ProgressCallback progress)
 }
 
 rdcpair<ResultDetails, IReplayController *> CaptureFile::OpenCapture(const ReplayOptions &opts,
-                                                                     RENDERDOC_ProgressCallback progress)
+                                                                     GFXDEBUG_ProgressCallback progress)
 {
   ResultDetails ret;
   ReplayController *render = NULL;
@@ -372,17 +372,17 @@ rdcpair<ResultDetails, IReplayController *> CaptureFile::OpenCapture(const Repla
 
   LogReplayOptions(opts);
 
-  RenderDoc::Inst().SetProgressCallback<LoadProgress>(progress);
+  GfxDebug::Inst().SetProgressCallback<LoadProgress>(progress);
 
   // This has to be before the device is created for the capture
-  RenderDoc::Inst().ClearTrackedFiles();
+  GfxDebug::Inst().ClearTrackedFiles();
   // This section is optional any errors do not block opening the capture
   if(m_RDC->SectionIndex(SectionType::EmbeddedExternalFiles) >= 0)
-    ret = RenderDoc::Inst().ReadExternalFiles(m_RDC);
+    ret = GfxDebug::Inst().ReadExternalFiles(m_RDC);
 
   ret = render->CreateDevice(m_RDC, opts);
 
-  RenderDoc::Inst().SetProgressCallback<LoadProgress>(RENDERDOC_ProgressCallback());
+  GfxDebug::Inst().SetProgressCallback<LoadProgress>(GFXDEBUG_ProgressCallback());
 
   if(!ret.OK())
   {
@@ -425,7 +425,7 @@ void CaptureFile::SetMetadata(const rdcstr &driverName, uint64_t machineIdent, F
 }
 
 ResultDetails CaptureFile::Convert(const rdcstr &filename, const rdcstr &filetype,
-                                   const SDFile *file, RENDERDOC_ProgressCallback progress)
+                                   const SDFile *file, GFXDEBUG_ProgressCallback progress)
 {
   if(!m_RDC)
   {
@@ -439,10 +439,10 @@ ResultDetails CaptureFile::Convert(const rdcstr &filename, const rdcstr &filetyp
 
   // we have two separate steps that can take time - fetching the structured data, and then
   // exporting or writing to RDC
-  RENDERDOC_ProgressCallback fetchProgress = [progress](float p) { progress(p * 0.5f); };
-  RENDERDOC_ProgressCallback exportProgress = [progress](float p) { progress(0.5f + p * 0.5f); };
+  GFXDEBUG_ProgressCallback fetchProgress = [progress](float p) { progress(p * 0.5f); };
+  GFXDEBUG_ProgressCallback exportProgress = [progress](float p) { progress(0.5f + p * 0.5f); };
 
-  CaptureExporter exporter = RenderDoc::Inst().GetCaptureExporter(filetype);
+  CaptureExporter exporter = GfxDebug::Inst().GetCaptureExporter(filetype);
 
   if(exporter)
   {
@@ -787,7 +787,7 @@ bool CaptureFile::HasCallstacks()
   return m_RDC && m_RDC->SectionIndex(SectionType::ResolveDatabase) >= 0;
 }
 
-ResultDetails CaptureFile::InitResolver(bool interactive, RENDERDOC_ProgressCallback progress)
+ResultDetails CaptureFile::InitResolver(bool interactive, GFXDEBUG_ProgressCallback progress)
 {
   if(!m_RDC)
   {
@@ -865,30 +865,30 @@ rdcarray<rdcstr> CaptureFile::GetResolve(const rdcarray<uint64_t> &callstack)
 
 ResultDetails CaptureFile::EmbedDependenciesIntoCapture()
 {
-  return RenderDoc::Inst().EmbedExternalFiles(m_RDC);
+  return GfxDebug::Inst().EmbedExternalFiles(m_RDC);
 }
 
 ResultDetails CaptureFile::RemoveDependenciesFromCapture()
 {
-  return RenderDoc::Inst().RemoveExternalFiles(m_RDC);
+  return GfxDebug::Inst().RemoveExternalFiles(m_RDC);
 }
 
 bool CaptureFile::HasEmbeddedDependencies()
 {
-  return RenderDoc::Inst().HasEmbeddedFiles(m_RDC);
+  return GfxDebug::Inst().HasEmbeddedFiles(m_RDC);
 }
 
 bool CaptureFile::HasPendingDependencies()
 {
-  return RenderDoc::Inst().HasTrackedFileData();
+  return GfxDebug::Inst().HasTrackedFileData();
 }
 
 rdcarray<rdcstr> CaptureFile::GetPendingDependenciesNicknames()
 {
-  return RenderDoc::Inst().GetTrackedFileNicknames();
+  return GfxDebug::Inst().GetTrackedFileNicknames();
 }
 
-extern "C" RENDERDOC_API ICaptureFile *RENDERDOC_CC RENDERDOC_OpenCaptureFile()
+extern "C" GFXDEBUG_API ICaptureFile *GFXDEBUG_CC GFXDEBUG_OpenCaptureFile()
 {
   return new CaptureFile();
 }

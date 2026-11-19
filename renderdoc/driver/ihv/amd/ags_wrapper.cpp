@@ -99,10 +99,10 @@ public:
     AGSDX11ReturnedParams returnedParams;
 
     extensionParams.numBreadcrumbMarkers = 0;
-    extensionParams.pAppName = L"RenderDoc";
-    extensionParams.pEngineName = L"RenderDoc";
-    extensionParams.appVersion = RENDERDOC_VERSION_MAJOR << 8 | RENDERDOC_VERSION_MINOR;
-    extensionParams.engineVersion = RENDERDOC_VERSION_MAJOR << 8 | RENDERDOC_VERSION_MINOR;
+    extensionParams.pAppName = L"GfxDebug";
+    extensionParams.pEngineName = L"GfxDebug";
+    extensionParams.appVersion = GFXDEBUG_VERSION_MAJOR << 8 | GFXDEBUG_VERSION_MINOR;
+    extensionParams.engineVersion = GFXDEBUG_VERSION_MAJOR << 8 | GFXDEBUG_VERSION_MINOR;
     extensionParams.crossfireMode = AGS_CROSSFIRE_MODE_DISABLE;
     extensionParams.uavSlot = reg;
 
@@ -151,10 +151,10 @@ public:
     AGSDX12ExtensionParams extensionParams;
     AGSDX12ReturnedParams returnedParams;
 
-    extensionParams.pAppName = L"RenderDoc";
-    extensionParams.pEngineName = L"RenderDoc";
-    extensionParams.appVersion = RENDERDOC_VERSION_MAJOR << 8 | RENDERDOC_VERSION_MINOR;
-    extensionParams.engineVersion = RENDERDOC_VERSION_MAJOR << 8 | RENDERDOC_VERSION_MINOR;
+    extensionParams.pAppName = L"GfxDebug";
+    extensionParams.pEngineName = L"GfxDebug";
+    extensionParams.appVersion = GFXDEBUG_VERSION_MAJOR << 8 | GFXDEBUG_VERSION_MINOR;
+    extensionParams.engineVersion = GFXDEBUG_VERSION_MAJOR << 8 | GFXDEBUG_VERSION_MINOR;
     extensionParams.uavSlot = reg;
 
     if(reg == 0)

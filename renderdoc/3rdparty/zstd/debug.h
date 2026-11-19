@@ -107,7 +107,7 @@ extern int g_debuglevel; /* here, this variable is only declared,
             }   }
 #  define DEBUGLOG(l, ...) {                                    \
                 if (l<=g_debuglevel) {                          \
-                    fprintf(stderr, __FILE__ ": " __VA_ARGS__); \
+                    fprintf(stderr, "" ": " __VA_ARGS__); \
                     fprintf(stderr, " \n");                     \
             }   }
 #else

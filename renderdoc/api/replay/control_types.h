@@ -996,7 +996,7 @@ struct NewCaptureData
   DOCUMENT(R"(The API used for this capture, if available.
 
 .. note::
-  May be empty if running with an older version of RenderDoc
+  May be empty if running with an older version of GfxDebug
 
 :type: str
 )");
@@ -1372,7 +1372,7 @@ that may be contained in the capture.
 
 The default is not to do any validation.
 
-.. note:: RenderDoc does not handle invalid API use in the general case so validation should still
+.. note:: GfxDebug does not handle invalid API use in the general case so validation should still
   be performed at runtime in your program for ground truth results.
 
 :type: bool
@@ -1433,7 +1433,7 @@ The default is :data:`ReplayOptimisationLevel.Balanced`.
   ReplayOptimisationLevel optimisation = ReplayOptimisationLevel::Balanced;
 
 // helpers for Qt, define constructor and cast. These will be defined in Qt code
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GFXDEBUG_QT_COMPAT)
   ReplayOptions(const QVariant &var);
   operator QVariant() const;
 #endif
@@ -1664,6 +1664,6 @@ DECLARE_REFLECTION_STRUCT(ExecuteResult);
 // there's not a good way to document a callback, so for lack of a better place we declare these
 // here and document them in the main IReplayController. They can be linked to from anywhere by
 // name.
-typedef std::function<bool()> RENDERDOC_KillCallback;
-typedef std::function<void(float)> RENDERDOC_ProgressCallback;
-typedef std::function<WindowingData(bool, const rdcarray<WindowingSystem> &)> RENDERDOC_PreviewWindowCallback;
+typedef std::function<bool()> GFXDEBUG_KillCallback;
+typedef std::function<void(float)> GFXDEBUG_ProgressCallback;
+typedef std::function<WindowingData(bool, const rdcarray<WindowingSystem> &)> GFXDEBUG_PreviewWindowCallback;

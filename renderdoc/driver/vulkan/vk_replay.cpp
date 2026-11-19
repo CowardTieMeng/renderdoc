@@ -46,13 +46,13 @@
 
 RDOC_EXTERN_CONFIG(bool, Vulkan_Debug_SingleSubmitFlushing);
 
-static const char *SPIRVDisassemblyTarget = "SPIR-V (RenderDoc)";
+static const char *SPIRVDisassemblyTarget = "SPIR-V (GfxDebug)";
 static const char *AMDShaderInfoTarget = "AMD_shader_info";
 static const char *KHRExecutablePropertiesTarget = "KHR_pipeline_executable_properties";
 
 VulkanReplay::VulkanReplay(WrappedVulkan *d)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(VulkanReplay));
+  GfxDebug::Inst().RegisterMemoryRegion(this, sizeof(VulkanReplay));
 
   m_pDriver = d;
   m_Proxy = false;
@@ -5660,7 +5660,7 @@ void VulkanEnvSetup()
 {
   // disable the layer env var, just in case the user left it set from a previous capture run
   Process::RegisterEnvironmentModification(
-      EnvironmentModification(EnvMod::Set, EnvSep::NoSep, RENDERDOC_VULKAN_LAYER_VAR, "0"));
+      EnvironmentModification(EnvMod::Set, EnvSep::NoSep, GFXDEBUG_VULKAN_LAYER_VAR, "0"));
 
   // disable buggy and user-hostile NV optimus layer, which can completely delete physical devices
   // (not just rearrange them) and cause problems between capture and replay.
@@ -5752,7 +5752,7 @@ RDResult Vulkan_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRep
     {
       RETURN_ERROR_RESULT(ResultCode::APIIncompatibleVersion,
                           "Vulkan capture is incompatible version %llu, newest supported by this "
-                          "build of RenderDoc is %llu",
+                          "build of GfxDebug is %llu",
                           ver, VkInitParams::CurrentVersion);
     }
 
@@ -5821,10 +5821,10 @@ struct VulkanDriverRegistration
 {
   VulkanDriverRegistration()
   {
-    RenderDoc::Inst().RegisterReplayProvider(RDCDriver::Vulkan, &Vulkan_CreateReplayDevice);
-    RenderDoc::Inst().AddEnvSetup(&VulkanEnvSetup);
-    RenderDoc::Inst().SetVulkanLayerCheck(&VulkanReplay::CheckVulkanLayer);
-    RenderDoc::Inst().SetVulkanLayerInstall(&VulkanReplay::InstallVulkanLayer);
+    GfxDebug::Inst().RegisterReplayProvider(RDCDriver::Vulkan, &Vulkan_CreateReplayDevice);
+    GfxDebug::Inst().AddEnvSetup(&VulkanEnvSetup);
+    GfxDebug::Inst().SetVulkanLayerCheck(&VulkanReplay::CheckVulkanLayer);
+    GfxDebug::Inst().SetVulkanLayerInstall(&VulkanReplay::InstallVulkanLayer);
   }
 };
 

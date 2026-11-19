@@ -110,7 +110,7 @@ typedef VkPhysicalDeviceBufferDeviceAddressFeatures VkPhysicalDeviceBufferDevice
 // UUID shared with VR runtimes to specify which vkImage is currently presented to the screen
 #define VR_ThumbnailTag_UUID 0x94F5B9E495BCC552ULL
 
-#define RENDERDOC_DescriptorsReservation_UUID 0xB908FA75193CFD52ULL
+#define GFXDEBUG_DescriptorsReservation_UUID 0xB908FA75193CFD52ULL
 
 ResourceFormat MakeResourceFormat(VkFormat fmt);
 VkFormat MakeVkFormat(ResourceFormat fmt);
@@ -540,7 +540,7 @@ enum
 
 DECLARE_REFLECTION_STRUCT(VkBaseInStructure);
 
-#define CHECK_VKR(core, vkr_or_expr) core->CheckVkResult(__FILE__, __LINE__, vkr_or_expr)
+#define CHECK_VKR(core, vkr_or_expr) core->CheckVkResult("", __LINE__, vkr_or_expr)
 
 // we cast to this type when serialising as a placeholder indicating that
 // the given flags field doesn't have any bits defined

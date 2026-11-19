@@ -413,7 +413,7 @@ Socket *CreateAbstractServerSocket(uint16_t port, int queuesize)
     return NULL;
   }
 
-  rdcstr socketName = StringFormat::Fmt("renderdoc_%d", port);
+  rdcstr socketName = StringFormat::Fmt("gfxdebug_%d", port);
 
   sockaddr_un addr;
   RDCEraseEl(addr);

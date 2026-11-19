@@ -357,7 +357,7 @@ void WrappedVulkan::ReplayQueueSubmit(VkQueue queue, VkSubmitInfo2 submitInfo, r
           // Modify using the annotations stored in the event node
           for(const PendingAnnotation &annot : cmdBufInfo.pendingAnnotations)
           {
-            if(annot.valueType == eRENDERDOC_Empty)
+            if(annot.valueType == eGFXDEBUG_Empty)
               localAnnotations->EraseChildByKeyPath(annot.key);
             else
               WriteAnnotation(localAnnotations->CreateChildByKeyPath(annot.key), annot.valueType,
@@ -831,7 +831,7 @@ SDObject *WrappedVulkan::InsertEventNodes(BakedCmdBufferInfo &cmdBufInfo)
       // Modify using the annotations stored in the event node
       for(const PendingAnnotation &annot : n.annotations)
       {
-        if(annot.valueType == eRENDERDOC_Empty)
+        if(annot.valueType == eGFXDEBUG_Empty)
           localAnnotations->EraseChildByKeyPath(annot.key);
         else
           WriteAnnotation(localAnnotations->CreateChildByKeyPath(annot.key), annot.valueType,
@@ -1415,7 +1415,7 @@ VkResult WrappedVulkan::vkQueueSubmit(VkQueue queue, uint32_t submitCount,
   if(!m_MarkedActive)
   {
     m_MarkedActive = true;
-    RenderDoc::Inst().AddActiveDriver(RDCDriver::Vulkan, false);
+    GfxDebug::Inst().AddActiveDriver(RDCDriver::Vulkan, false);
   }
 
   if(IsActiveCapturing(m_State))
@@ -1423,7 +1423,7 @@ VkResult WrappedVulkan::vkQueueSubmit(VkQueue queue, uint32_t submitCount,
     // 15 is quite a lot of submissions.
     const int expectedMaxSubmissions = 15;
 
-    RenderDoc::Inst().SetProgress(CaptureProgress::FrameCapture,
+    GfxDebug::Inst().SetProgress(CaptureProgress::FrameCapture,
                                   FakeProgress(m_SubmitCounter, expectedMaxSubmissions));
     m_SubmitCounter++;
   }
@@ -1449,7 +1449,7 @@ VkResult WrappedVulkan::vkQueueSubmit(VkQueue queue, uint32_t submitCount,
 
   if(beginCapture)
   {
-    RenderDoc::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GfxDebug::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 
   {
@@ -1503,7 +1503,7 @@ VkResult WrappedVulkan::vkQueueSubmit(VkQueue queue, uint32_t submitCount,
 
   if(endCapture)
   {
-    RenderDoc::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GfxDebug::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 
   if(present)
@@ -1611,7 +1611,7 @@ VkResult WrappedVulkan::vkQueueSubmit2(VkQueue queue, uint32_t submitCount,
   if(!m_MarkedActive)
   {
     m_MarkedActive = true;
-    RenderDoc::Inst().AddActiveDriver(RDCDriver::Vulkan, false);
+    GfxDebug::Inst().AddActiveDriver(RDCDriver::Vulkan, false);
   }
 
   if(IsActiveCapturing(m_State))
@@ -1619,7 +1619,7 @@ VkResult WrappedVulkan::vkQueueSubmit2(VkQueue queue, uint32_t submitCount,
     // 15 is quite a lot of submissions.
     const int expectedMaxSubmissions = 15;
 
-    RenderDoc::Inst().SetProgress(CaptureProgress::FrameCapture,
+    GfxDebug::Inst().SetProgress(CaptureProgress::FrameCapture,
                                   FakeProgress(m_SubmitCounter, expectedMaxSubmissions));
     m_SubmitCounter++;
   }
@@ -1645,7 +1645,7 @@ VkResult WrappedVulkan::vkQueueSubmit2(VkQueue queue, uint32_t submitCount,
 
   if(beginCapture)
   {
-    RenderDoc::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GfxDebug::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 
   {
@@ -1699,7 +1699,7 @@ VkResult WrappedVulkan::vkQueueSubmit2(VkQueue queue, uint32_t submitCount,
 
   if(endCapture)
   {
-    RenderDoc::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GfxDebug::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 
   if(present)

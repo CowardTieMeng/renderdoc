@@ -68,92 +68,92 @@ RDOC_CONFIG(rdcarray<rdcstr>, Replay_Shader_LimitedSearchDirPaths, {},
             "Companion array to DXBC.Debug.SearchDirPaths - listing paths which should not be "
             "searched exhaustively but only used for simple lookups.");
 
-void WriteAnnotation(SDObject *obj, RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                     RENDERDOC_AnnotationValue value)
+void WriteAnnotation(SDObject *obj, GFXDEBUG_AnnotationType valueType, uint32_t valueVectorWidth,
+                     GFXDEBUG_AnnotationValue value)
 {
-  if(valueType == eRENDERDOC_Empty)
+  if(valueType == eGFXDEBUG_Empty)
   {
     RDCERR("Invalid type of annotation to write");
     return;
   }
 
-  const rdcinflexiblestr types[eRENDERDOC_APIObject + 1][4] = {
-      // eRENDERDOC_Empty,
+  const rdcinflexiblestr types[eGFXDEBUG_APIObject + 1][4] = {
+      // eGFXDEBUG_Empty,
       {""_lit, ""_lit, ""_lit, ""_lit},
-      // eRENDERDOC_Bool,
+      // eGFXDEBUG_Bool,
       {"bool"_lit, "bool2"_lit, "bool3"_lit, "bool4"_lit},
-      // eRENDERDOC_Int32,
+      // eGFXDEBUG_Int32,
       {"int"_lit, "int2"_lit, "int3"_lit, "int4"_lit},
-      // eRENDERDOC_UInt32,
+      // eGFXDEBUG_UInt32,
       {"uint"_lit, "uint2"_lit, "uint3"_lit, "uint4"_lit},
-      // eRENDERDOC_Int64,
+      // eGFXDEBUG_Int64,
       {"long"_lit, "long2"_lit, "long3"_lit, "long4"_lit},
-      // eRENDERDOC_UInt64,
+      // eGFXDEBUG_UInt64,
       {"ulong"_lit, "ulong2"_lit, "ulong3"_lit, "ulong4"_lit},
-      // eRENDERDOC_Float,
+      // eGFXDEBUG_Float,
       {"float"_lit, "float2"_lit, "float3"_lit, "float4"_lit},
-      // eRENDERDOC_Double,
+      // eGFXDEBUG_Double,
       {"double"_lit, "double2"_lit, "double3"_lit, "double4"_lit},
-      // eRENDERDOC_String,
+      // eGFXDEBUG_String,
       {"string"_lit, ""_lit, ""_lit, ""_lit},
-      // eRENDERDOC_APIObject,
+      // eGFXDEBUG_APIObject,
       {"ResourceId"_lit, ""_lit, ""_lit, ""_lit},
   };
 
-  const uint32_t byteSize[eRENDERDOC_APIObject + 1] = {
-      // eRENDERDOC_Empty,
+  const uint32_t byteSize[eGFXDEBUG_APIObject + 1] = {
+      // eGFXDEBUG_Empty,
       0,
-      // eRENDERDOC_Bool,
+      // eGFXDEBUG_Bool,
       1,
-      // eRENDERDOC_Int32,
+      // eGFXDEBUG_Int32,
       4,
-      // eRENDERDOC_UInt32,
+      // eGFXDEBUG_UInt32,
       4,
-      // eRENDERDOC_Int64,
+      // eGFXDEBUG_Int64,
       8,
-      // eRENDERDOC_UInt64,
+      // eGFXDEBUG_UInt64,
       8,
-      // eRENDERDOC_Float,
+      // eGFXDEBUG_Float,
       4,
-      // eRENDERDOC_Double,
+      // eGFXDEBUG_Double,
       8,
-      // eRENDERDOC_String,
+      // eGFXDEBUG_String,
       0,
-      // eRENDERDOC_APIObject,
+      // eGFXDEBUG_APIObject,
       8,
   };
 
-  const SDBasic basetype[eRENDERDOC_APIObject + 1] = {
-      // eRENDERDOC_Empty,
+  const SDBasic basetype[eGFXDEBUG_APIObject + 1] = {
+      // eGFXDEBUG_Empty,
       SDBasic::Null,
-      // eRENDERDOC_Bool,
+      // eGFXDEBUG_Bool,
       SDBasic::Boolean,
-      // eRENDERDOC_Int32,
+      // eGFXDEBUG_Int32,
       SDBasic::SignedInteger,
-      // eRENDERDOC_UInt32,
+      // eGFXDEBUG_UInt32,
       SDBasic::UnsignedInteger,
-      // eRENDERDOC_Int64,
+      // eGFXDEBUG_Int64,
       SDBasic::SignedInteger,
-      // eRENDERDOC_UInt64,
+      // eGFXDEBUG_UInt64,
       SDBasic::UnsignedInteger,
-      // eRENDERDOC_Float,
+      // eGFXDEBUG_Float,
       SDBasic::Float,
-      // eRENDERDOC_Double,
+      // eGFXDEBUG_Double,
       SDBasic::Float,
-      // eRENDERDOC_String,
+      // eGFXDEBUG_String,
       SDBasic::String,
-      // eRENDERDOC_APIObject,
+      // eGFXDEBUG_APIObject,
       SDBasic::Resource,
   };
 
   if(valueVectorWidth > 1)
   {
-    if(valueType == eRENDERDOC_APIObject)
+    if(valueType == eGFXDEBUG_APIObject)
     {
       RDCERR("Invalid vector width for API object");
       return;
     }
-    else if(valueType == eRENDERDOC_String)
+    else if(valueType == eGFXDEBUG_String)
     {
       RDCERR("Invalid vector width for string");
       return;
@@ -164,7 +164,7 @@ void WriteAnnotation(SDObject *obj, RENDERDOC_AnnotationType valueType, uint32_t
     obj->type.basetype = SDBasic::Struct;
     obj->type.name = types[valueType][valueVectorWidth - 1];
 
-    RENDERDOC_AnnotationValue tmp = {};
+    GFXDEBUG_AnnotationValue tmp = {};
     for(uint32_t i = 0; i < valueVectorWidth; i++)
     {
       SDObject *child = obj->CreateChildByKeyPath(comps[i]);
@@ -190,50 +190,50 @@ void WriteAnnotation(SDObject *obj, RENDERDOC_AnnotationType valueType, uint32_t
 
   switch(valueType)
   {
-    case eRENDERDOC_Empty:
-    case eRENDERDOC_AnnotationMax: RDCERR("Invalid annotation type"); return;
-    case eRENDERDOC_Bool:
+    case eGFXDEBUG_Empty:
+    case eGFXDEBUG_AnnotationMax: RDCERR("Invalid annotation type"); return;
+    case eGFXDEBUG_Bool:
     {
       obj->data.basic.b = value.boolean;
       break;
     }
-    case eRENDERDOC_Int32:
+    case eGFXDEBUG_Int32:
     {
       obj->data.basic.i = value.int32;
       break;
     }
-    case eRENDERDOC_UInt32:
+    case eGFXDEBUG_UInt32:
     {
       obj->data.basic.u = value.uint32;
       break;
     }
-    case eRENDERDOC_Int64:
+    case eGFXDEBUG_Int64:
     {
       obj->data.basic.u = value.int64;
       break;
     }
-    case eRENDERDOC_UInt64:
+    case eGFXDEBUG_UInt64:
     {
       obj->data.basic.u = value.uint64;
       break;
     }
-    case eRENDERDOC_Float:
+    case eGFXDEBUG_Float:
     {
       obj->data.basic.d = value.float32;
       break;
     }
-    case eRENDERDOC_Double:
+    case eGFXDEBUG_Double:
     {
       obj->data.basic.d = value.float64;
       break;
     }
-    case eRENDERDOC_String:
+    case eGFXDEBUG_String:
     {
       obj->type.byteSize = strlen(value.string);
       obj->data.str = value.string;
       break;
     }
-    case eRENDERDOC_APIObject:
+    case eGFXDEBUG_APIObject:
     {
       memcpy(&obj->data.basic.id, &value.uint64, sizeof(ResourceId));
       break;
@@ -412,49 +412,49 @@ rdcstr DoStringise(const VendorExtensions &el)
 }
 
 template <>
-rdcstr DoStringise(const RENDERDOC_InputButton &el)
+rdcstr DoStringise(const GFXDEBUG_InputButton &el)
 {
   char alphanumericbuf[2] = {'A', 0};
 
   // enums map straight to ascii
-  if((el >= eRENDERDOC_Key_A && el <= eRENDERDOC_Key_Z) ||
-     (el >= eRENDERDOC_Key_0 && el <= eRENDERDOC_Key_9))
+  if((el >= eGFXDEBUG_Key_A && el <= eGFXDEBUG_Key_Z) ||
+     (el >= eGFXDEBUG_Key_0 && el <= eGFXDEBUG_Key_9))
   {
     alphanumericbuf[0] = (char)el;
     return alphanumericbuf;
   }
 
-  BEGIN_ENUM_STRINGISE(RENDERDOC_InputButton);
+  BEGIN_ENUM_STRINGISE(GFXDEBUG_InputButton);
   {
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Divide, "/");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Multiply, "*");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Subtract, "-");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Plus, "+");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Divide, "/");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Multiply, "*");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Subtract, "-");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Plus, "+");
 
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F1, "F1");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F2, "F2");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F3, "F3");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F4, "F4");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F5, "F5");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F6, "F6");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F7, "F7");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F8, "F8");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F9, "F9");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F10, "F10");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F11, "F11");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_F12, "F12");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F1, "F1");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F2, "F2");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F3, "F3");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F4, "F4");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F5, "F5");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F6, "F6");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F7, "F7");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F8, "F8");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F9, "F9");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F10, "F10");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F11, "F11");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_F12, "F12");
 
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Home, "Home");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_End, "End");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Insert, "Insert");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Delete, "Delete");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_PageUp, "PageUp");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_PageDn, "PageDn");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Home, "Home");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_End, "End");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Insert, "Insert");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Delete, "Delete");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_PageUp, "PageUp");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_PageDn, "PageDn");
 
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Backspace, "Backspace");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Tab, "Tab");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_PrtScrn, "PrtScrn");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Key_Pause, "Pause");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Backspace, "Backspace");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Tab, "Tab");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_PrtScrn, "PrtScrn");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Key_Pause, "Pause");
   }
   END_ENUM_STRINGISE();
 }
@@ -475,27 +475,27 @@ rdcstr DoStringise(const SystemChunk &el)
 }
 
 template <>
-rdcstr DoStringise(const RENDERDOC_AnnotationType &el)
+rdcstr DoStringise(const GFXDEBUG_AnnotationType &el)
 {
-  BEGIN_ENUM_STRINGISE(RENDERDOC_AnnotationType);
+  BEGIN_ENUM_STRINGISE(GFXDEBUG_AnnotationType);
   {
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Bool, "bool");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Int32, "int32");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_UInt32, "uint32");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Int64, "int64");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_UInt64, "uint64");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Float, "float");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_Double, "double");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_String, "string");
-    STRINGISE_ENUM_NAMED(eRENDERDOC_APIObject, "object");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Bool, "bool");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Int32, "int32");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_UInt32, "uint32");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Int64, "int64");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_UInt64, "uint64");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Float, "float");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_Double, "double");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_String, "string");
+    STRINGISE_ENUM_NAMED(eGFXDEBUG_APIObject, "object");
   }
   END_ENUM_STRINGISE();
 }
 
 template <class SerialiserType>
-void DoSerialise(SerialiserType &ser, RENDERDOC_AnnotationValue &el)
+void DoSerialise(SerialiserType &ser, GFXDEBUG_AnnotationValue &el)
 {
-  if(ser.GetStructArg() == eRENDERDOC_String)
+  if(ser.GetStructArg() == eGFXDEBUG_String)
   {
     SERIALISE_MEMBER(string).Hidden();
   }
@@ -505,15 +505,15 @@ void DoSerialise(SerialiserType &ser, RENDERDOC_AnnotationValue &el)
   }
 }
 
-INSTANTIATE_SERIALISE_TYPE(RENDERDOC_AnnotationValue);
+INSTANTIATE_SERIALISE_TYPE(GFXDEBUG_AnnotationValue);
 
-RenderDoc &RenderDoc::Inst()
+GfxDebug &GfxDebug::Inst()
 {
-  static RenderDoc realInst;
+  static GfxDebug realInst;
   return realInst;
 }
 
-void RenderDoc::RecreateCrashHandler()
+void GfxDebug::RecreateCrashHandler()
 {
   SCOPED_WRITELOCK(m_ExHandlerLock);
 
@@ -523,9 +523,9 @@ void RenderDoc::RecreateCrashHandler()
   FileIO::GetExecutableFilename(exename);
   exename = strlower(exename);
 
-  // only create crash handler when we're not in renderdoccmd (to prevent infinite loop as
-  // the crash handler itself launches renderdoccmd)
-  if(exename.contains("renderdoccmd"))
+  // only create crash handler when we're not in gfxdebugcmd (to prevent infinite loop as
+  // the crash handler itself launches gfxdebugcmd)
+  if(exename.contains("gfxdebugcmd"))
     return;
 
 #if ENABLED(RDOC_WIN32)
@@ -563,11 +563,11 @@ void RenderDoc::RecreateCrashHandler()
 
   m_ExHandler = new CrashHandler(m_ExHandler);
 
-  m_ExHandler->RegisterMemoryRegion(this, sizeof(RenderDoc));
+  m_ExHandler->RegisterMemoryRegion(this, sizeof(GfxDebug));
 #endif
 }
 
-void RenderDoc::UnloadCrashHandler()
+void GfxDebug::UnloadCrashHandler()
 {
   SCOPED_WRITELOCK(m_ExHandlerLock);
 
@@ -579,7 +579,7 @@ void RenderDoc::UnloadCrashHandler()
   SAFE_DELETE(m_ExHandler);
 }
 
-void RenderDoc::RegisterMemoryRegion(void *mem, size_t size)
+void GfxDebug::RegisterMemoryRegion(void *mem, size_t size)
 {
   SCOPED_READLOCK(m_ExHandlerLock);
 
@@ -587,7 +587,7 @@ void RenderDoc::RegisterMemoryRegion(void *mem, size_t size)
     m_ExHandler->RegisterMemoryRegion(mem, size);
 }
 
-void RenderDoc::UnregisterMemoryRegion(void *mem)
+void GfxDebug::UnregisterMemoryRegion(void *mem)
 {
   SCOPED_READLOCK(m_ExHandlerLock);
 
@@ -595,7 +595,7 @@ void RenderDoc::UnregisterMemoryRegion(void *mem)
     m_ExHandler->UnregisterMemoryRegion(mem);
 }
 
-RenderDoc::RenderDoc()
+GfxDebug::GfxDebug()
 {
   m_CaptureFileTemplate = "";
   m_MarkerIndentLevel = 0;
@@ -610,15 +610,15 @@ RenderDoc::RenderDoc()
   m_Cap = 0;
 
   m_FocusKeys.clear();
-  m_FocusKeys.push_back(eRENDERDOC_Key_F11);
+  m_FocusKeys.push_back(eGFXDEBUG_Key_F11);
 
   m_CaptureKeys.clear();
-  m_CaptureKeys.push_back(eRENDERDOC_Key_F12);
-  m_CaptureKeys.push_back(eRENDERDOC_Key_PrtScrn);
+  m_CaptureKeys.push_back(eGFXDEBUG_Key_F12);
+  m_CaptureKeys.push_back(eGFXDEBUG_Key_PrtScrn);
 
   m_ExHandler = NULL;
 
-  m_Overlay = eRENDERDOC_Overlay_Default;
+  m_Overlay = eGFXDEBUG_Overlay_Default;
 
   m_VulkanCheck = NULL;
   m_VulkanInstall = NULL;
@@ -629,7 +629,7 @@ RenderDoc::RenderDoc()
   ClearTrackedFiles();
 }
 
-void RenderDoc::Initialise()
+void GfxDebug::Initialise()
 {
   Callstack::Init();
 
@@ -637,7 +637,7 @@ void RenderDoc::Initialise()
 
   Threading::Init();
 
-#if !RENDERDOC_STABLE_BUILD
+#if !GFXDEBUG_STABLE_BUILD
   Superluminal::Init();
 #endif
 
@@ -654,14 +654,14 @@ void RenderDoc::Initialise()
 
     Process::ApplyEnvironmentModification();
 
-    uint32_t port = RenderDoc_FirstTargetControlPort;
+    uint32_t port = GfxDebug_FirstTargetControlPort;
 
     Network::Socket *sock = Network::CreateServerSocket("0.0.0.0", port & 0xffff, 4);
 
     while(sock == NULL)
     {
       port++;
-      if(port > RenderDoc_LastTargetControlPort)
+      if(port > GfxDebug_LastTargetControlPort)
       {
         m_RemoteIdent = 0;
         break;
@@ -690,7 +690,7 @@ void RenderDoc::Initialise()
   {
     rdcstr capture_filename;
 
-    const rdcstr base = IsReplayApp() ? "RenderDoc" : "RenderDoc_app";
+    const rdcstr base = IsReplayApp() ? "GfxDebug" : "GfxDebug_app";
 
     FileIO::GetDefaultFiles(base, capture_filename, m_LoggingFilename, m_Target);
 
@@ -713,7 +713,7 @@ void RenderDoc::Initialise()
       "Unknown";
 #endif
 
-  RDCLOG("RenderDoc v%s %s %s %s (%s) %s", MAJOR_MINOR_VERSION_STRING, platform,
+  RDCLOG("GfxDebug v%s %s %s %s (%s) %s", MAJOR_MINOR_VERSION_STRING, platform,
          sizeof(uintptr_t) == sizeof(uint64_t) ? "64-bit" : "32-bit",
          ENABLED(RDOC_RELEASE) ? "Release" : "Development", GitVersionHash,
          IsReplayApp() ? "loaded in replay application" : "capturing application");
@@ -722,7 +722,7 @@ void RenderDoc::Initialise()
   RDCLOG("Packaged for %s (%s) - %s", DISTRIBUTION_NAME, DISTRIBUTION_VERSION, DISTRIBUTION_CONTACT);
 #endif
 
-#if defined(RENDERDOC_HOOK_DLSYM)
+#if defined(GFXDEBUG_HOOK_DLSYM)
   RDCWARN("dlsym() hooking enabled!");
 #endif
 
@@ -761,7 +761,7 @@ void RenderDoc::Initialise()
   ProcessConfig();
 }
 
-RenderDoc::~RenderDoc()
+GfxDebug::~GfxDebug()
 {
   if(m_ExHandler)
   {
@@ -808,7 +808,7 @@ RenderDoc::~RenderDoc()
   StringFormat::Shutdown();
 }
 
-void RenderDoc::RemoveHooks()
+void GfxDebug::RemoveHooks()
 {
   if(m_ExHandler)
   {
@@ -826,7 +826,7 @@ void RenderDoc::RemoveHooks()
   }
 }
 
-void RenderDoc::InitialiseReplay(GlobalEnvironment env, const rdcarray<rdcstr> &args)
+void GfxDebug::InitialiseReplay(GlobalEnvironment env, const rdcarray<rdcstr> &args)
 {
   if(!IsReplayApp())
   {
@@ -1020,11 +1020,11 @@ void RenderDoc::InitialiseReplay(GlobalEnvironment env, const rdcarray<rdcstr> &
   }
 }
 
-void RenderDoc::ShutdownReplay()
+void GfxDebug::ShutdownReplay()
 {
   SyncAvailableGPUThread();
 
-  // call shutdown functions early, as we only want to do these in the RenderDoc destructor if we
+  // call shutdown functions early, as we only want to do these in the GfxDebug destructor if we
   // have no other choice (i.e. we're capturing).
   rdcarray<ShutdownFunction> funcs;
   {
@@ -1037,7 +1037,7 @@ void RenderDoc::ShutdownReplay()
   funcs.clear();
 }
 
-void RenderDoc::RegisterShutdownFunction(ShutdownFunction func)
+void GfxDebug::RegisterShutdownFunction(ShutdownFunction func)
 {
   SCOPED_LOCK(m_ShutdownLock);
 
@@ -1046,7 +1046,7 @@ void RenderDoc::RegisterShutdownFunction(ShutdownFunction func)
     m_ShutdownFunctions.insert(it - m_ShutdownFunctions.begin(), func);
 }
 
-bool RenderDoc::MatchClosestWindow(DeviceOwnedWindow &devWnd)
+bool GfxDebug::MatchClosestWindow(DeviceOwnedWindow &devWnd)
 {
   SCOPED_LOCK(m_CapturerListLock);
 
@@ -1075,19 +1075,19 @@ bool RenderDoc::MatchClosestWindow(DeviceOwnedWindow &devWnd)
   return false;
 }
 
-bool RenderDoc::IsActiveWindow(DeviceOwnedWindow devWnd)
+bool GfxDebug::IsActiveWindow(DeviceOwnedWindow devWnd)
 {
   SCOPED_LOCK(m_CapturerListLock);
   return devWnd == m_ActiveWindow;
 }
 
-void RenderDoc::GetActiveWindow(DeviceOwnedWindow &devWnd)
+void GfxDebug::GetActiveWindow(DeviceOwnedWindow &devWnd)
 {
   SCOPED_LOCK(m_CapturerListLock);
   devWnd = m_ActiveWindow;
 }
 
-IFrameCapturer *RenderDoc::MatchFrameCapturer(DeviceOwnedWindow devWnd)
+IFrameCapturer *GfxDebug::MatchFrameCapturer(DeviceOwnedWindow devWnd)
 {
   // try and find the closest frame capture registered, and update
   // the values in devWnd to point to it precisely
@@ -1128,7 +1128,7 @@ IFrameCapturer *RenderDoc::MatchFrameCapturer(DeviceOwnedWindow devWnd)
   return it->second.FrameCapturer;
 }
 
-void RenderDoc::StartFrameCapture(DeviceOwnedWindow devWnd)
+void GfxDebug::StartFrameCapture(DeviceOwnedWindow devWnd)
 {
   m_CaptureTitle.clear();
   IFrameCapturer *frameCap = MatchFrameCapturer(devWnd);
@@ -1139,7 +1139,7 @@ void RenderDoc::StartFrameCapture(DeviceOwnedWindow devWnd)
   }
 }
 
-void RenderDoc::SetActiveWindow(DeviceOwnedWindow devWnd)
+void GfxDebug::SetActiveWindow(DeviceOwnedWindow devWnd)
 {
   SCOPED_LOCK(m_CapturerListLock);
 
@@ -1154,12 +1154,12 @@ void RenderDoc::SetActiveWindow(DeviceOwnedWindow devWnd)
   m_ActiveWindow = devWnd;
 }
 
-void RenderDoc::SetCaptureTitle(const rdcstr &title)
+void GfxDebug::SetCaptureTitle(const rdcstr &title)
 {
   m_CaptureTitle = title;
 }
 
-bool RenderDoc::EndFrameCapture(DeviceOwnedWindow devWnd)
+bool GfxDebug::EndFrameCapture(DeviceOwnedWindow devWnd)
 {
   IFrameCapturer *frameCap = MatchFrameCapturer(devWnd);
   if(frameCap)
@@ -1171,7 +1171,7 @@ bool RenderDoc::EndFrameCapture(DeviceOwnedWindow devWnd)
   return false;
 }
 
-bool RenderDoc::DiscardFrameCapture(DeviceOwnedWindow devWnd)
+bool GfxDebug::DiscardFrameCapture(DeviceOwnedWindow devWnd)
 {
   IFrameCapturer *frameCap = MatchFrameCapturer(devWnd);
   if(frameCap)
@@ -1183,19 +1183,19 @@ bool RenderDoc::DiscardFrameCapture(DeviceOwnedWindow devWnd)
   return false;
 }
 
-bool RenderDoc::IsTargetControlConnected()
+bool GfxDebug::IsTargetControlConnected()
 {
   SCOPED_LOCK(m_SingleClientLock);
   return !m_SingleClientName.empty();
 }
 
-rdcstr RenderDoc::GetTargetControlUsername()
+rdcstr GfxDebug::GetTargetControlUsername()
 {
   SCOPED_LOCK(m_SingleClientLock);
   return m_SingleClientName;
 }
 
-bool RenderDoc::ShowReplayUI()
+bool GfxDebug::ShowReplayUI()
 {
   SCOPED_LOCK(m_SingleClientLock);
   if(m_SingleClientName.empty())
@@ -1205,7 +1205,7 @@ bool RenderDoc::ShowReplayUI()
   return true;
 }
 
-void RenderDoc::Tick()
+void GfxDebug::Tick()
 {
   bool cur_focus = false;
   for(size_t i = 0; i < m_FocusKeys.size(); i++)
@@ -1251,7 +1251,7 @@ void RenderDoc::Tick()
   }
 }
 
-void RenderDoc::CycleActiveWindow()
+void GfxDebug::CycleActiveWindow()
 {
   SCOPED_LOCK(m_CapturerListLock);
 
@@ -1278,13 +1278,13 @@ void RenderDoc::CycleActiveWindow()
   }
 }
 
-uint32_t RenderDoc::GetCapturableWindowCount()
+uint32_t GfxDebug::GetCapturableWindowCount()
 {
   SCOPED_LOCK(m_CapturerListLock);
   return (uint32_t)m_WindowFrameCapturers.size();
 }
 
-rdcstr RenderDoc::GetOverlayText(RDCDriver driver, DeviceOwnedWindow devWnd, uint32_t frameNumber,
+rdcstr GfxDebug::GetOverlayText(RDCDriver driver, DeviceOwnedWindow devWnd, uint32_t frameNumber,
                                  int flags)
 {
   bool activeWindow;
@@ -1367,10 +1367,10 @@ rdcstr RenderDoc::GetOverlayText(RDCDriver driver, DeviceOwnedWindow devWnd, uin
 
   if(activeWindow)
   {
-    if(overlay & eRENDERDOC_Overlay_FrameNumber)
+    if(overlay & eGFXDEBUG_Overlay_FrameNumber)
       overlayText += StringFormat::Fmt(" Frame: %d.", frameNumber);
 
-    if(overlay & eRENDERDOC_Overlay_FrameRate)
+    if(overlay & eGFXDEBUG_Overlay_FrameRate)
     {
       const double frameTime = m_FrameTimer.GetAvgFrameTime();
       // max with 0.01ms so that we don't divide by zero
@@ -1410,7 +1410,7 @@ rdcstr RenderDoc::GetOverlayText(RDCDriver driver, DeviceOwnedWindow devWnd, uin
   {
     if(activeWindow)
     {
-      rdcarray<RENDERDOC_InputButton> keys = GetCaptureKeys();
+      rdcarray<GFXDEBUG_InputButton> keys = GetCaptureKeys();
 
       if(Keyboard::PlatformHasKeyInput())
       {
@@ -1433,7 +1433,7 @@ rdcstr RenderDoc::GetOverlayText(RDCDriver driver, DeviceOwnedWindow devWnd, uin
           overlayText += "No remote access connection.";
       }
 
-      if(overlay & eRENDERDOC_Overlay_CaptureList)
+      if(overlay & eGFXDEBUG_Overlay_CaptureList)
       {
         overlayText += StringFormat::Fmt(" %d Captures saved.\n", (uint32_t)m_Captures.size());
 
@@ -1452,7 +1452,7 @@ rdcstr RenderDoc::GetOverlayText(RDCDriver driver, DeviceOwnedWindow devWnd, uin
     }
     else
     {
-      rdcarray<RENDERDOC_InputButton> keys = GetFocusKeys();
+      rdcarray<GFXDEBUG_InputButton> keys = GetFocusKeys();
 
       if(Keyboard::PlatformHasKeyInput())
       {
@@ -1487,14 +1487,14 @@ rdcstr RenderDoc::GetOverlayText(RDCDriver driver, DeviceOwnedWindow devWnd, uin
   return overlayText;
 }
 
-void RenderDoc::QueueCapture(uint32_t frameNumber)
+void GfxDebug::QueueCapture(uint32_t frameNumber)
 {
   auto it = std::lower_bound(m_QueuedFrameCaptures.begin(), m_QueuedFrameCaptures.end(), frameNumber);
   if(it == m_QueuedFrameCaptures.end() || *it != frameNumber)
     m_QueuedFrameCaptures.insert(it - m_QueuedFrameCaptures.begin(), frameNumber);
 }
 
-bool RenderDoc::ShouldTriggerCapture(uint32_t frameNumber)
+bool GfxDebug::ShouldTriggerCapture(uint32_t frameNumber)
 {
   bool ret = m_Cap > 0;
 
@@ -1524,7 +1524,7 @@ bool RenderDoc::ShouldTriggerCapture(uint32_t frameNumber)
   return ret;
 }
 
-void RenderDoc::ResamplePixels(const FramePixels &in, RDCThumb &out)
+void GfxDebug::ResamplePixels(const FramePixels &in, RDCThumb &out)
 {
   if(in.width == 0 || in.height == 0)
   {
@@ -1629,7 +1629,7 @@ void RenderDoc::ResamplePixels(const FramePixels &in, RDCThumb &out)
   }
 }
 
-void RenderDoc::EncodeThumbPixels(const RDCThumb &in, RDCThumb &out)
+void GfxDebug::EncodeThumbPixels(const RDCThumb &in, RDCThumb &out)
 {
   if(in.width == 0 || in.height == 0)
   {
@@ -1677,7 +1677,7 @@ void RenderDoc::EncodeThumbPixels(const RDCThumb &in, RDCThumb &out)
   }
 }
 
-RDCFile *RenderDoc::CreateRDC(RDCDriver driver, uint32_t frameNum, const FramePixels &fp)
+RDCFile *GfxDebug::CreateRDC(RDCDriver driver, uint32_t frameNum, const FramePixels &fp)
 {
   RDCFile *ret = new RDCFile;
 
@@ -1729,7 +1729,7 @@ RDCFile *RenderDoc::CreateRDC(RDCDriver driver, uint32_t frameNum, const FramePi
   return ret;
 }
 
-bool RenderDoc::HasReplayDriver(RDCDriver driver) const
+bool GfxDebug::HasReplayDriver(RDCDriver driver) const
 {
   // Image driver is handled specially and isn't registered in the map
   if(driver == RDCDriver::Image)
@@ -1738,7 +1738,7 @@ bool RenderDoc::HasReplayDriver(RDCDriver driver) const
   return m_ReplayDriverProviders.find(driver) != m_ReplayDriverProviders.end();
 }
 
-bool RenderDoc::HasRemoteDriver(RDCDriver driver) const
+bool GfxDebug::HasRemoteDriver(RDCDriver driver) const
 {
   if(m_RemoteDriverProviders.find(driver) != m_RemoteDriverProviders.end())
     return true;
@@ -1746,7 +1746,7 @@ bool RenderDoc::HasRemoteDriver(RDCDriver driver) const
   return HasReplayDriver(driver);
 }
 
-void RenderDoc::RegisterReplayProvider(RDCDriver driver, ReplayDriverProvider provider)
+void GfxDebug::RegisterReplayProvider(RDCDriver driver, ReplayDriverProvider provider)
 {
   if(HasReplayDriver(driver))
     RDCERR("Re-registering provider for %s", ToStr(driver).c_str());
@@ -1756,7 +1756,7 @@ void RenderDoc::RegisterReplayProvider(RDCDriver driver, ReplayDriverProvider pr
   m_ReplayDriverProviders[driver] = provider;
 }
 
-void RenderDoc::RegisterRemoteProvider(RDCDriver driver, RemoteDriverProvider provider)
+void GfxDebug::RegisterRemoteProvider(RDCDriver driver, RemoteDriverProvider provider)
 {
   if(HasRemoteDriver(driver))
     RDCERR("Re-registering provider for %s", ToStr(driver).c_str());
@@ -1766,14 +1766,14 @@ void RenderDoc::RegisterRemoteProvider(RDCDriver driver, RemoteDriverProvider pr
   m_RemoteDriverProviders[driver] = provider;
 }
 
-void RenderDoc::RegisterStructuredProcessor(RDCDriver driver, StructuredProcessor provider)
+void GfxDebug::RegisterStructuredProcessor(RDCDriver driver, StructuredProcessor provider)
 {
   RDCASSERT(m_StructProcesssors.find(driver) == m_StructProcesssors.end());
 
   m_StructProcesssors[driver] = provider;
 }
 
-void RenderDoc::RegisterCaptureExporter(CaptureExporter exporter, CaptureFileFormat description)
+void GfxDebug::RegisterCaptureExporter(CaptureExporter exporter, CaptureFileFormat description)
 {
   rdcstr filetype = description.extension;
 
@@ -1794,7 +1794,7 @@ void RenderDoc::RegisterCaptureExporter(CaptureExporter exporter, CaptureFileFor
   m_Exporters[filetype] = exporter;
 }
 
-void RenderDoc::RegisterCaptureImportExporter(CaptureImporter importer, CaptureExporter exporter,
+void GfxDebug::RegisterCaptureImportExporter(CaptureImporter importer, CaptureExporter exporter,
                                               CaptureFileFormat description)
 {
   rdcstr filetype = description.extension;
@@ -1817,7 +1817,7 @@ void RenderDoc::RegisterCaptureImportExporter(CaptureImporter importer, CaptureE
   m_Exporters[filetype] = exporter;
 }
 
-void RenderDoc::RegisterDeviceProtocol(const rdcstr &protocol, ProtocolHandler handler)
+void GfxDebug::RegisterDeviceProtocol(const rdcstr &protocol, ProtocolHandler handler)
 {
   if(m_Protocols[protocol] != NULL)
   {
@@ -1827,7 +1827,7 @@ void RenderDoc::RegisterDeviceProtocol(const rdcstr &protocol, ProtocolHandler h
   m_Protocols[protocol] = handler;
 }
 
-StructuredProcessor RenderDoc::GetStructuredProcessor(RDCDriver driver)
+StructuredProcessor GfxDebug::GetStructuredProcessor(RDCDriver driver)
 {
   auto it = m_StructProcesssors.find(driver);
 
@@ -1837,7 +1837,7 @@ StructuredProcessor RenderDoc::GetStructuredProcessor(RDCDriver driver)
   return it->second;
 }
 
-CaptureExporter RenderDoc::GetCaptureExporter(const rdcstr &filetype)
+CaptureExporter GfxDebug::GetCaptureExporter(const rdcstr &filetype)
 {
   auto it = m_Exporters.find(filetype);
 
@@ -1847,7 +1847,7 @@ CaptureExporter RenderDoc::GetCaptureExporter(const rdcstr &filetype)
   return it->second;
 }
 
-CaptureImporter RenderDoc::GetCaptureImporter(const rdcstr &filetype)
+CaptureImporter GfxDebug::GetCaptureImporter(const rdcstr &filetype)
 {
   auto it = m_Importers.find(filetype);
 
@@ -1857,7 +1857,7 @@ CaptureImporter RenderDoc::GetCaptureImporter(const rdcstr &filetype)
   return it->second;
 }
 
-rdcarray<rdcstr> RenderDoc::GetSupportedDeviceProtocols()
+rdcarray<rdcstr> GfxDebug::GetSupportedDeviceProtocols()
 {
   rdcarray<rdcstr> ret;
 
@@ -1867,7 +1867,7 @@ rdcarray<rdcstr> RenderDoc::GetSupportedDeviceProtocols()
   return ret;
 }
 
-IDeviceProtocolHandler *RenderDoc::GetDeviceProtocol(const rdcstr &protocol)
+IDeviceProtocolHandler *GfxDebug::GetDeviceProtocol(const rdcstr &protocol)
 {
   rdcstr p = protocol;
 
@@ -1884,7 +1884,7 @@ IDeviceProtocolHandler *RenderDoc::GetDeviceProtocol(const rdcstr &protocol)
   return NULL;
 }
 
-rdcarray<CaptureFileFormat> RenderDoc::GetCaptureFileFormats()
+rdcarray<CaptureFileFormat> GfxDebug::GetCaptureFileFormats()
 {
   rdcarray<CaptureFileFormat> ret = m_ImportExportFormats;
 
@@ -1904,14 +1904,14 @@ rdcarray<CaptureFileFormat> RenderDoc::GetCaptureFileFormats()
   return ret;
 }
 
-rdcarray<GPUDevice> RenderDoc::GetAvailableGPUs()
+rdcarray<GPUDevice> GfxDebug::GetAvailableGPUs()
 {
   SyncAvailableGPUThread();
 
   return m_AvailableGPUs;
 }
 
-void RenderDoc::SyncAvailableGPUThread()
+void GfxDebug::SyncAvailableGPUThread()
 {
   if(m_AvailableGPUThread)
   {
@@ -1921,7 +1921,7 @@ void RenderDoc::SyncAvailableGPUThread()
   }
 }
 
-bool RenderDoc::HasReplaySupport(RDCDriver driverType)
+bool GfxDebug::HasReplaySupport(RDCDriver driverType)
 {
   if(driverType == RDCDriver::Image)
     return true;
@@ -1932,7 +1932,7 @@ bool RenderDoc::HasReplaySupport(RDCDriver driverType)
   return m_ReplayDriverProviders.find(driverType) != m_ReplayDriverProviders.end();
 }
 
-RDResult RenderDoc::CreateProxyReplayDriver(RDCDriver proxyDriver, IReplayDriver **driver)
+RDResult GfxDebug::CreateProxyReplayDriver(RDCDriver proxyDriver, IReplayDriver **driver)
 {
   SyncAvailableGPUThread();
 
@@ -1950,7 +1950,7 @@ RDResult RenderDoc::CreateProxyReplayDriver(RDCDriver proxyDriver, IReplayDriver
                       ToStr(proxyDriver).c_str());
 }
 
-RDResult RenderDoc::CreateReplayDriver(RDCFile *rdc, const ReplayOptions &opts, IReplayDriver **driver)
+RDResult GfxDebug::CreateReplayDriver(RDCFile *rdc, const ReplayOptions &opts, IReplayDriver **driver)
 {
   if(driver == NULL)
     return ResultCode::InvalidParameter;
@@ -1980,7 +1980,7 @@ RDResult RenderDoc::CreateReplayDriver(RDCFile *rdc, const ReplayOptions &opts, 
   return ResultCode::APIUnsupported;
 }
 
-RDResult RenderDoc::CreateRemoteDriver(RDCFile *rdc, const ReplayOptions &opts, IRemoteDriver **driver)
+RDResult GfxDebug::CreateRemoteDriver(RDCFile *rdc, const ReplayOptions &opts, IRemoteDriver **driver)
 {
   if(rdc == NULL || driver == NULL)
     return ResultCode::InvalidParameter;
@@ -2010,7 +2010,7 @@ RDResult RenderDoc::CreateRemoteDriver(RDCFile *rdc, const ReplayOptions &opts, 
                       ToStr(driverType).c_str());
 }
 
-void RenderDoc::AddActiveDriver(RDCDriver driver, bool present)
+void GfxDebug::AddActiveDriver(RDCDriver driver, bool present)
 {
   if(driver == RDCDriver::Unknown)
     return;
@@ -2025,7 +2025,7 @@ void RenderDoc::AddActiveDriver(RDCDriver driver, bool present)
   }
 }
 
-void RenderDoc::SetDriverUnsupportedMessage(RDCDriver driver, rdcstr message)
+void GfxDebug::SetDriverUnsupportedMessage(RDCDriver driver, rdcstr message)
 {
   if(driver == RDCDriver::Unknown)
     return;
@@ -2034,7 +2034,7 @@ void RenderDoc::SetDriverUnsupportedMessage(RDCDriver driver, rdcstr message)
   m_APISupportMessages[driver] = message;
 }
 
-std::map<RDCDriver, RDCDriverStatus> RenderDoc::GetActiveDrivers()
+std::map<RDCDriver, RDCDriverStatus> GfxDebug::GetActiveDrivers()
 {
   std::map<RDCDriver, uint64_t> drivers;
 
@@ -2070,7 +2070,7 @@ std::map<RDCDriver, RDCDriverStatus> RenderDoc::GetActiveDrivers()
   return ret;
 }
 
-std::map<RDCDriver, rdcstr> RenderDoc::GetReplayDrivers()
+std::map<RDCDriver, rdcstr> GfxDebug::GetReplayDrivers()
 {
   std::map<RDCDriver, rdcstr> ret;
   for(auto it = m_ReplayDriverProviders.begin(); it != m_ReplayDriverProviders.end(); ++it)
@@ -2078,7 +2078,7 @@ std::map<RDCDriver, rdcstr> RenderDoc::GetReplayDrivers()
   return ret;
 }
 
-std::map<RDCDriver, rdcstr> RenderDoc::GetRemoteDrivers()
+std::map<RDCDriver, rdcstr> GfxDebug::GetRemoteDrivers()
 {
   std::map<RDCDriver, rdcstr> ret;
 
@@ -2092,7 +2092,7 @@ std::map<RDCDriver, rdcstr> RenderDoc::GetRemoteDrivers()
   return ret;
 }
 
-DriverInformation RenderDoc::GetDriverInformation(GraphicsAPI api)
+DriverInformation GfxDebug::GetDriverInformation(GraphicsAPI api)
 {
   DriverInformation ret = {};
 
@@ -2127,7 +2127,7 @@ DriverInformation RenderDoc::GetDriverInformation(GraphicsAPI api)
   return ret;
 }
 
-void RenderDoc::EnableVendorExtensions(VendorExtensions ext)
+void GfxDebug::EnableVendorExtensions(VendorExtensions ext)
 {
   m_VendorExts[(int)ext] = true;
 
@@ -2139,14 +2139,14 @@ void RenderDoc::EnableVendorExtensions(VendorExtensions ext)
   RDCWARN("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 
-void RenderDoc::SetCaptureOptions(const CaptureOptions &opts)
+void GfxDebug::SetCaptureOptions(const CaptureOptions &opts)
 {
   m_Options = opts;
 
   LibraryHooks::OptionsUpdated();
 }
 
-void RenderDoc::SetCaptureFileTemplate(const rdcstr &pathtemplate)
+void GfxDebug::SetCaptureFileTemplate(const rdcstr &pathtemplate)
 {
   if(pathtemplate.empty())
     return;
@@ -2160,9 +2160,9 @@ void RenderDoc::SetCaptureFileTemplate(const rdcstr &pathtemplate)
   FileIO::CreateParentDirectory(m_CaptureFileTemplate);
 }
 
-void RenderDoc::FinishCaptureWriting(RDCFile *rdc, uint32_t frameNumber)
+void GfxDebug::FinishCaptureWriting(RDCFile *rdc, uint32_t frameNumber)
 {
-  RenderDoc::Inst().SetProgress(CaptureProgress::FileWriting, 0.0f);
+  GfxDebug::Inst().SetProgress(CaptureProgress::FileWriting, 0.0f);
 
   if(rdc)
   {
@@ -2249,10 +2249,10 @@ void RenderDoc::FinishCaptureWriting(RDCFile *rdc, uint32_t frameNumber)
     RDCLOG("Discarded capture, Frame %u", frameNumber);
   }
 
-  RenderDoc::Inst().SetProgress(CaptureProgress::FileWriting, 1.0f);
+  GfxDebug::Inst().SetProgress(CaptureProgress::FileWriting, 1.0f);
 }
 
-void RenderDoc::AddChildProcess(uint32_t pid, uint32_t ident)
+void GfxDebug::AddChildProcess(uint32_t pid, uint32_t ident)
 {
   if(ident == 0 || ident == m_RemoteIdent)
   {
@@ -2265,13 +2265,13 @@ void RenderDoc::AddChildProcess(uint32_t pid, uint32_t ident)
   m_Children.push_back(make_rdcpair(pid, ident));
 }
 
-rdcarray<rdcpair<uint32_t, uint32_t>> RenderDoc::GetChildProcesses()
+rdcarray<rdcpair<uint32_t, uint32_t>> GfxDebug::GetChildProcesses()
 {
   SCOPED_LOCK(m_ChildLock);
   return m_Children;
 }
 
-void RenderDoc::CompleteChildThread(uint32_t pid)
+void GfxDebug::CompleteChildThread(uint32_t pid)
 {
   SCOPED_LOCK(m_ChildLock);
   // the thread for this PID is done, mark it as ready to wait on by zero-ing out the PID
@@ -2282,25 +2282,25 @@ void RenderDoc::CompleteChildThread(uint32_t pid)
   }
 }
 
-void RenderDoc::AddChildThread(uint32_t pid, Threading::ThreadHandle thread)
+void GfxDebug::AddChildThread(uint32_t pid, Threading::ThreadHandle thread)
 {
   SCOPED_LOCK(m_ChildLock);
   m_ChildThreads.push_back(make_rdcpair(pid, thread));
 }
 
-void RenderDoc::ValidateCaptures()
+void GfxDebug::ValidateCaptures()
 {
   SCOPED_LOCK(m_CaptureLock);
   m_Captures.removeIf([](const CaptureData &cap) { return !FileIO::exists(cap.path); });
 }
 
-rdcarray<CaptureData> RenderDoc::GetCaptures()
+rdcarray<CaptureData> GfxDebug::GetCaptures()
 {
   SCOPED_LOCK(m_CaptureLock);
   return m_Captures;
 }
 
-void RenderDoc::MarkCaptureRetrieved(uint32_t idx)
+void GfxDebug::MarkCaptureRetrieved(uint32_t idx)
 {
   SCOPED_LOCK(m_CaptureLock);
   if(idx < m_Captures.size())
@@ -2309,7 +2309,7 @@ void RenderDoc::MarkCaptureRetrieved(uint32_t idx)
   }
 }
 
-void RenderDoc::AddDeviceFrameCapturer(void *dev, IFrameCapturer *cap)
+void GfxDebug::AddDeviceFrameCapturer(void *dev, IFrameCapturer *cap)
 {
   if(IsReplayApp())
     return;
@@ -2326,7 +2326,7 @@ void RenderDoc::AddDeviceFrameCapturer(void *dev, IFrameCapturer *cap)
   m_DeviceFrameCapturers[dev] = cap;
 }
 
-void RenderDoc::RemoveDeviceFrameCapturer(void *dev)
+void GfxDebug::RemoveDeviceFrameCapturer(void *dev)
 {
   if(IsReplayApp())
     return;
@@ -2343,7 +2343,7 @@ void RenderDoc::RemoveDeviceFrameCapturer(void *dev)
   m_DeviceFrameCapturers.erase(dev);
 }
 
-void RenderDoc::AddFrameCapturer(DeviceOwnedWindow devWnd, IFrameCapturer *cap)
+void GfxDebug::AddFrameCapturer(DeviceOwnedWindow devWnd, IFrameCapturer *cap)
 {
   if(IsReplayApp())
     return;
@@ -2378,7 +2378,7 @@ void RenderDoc::AddFrameCapturer(DeviceOwnedWindow devWnd, IFrameCapturer *cap)
     m_ActiveWindow = devWnd;
 }
 
-void RenderDoc::RemoveFrameCapturer(DeviceOwnedWindow devWnd)
+void GfxDebug::RemoveFrameCapturer(DeviceOwnedWindow devWnd)
 {
   if(IsReplayApp())
     return;
@@ -2424,7 +2424,7 @@ void RenderDoc::RemoveFrameCapturer(DeviceOwnedWindow devWnd)
   }
 }
 
-bool RenderDoc::HasActiveFrameCapturer(RDCDriver driver)
+bool GfxDebug::HasActiveFrameCapturer(RDCDriver driver)
 {
   SCOPED_LOCK(m_CapturerListLock);
 
@@ -2439,7 +2439,7 @@ bool RenderDoc::HasActiveFrameCapturer(RDCDriver driver)
   return false;
 }
 
-bool RenderDoc::GetTrackedFileData(const rdcstr &nickname, bytebuf &data) const
+bool GfxDebug::GetTrackedFileData(const rdcstr &nickname, bytebuf &data) const
 {
   SCOPED_READLOCK(m_TrackedFilesLock);
   for(const TrackedFile &f : m_TrackedFiles)
@@ -2454,7 +2454,7 @@ bool RenderDoc::GetTrackedFileData(const rdcstr &nickname, bytebuf &data) const
   return false;
 }
 
-bool RenderDoc::DoesTrackedFileExist(const rdcstr &nickname) const
+bool GfxDebug::DoesTrackedFileExist(const rdcstr &nickname) const
 {
   SCOPED_READLOCK(m_TrackedFilesLock);
   for(const TrackedFile &f : m_TrackedFiles)
@@ -2466,7 +2466,7 @@ bool RenderDoc::DoesTrackedFileExist(const rdcstr &nickname) const
 }
 
 // return false if the nickname already exists
-bool RenderDoc::AddTrackedFileReference(const rdcstr &nickname, const rdcstr &filepath)
+bool GfxDebug::AddTrackedFileReference(const rdcstr &nickname, const rdcstr &filepath)
 {
   SCOPED_WRITELOCK(m_TrackedFilesLock);
   // do not allow duplicates, overwrite with latest if we add the same one
@@ -2475,19 +2475,19 @@ bool RenderDoc::AddTrackedFileReference(const rdcstr &nickname, const rdcstr &fi
   return true;
 }
 
-void RenderDoc::ClearTrackedFiles()
+void GfxDebug::ClearTrackedFiles()
 {
   SCOPED_WRITELOCK(m_TrackedFilesLock);
   m_TrackedFiles.clear();
 }
 
-bool RenderDoc::HasTrackedFileData() const
+bool GfxDebug::HasTrackedFileData() const
 {
   SCOPED_READLOCK(m_TrackedFilesLock);
   return !m_TrackedFiles.empty();
 }
 
-rdcarray<rdcstr> RenderDoc::GetTrackedFileNicknames() const
+rdcarray<rdcstr> GfxDebug::GetTrackedFileNicknames() const
 {
   rdcarray<rdcstr> nickNames;
   {
@@ -2498,7 +2498,7 @@ rdcarray<rdcstr> RenderDoc::GetTrackedFileNicknames() const
   return nickNames;
 }
 
-RDResult RenderDoc::ReadExternalFiles(RDCFile *rdc)
+RDResult GfxDebug::ReadExternalFiles(RDCFile *rdc)
 {
   int32_t idx = rdc->SectionIndex(SectionType::EmbeddedExternalFiles);
   if(idx < 0)
@@ -2597,7 +2597,7 @@ RDResult RenderDoc::ReadExternalFiles(RDCFile *rdc)
   return RDResult();
 }
 
-RDResult RenderDoc::WriteExternalFiles(RDCFile *rdc, const rdcarray<TrackedFile> &trackedFiles)
+RDResult GfxDebug::WriteExternalFiles(RDCFile *rdc, const rdcarray<TrackedFile> &trackedFiles)
 {
   if(!rdc)
     RETURN_WARNING_RESULT(ResultCode::FileCorrupted,
@@ -2614,7 +2614,7 @@ RDResult RenderDoc::WriteExternalFiles(RDCFile *rdc, const rdcarray<TrackedFile>
   // int32_t countFileEntries;
   sectionData.append((byte *)&countFileEntries, sizeof(countFileEntries));
   // FileEntry fileEntries[];
-  for(const RenderDoc::TrackedFile &f : trackedFiles)
+  for(const GfxDebug::TrackedFile &f : trackedFiles)
   {
     // FileEntry:
     // uint32_t nameSize;
@@ -2668,7 +2668,7 @@ RDResult RenderDoc::WriteExternalFiles(RDCFile *rdc, const rdcarray<TrackedFile>
   return RDResult();
 }
 
-RDResult RenderDoc::EmbedExternalFiles(RDCFile *rdc)
+RDResult GfxDebug::EmbedExternalFiles(RDCFile *rdc)
 {
   if(!rdc)
     RETURN_WARNING_RESULT(ResultCode::FileCorrupted,
@@ -2682,15 +2682,15 @@ RDResult RenderDoc::EmbedExternalFiles(RDCFile *rdc)
     RDCWARN("Capture already has embedded external files - replacing existing section.");
 
   SCOPED_WRITELOCK(m_TrackedFilesLock);
-  const rdcarray<RenderDoc::TrackedFile> &trackedFiles = m_TrackedFiles;
+  const rdcarray<GfxDebug::TrackedFile> &trackedFiles = m_TrackedFiles;
   if(trackedFiles.empty())
     RDCWARN("No external files to embed.");
 
   RDCLOG("Embedding %d external files", trackedFiles.count());
-  return RenderDoc::Inst().WriteExternalFiles(rdc, trackedFiles);
+  return GfxDebug::Inst().WriteExternalFiles(rdc, trackedFiles);
 }
 
-RDResult RenderDoc::RemoveExternalFiles(RDCFile *rdc)
+RDResult GfxDebug::RemoveExternalFiles(RDCFile *rdc)
 {
   if(!rdc)
     RETURN_WARNING_RESULT(ResultCode::FileCorrupted,
@@ -2706,11 +2706,11 @@ RDResult RenderDoc::RemoveExternalFiles(RDCFile *rdc)
                           "Capture does not have any embedded external files.");
 
   RDCLOG("Removing embedded external files (setting count to 0)");
-  rdcarray<RenderDoc::TrackedFile> trackedFiles;
-  return RenderDoc::Inst().WriteExternalFiles(rdc, trackedFiles);
+  rdcarray<GfxDebug::TrackedFile> trackedFiles;
+  return GfxDebug::Inst().WriteExternalFiles(rdc, trackedFiles);
 }
 
-bool RenderDoc::HasEmbeddedFiles(RDCFile *rdc) const
+bool GfxDebug::HasEmbeddedFiles(RDCFile *rdc) const
 {
   if(!rdc)
     return false;
@@ -2791,7 +2791,7 @@ TEST_CASE("Check ResourceId tostr", "[tostr]")
 
 TEST_CASE("Check ResamplePixels", "[core][resamplepixels]")
 {
-  RenderDoc::FramePixels sourcePixels;
+  GfxDebug::FramePixels sourcePixels;
   uint32_t height = 4;
   uint32_t width = 4;
   uint32_t bytesPerComponent = 1;
@@ -2826,7 +2826,7 @@ TEST_CASE("Check ResamplePixels", "[core][resamplepixels]")
 
   RDCThumb thumbOutYNotFlipped;
   sourcePixels.is_y_flipped = false;
-  RenderDoc::Inst().ResamplePixels(sourcePixels, thumbOutYNotFlipped);
+  GfxDebug::Inst().ResamplePixels(sourcePixels, thumbOutYNotFlipped);
   CHECK(thumbOutYNotFlipped.width == width);
   CHECK(thumbOutYNotFlipped.height == height);
 
@@ -2845,7 +2845,7 @@ TEST_CASE("Check ResamplePixels", "[core][resamplepixels]")
 
   RDCThumb thumbOutYFlipped;
   sourcePixels.is_y_flipped = true;
-  RenderDoc::Inst().ResamplePixels(sourcePixels, thumbOutYFlipped);
+  GfxDebug::Inst().ResamplePixels(sourcePixels, thumbOutYFlipped);
   CHECK(thumbOutYFlipped.width == width);
   CHECK(thumbOutYFlipped.height == height);
   dest = (byte *)thumbOutYFlipped.pixels.data();
@@ -2863,7 +2863,7 @@ TEST_CASE("Check ResamplePixels", "[core][resamplepixels]")
 
   RDCThumb thumbOutBGRA;
   sourcePixels.bgra = true;
-  RenderDoc::Inst().ResamplePixels(sourcePixels, thumbOutBGRA);
+  GfxDebug::Inst().ResamplePixels(sourcePixels, thumbOutBGRA);
   CHECK(thumbOutBGRA.width == width);
   CHECK(thumbOutBGRA.height == height);
   dest = (byte *)thumbOutBGRA.pixels.data();
@@ -2883,7 +2883,7 @@ TEST_CASE("Check ResamplePixels", "[core][resamplepixels]")
   sourcePixels.bgra = false;
   sourcePixels.max_width = 2;
   sourcePixels.pitch_requirement = 2;
-  RenderDoc::Inst().ResamplePixels(sourcePixels, thumbOutDownsample);
+  GfxDebug::Inst().ResamplePixels(sourcePixels, thumbOutDownsample);
   CHECK(thumbOutDownsample.width == 2);
   CHECK(thumbOutDownsample.height == 2);
   dest = (byte *)thumbOutDownsample.pixels.data();

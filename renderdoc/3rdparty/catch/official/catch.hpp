@@ -10,7 +10,7 @@
  */
 
 /*
- * Includes RenderDoc customisations 
+ * Includes GfxDebug customisations 
  * Add CATCH_CONFIG_FORCE_FALLBACK_STRINGIFIER to force use of ToStr in
   all cases. We can handle ints, etc, we don't need ostringstream, and
   this allows us to handle enums that would otherwise just be printed as
@@ -19,7 +19,7 @@
   behaviour of debugbreaks happening in macros and so in-line at the
   actual site failure. So the debugger stops on the CHECK() or REQUIRE()
   call instead of inside AssertionHandler::complete()
-* https://github.com/baldurk/renderdoc/commit/4232736fc21fc6a13a4de6997a5ae106598b225f
+* https://github.com/baldurk/gfxdebug/commit/4232736fc21fc6a13a4de6997a5ae106598b225f
 */
 #ifndef TWOBLUECUBES_SINGLE_INCLUDE_CATCH_HPP_INCLUDED
 #define TWOBLUECUBES_SINGLE_INCLUDE_CATCH_HPP_INCLUDED
@@ -552,7 +552,7 @@ namespace Catch {
 }
 
 #define CATCH_INTERNAL_LINEINFO \
-    ::Catch::SourceLineInfo( __FILE__, static_cast<std::size_t>( __LINE__ ) )
+    ::Catch::SourceLineInfo( "", static_cast<std::size_t>( __LINE__ ) )
 
 // end catch_common.h
 namespace Catch {

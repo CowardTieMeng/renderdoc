@@ -795,7 +795,7 @@ private:
 
     rdcflatmap<ResourceId, ImageState> imageStates;
 
-    // whether the renderdoc commandbuffer execution has a renderpass currently open and replaying
+    // whether the gfxdebug commandbuffer execution has a renderpass currently open and replaying
     // and expects nextSubpass/endRPass/endRendering commands to be executed even if partial
     bool renderPassOpen = false;
 
@@ -1056,7 +1056,7 @@ private:
   Threading::CriticalSection m_ImageStatesLock;
 
   // find swapchain for an image
-  std::map<RENDERDOC_WindowHandle, VkSwapchainKHR> m_SwapLookup;
+  std::map<GFXDEBUG_WindowHandle, VkSwapchainKHR> m_SwapLookup;
   Threading::CriticalSection m_SwapLookupLock;
 
   // below are replay-side data only, doesn't have to be thread protected
@@ -1169,19 +1169,19 @@ private:
   bool DiscardFrameCapture(DeviceOwnedWindow devWnd);
 
   ResourceId GetIDForUserObject(void *object);
-  uint32_t SetObjectAnnotation(void *object, const char *key, RENDERDOC_AnnotationType valueType,
-                               uint32_t valueVectorWidth, const RENDERDOC_AnnotationValue *value);
+  uint32_t SetObjectAnnotation(void *object, const char *key, GFXDEBUG_AnnotationType valueType,
+                               uint32_t valueVectorWidth, const GFXDEBUG_AnnotationValue *value);
   template <typename SerialiserType>
   bool Serialise_SetCommandAnnotation(SerialiserType &ser, VkCommandBuffer cmd, rdcstr key,
-                                      RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                      RENDERDOC_AnnotationValue value);
+                                      GFXDEBUG_AnnotationType valueType, uint32_t valueVectorWidth,
+                                      GFXDEBUG_AnnotationValue value);
   template <typename SerialiserType>
   bool Serialise_SetQueueAnnotation(SerialiserType &ser, VkQueue queue, rdcstr key,
-                                    RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                    RENDERDOC_AnnotationValue value);
+                                    GFXDEBUG_AnnotationType valueType, uint32_t valueVectorWidth,
+                                    GFXDEBUG_AnnotationValue value);
   uint32_t SetCommandAnnotation(void *queueOrCommandBuffer, const char *key,
-                                RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                const RENDERDOC_AnnotationValue *value);
+                                GFXDEBUG_AnnotationType valueType, uint32_t valueVectorWidth,
+                                const GFXDEBUG_AnnotationValue *value);
 
   void AdvanceFrame();
   void Present(DeviceOwnedWindow devWnd);

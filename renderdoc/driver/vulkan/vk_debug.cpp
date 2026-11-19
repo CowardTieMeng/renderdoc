@@ -493,7 +493,7 @@ static void GetDiscardPatternCopyRegions(const VulkanCreationInfo::Image &imInfo
 
 VulkanDebugManager::VulkanDebugManager(WrappedVulkan *driver)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(VulkanDebugManager));
+  GfxDebug::Inst().RegisterMemoryRegion(this, sizeof(VulkanDebugManager));
 
   m_pDriver = driver;
 
@@ -849,7 +849,7 @@ VulkanDebugManager::VulkanDebugManager(WrappedVulkan *driver)
     }
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     CREATE_OBJECT(m_DummyPipelineLayout, VK_NULL_HANDLE, 0);
 
@@ -949,7 +949,7 @@ VulkanDebugManager::VulkanDebugManager(WrappedVulkan *driver)
   }
 
   // we only need this during replay, so don't create otherwise.
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     m_ReadbackWindow.Create(driver, dev, STAGE_BUFFER_BYTE_SIZE, 1, GPUBuffer::eGPUBufferReadback);
     m_ReadbackWindow.Name("m_ReadbackWindow");

@@ -27,7 +27,7 @@
 #include "apidefs.h"
 #include "stringise.h"
 
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
 struct ResourceId;
 
 namespace ResourceIDGen
@@ -74,14 +74,14 @@ struct ResourceId
   bool operator!=(const ResourceId u) const { return id != u.id; }
   DOCUMENT("Compares two ``ResourceId`` objects for less-than.");
   bool operator<(const ResourceId u) const { return id < u.id; }
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GFXDEBUG_QT_COMPAT)
   operator QVariant() const { return QVariant::fromValue(*this); }
 #endif
 
 private:
   uint64_t id;
 
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
   friend ResourceId ResourceIDGen::GetNewUniqueID();
   friend struct std::hash<ResourceId>;
 #endif
@@ -89,14 +89,14 @@ private:
 
 // declare metatype/reflection for ResourceId here as the struct itself is declared before including
 // all relevant headers above
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GFXDEBUG_QT_COMPAT)
 Q_DECLARE_METATYPE(ResourceId);
 #endif
 
 DECLARE_REFLECTION_STRUCT(ResourceId);
 
 // add a std::hash overload so ResourceId can be used in hashmaps
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
 namespace std
 {
 template <>

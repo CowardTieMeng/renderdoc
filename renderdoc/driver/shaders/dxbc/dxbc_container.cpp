@@ -85,7 +85,7 @@ void CacheSearchDirDebugPaths(rdcstr dir)
 
 void CacheSearchDirDebugPaths()
 {
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GfxDebug::Inst().IsReplayApp())
     return;
 
   SCOPED_LOCK(cachedDebugFilesLookupLock);
@@ -378,16 +378,16 @@ struct PRIVHeader
   uint32_t chunkLength;    // length of this chunk
 
   GUID debugInfoGUID;    // GUID/magic number, since PRIV data could be used for something else.
-                         // Set to the value of RENDERDOC_ShaderDebugMagicValue from
-                         // renderdoc_app.h which can also be used as a GUID to set the path
+                         // Set to the value of GFXDEBUG_ShaderDebugMagicValue from
+                         // gfxdebug_app.h which can also be used as a GUID to set the path
                          // at runtime via SetPrivateData (see documentation)
 
-  static const GUID RENDERDOC_ShaderDebugMagicValue;
+  static const GUID GFXDEBUG_ShaderDebugMagicValue;
 
   void *data;
 };
 
-const GUID PRIVHeader::RENDERDOC_ShaderDebugMagicValue = RENDERDOC_ShaderDebugMagicValue_struct;
+const GUID PRIVHeader::GFXDEBUG_ShaderDebugMagicValue = GFXDEBUG_ShaderDebugMagicValue_struct;
 
 struct SIGNElement
 {
@@ -1442,7 +1442,7 @@ rdcstr DXBCContainer::GetDebugBinaryPath(const void *ByteCode, size_t ByteCodeLe
 
   uint32_t *chunkOffsets = (uint32_t *)(header + 1);    // right after the header
 
-  // prefer RenderDoc's magic value which pre-dated D3D's support
+  // prefer GfxDebug's magic value which pre-dated D3D's support
   for(uint32_t chunkIdx = 0; chunkIdx < header->numChunks; chunkIdx++)
   {
     uint32_t *fourcc = (uint32_t *)(data + chunkOffsets[chunkIdx]);
@@ -1450,7 +1450,7 @@ rdcstr DXBCContainer::GetDebugBinaryPath(const void *ByteCode, size_t ByteCodeLe
     if(*fourcc == FOURCC_PRIV)
     {
       PRIVHeader *privHeader = (PRIVHeader *)fourcc;
-      if(privHeader->debugInfoGUID == PRIVHeader::RENDERDOC_ShaderDebugMagicValue)
+      if(privHeader->debugInfoGUID == PRIVHeader::GFXDEBUG_ShaderDebugMagicValue)
       {
         const char *pathData = (char *)&privHeader->data;
         size_t pathLength = strnlen(pathData, privHeader->chunkLength);
@@ -1512,7 +1512,7 @@ bool DXBCContainer::TryFetchSeparateDebugInfo(const rdcstr &debugInfoPath)
 
   bool lz4 = false;
 
-  // RenderDoc extension to allow lz4 compression
+  // GfxDebug extension to allow lz4 compression
   if(!strncmp(originalPath.c_str(), "lz4#", 4))
   {
     originalPath = originalPath.substr(4);
@@ -1689,7 +1689,7 @@ bool DXBCContainer::TryFetchSeparateDebugInfo(const rdcstr &debugInfoPath)
   // Try to retrieve debug file from the externally referenced files in the capture
   if(found.empty())
   {
-    if(RenderDoc::Inst().GetTrackedFileData(nickname, found.contents))
+    if(GfxDebug::Inst().GetTrackedFileData(nickname, found.contents))
     {
       m_DebugInfoLoadingLog += StringFormat::Fmt(
           "\nFound debug data from files embedded in the capture using nickname '%s'\n",
@@ -1711,7 +1711,7 @@ bool DXBCContainer::TryFetchSeparateDebugInfo(const rdcstr &debugInfoPath)
     return false;
   }
 
-  RenderDoc::Inst().AddTrackedFileReference(nickname, found.path);
+  GfxDebug::Inst().AddTrackedFileReference(nickname, found.path);
 
   if(found.pdb)
   {
@@ -1732,7 +1732,7 @@ DXBCContainer::DXBCContainer(bytebuf &&ByteCode, const rdcstr &debugInfoPath)
 {
   m_ShaderBlob = std::move(ByteCode);
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
     TryFetchSeparateDebugInfo(debugInfoPath);
 
   Init();

@@ -157,7 +157,7 @@ static void EnsureRealLibraryLoaded()
 #if ENABLED(RDOC_LINUX)
   if(eglhook.handle == DEFAULT_HANDLE)
   {
-    if(!RenderDoc::Inst().IsReplayApp())
+    if(!GfxDebug::Inst().IsReplayApp())
       RDCLOG("Loading libEGL at the last second");
 
     void *handle = Process::LoadModule("libEGL.so.1");
@@ -165,15 +165,15 @@ static void EnsureRealLibraryLoaded()
     if(!handle)
       handle = Process::LoadModule("libEGL.so");
 
-    if(RenderDoc::Inst().IsReplayApp())
+    if(GfxDebug::Inst().IsReplayApp())
       eglhook.handle = handle;
   }
 #endif
 }
 
-HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetDisplay_renderdoc_hooked(EGLNativeDisplayType display)
+HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetDisplay_gfxdebug_hooked(EGLNativeDisplayType display)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.GetDisplay)
       EGL.PopulateForReplay();
@@ -200,11 +200,11 @@ HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetDisplay_renderdoc_hooked(EGLNativeDispl
   return EGL.GetDisplay(display);
 }
 
-HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetPlatformDisplay_renderdoc_hooked(EGLenum platform,
+HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetPlatformDisplay_gfxdebug_hooked(EGLenum platform,
                                                                           void *native_display,
                                                                           const EGLAttrib *attrib_list)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.GetDisplay)
       EGL.PopulateForReplay();
@@ -226,15 +226,15 @@ HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetPlatformDisplay_renderdoc_hooked(EGLenu
   return EGL.GetPlatformDisplay(platform, native_display, attrib_list);
 }
 
-HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetPlatformDisplayEXT_renderdoc_hooked(
+HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetPlatformDisplayEXT_gfxdebug_hooked(
     EGLenum platform, void *native_display, const EGLAttrib *attrib_list)
 {
-  return eglGetPlatformDisplay_renderdoc_hooked(platform, native_display, attrib_list);
+  return eglGetPlatformDisplay_gfxdebug_hooked(platform, native_display, attrib_list);
 }
 
-HOOK_EXPORT EGLBoolean EGLAPIENTRY eglBindAPI_renderdoc_hooked(EGLenum api)
+HOOK_EXPORT EGLBoolean EGLAPIENTRY eglBindAPI_gfxdebug_hooked(EGLenum api)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.GetDisplay)
       EGL.PopulateForReplay();
@@ -252,12 +252,12 @@ HOOK_EXPORT EGLBoolean EGLAPIENTRY eglBindAPI_renderdoc_hooked(EGLenum api)
   return ret;
 }
 
-HOOK_EXPORT EGLContext EGLAPIENTRY eglCreateContext_renderdoc_hooked(EGLDisplay display,
+HOOK_EXPORT EGLContext EGLAPIENTRY eglCreateContext_gfxdebug_hooked(EGLDisplay display,
                                                                      EGLConfig config,
                                                                      EGLContext shareContext,
                                                                      EGLint const *attribList)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.CreateContext)
       EGL.PopulateForReplay();
@@ -292,7 +292,7 @@ HOOK_EXPORT EGLContext EGLAPIENTRY eglCreateContext_renderdoc_hooked(EGLDisplay 
 
         if(name == EGL_CONTEXT_FLAGS_KHR)
         {
-          if(RenderDoc::Inst().GetCaptureOptions().apiValidation)
+          if(GfxDebug::Inst().GetCaptureOptions().apiValidation)
             value |= EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
           else
             value &= ~EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
@@ -321,7 +321,7 @@ HOOK_EXPORT EGLContext EGLAPIENTRY eglCreateContext_renderdoc_hooked(EGLDisplay 
       }
     }
 
-    if(!flagsFound && RenderDoc::Inst().GetCaptureOptions().apiValidation)
+    if(!flagsFound && GfxDebug::Inst().GetCaptureOptions().apiValidation)
     {
       attribs.push_back(EGL_CONTEXT_FLAGS_KHR);
       attribs.push_back(EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR);
@@ -390,9 +390,9 @@ HOOK_EXPORT EGLContext EGLAPIENTRY eglCreateContext_renderdoc_hooked(EGLDisplay 
   return ret;
 }
 
-HOOK_EXPORT EGLBoolean EGLAPIENTRY eglDestroyContext_renderdoc_hooked(EGLDisplay dpy, EGLContext ctx)
+HOOK_EXPORT EGLBoolean EGLAPIENTRY eglDestroyContext_gfxdebug_hooked(EGLDisplay dpy, EGLContext ctx)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.DestroyContext)
       EGL.PopulateForReplay();
@@ -412,12 +412,12 @@ HOOK_EXPORT EGLBoolean EGLAPIENTRY eglDestroyContext_renderdoc_hooked(EGLDisplay
   return EGL.DestroyContext(dpy, ctx);
 }
 
-HOOK_EXPORT EGLSurface EGLAPIENTRY eglCreateWindowSurface_renderdoc_hooked(EGLDisplay dpy,
+HOOK_EXPORT EGLSurface EGLAPIENTRY eglCreateWindowSurface_gfxdebug_hooked(EGLDisplay dpy,
                                                                            EGLConfig config,
                                                                            EGLNativeWindowType win,
                                                                            const EGLint *attrib_list)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.CreateWindowSurface)
       EGL.PopulateForReplay();
@@ -441,10 +441,10 @@ HOOK_EXPORT EGLSurface EGLAPIENTRY eglCreateWindowSurface_renderdoc_hooked(EGLDi
   return ret;
 }
 
-HOOK_EXPORT EGLSurface EGLAPIENTRY eglCreatePlatformWindowSurface_renderdoc_hooked(
+HOOK_EXPORT EGLSurface EGLAPIENTRY eglCreatePlatformWindowSurface_gfxdebug_hooked(
     EGLDisplay dpy, EGLConfig config, void *native_window, const EGLAttrib *attrib_list)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.CreatePlatformWindowSurface)
       EGL.PopulateForReplay();
@@ -467,17 +467,17 @@ HOOK_EXPORT EGLSurface EGLAPIENTRY eglCreatePlatformWindowSurface_renderdoc_hook
   return ret;
 }
 
-HOOK_EXPORT EGLDisplay EGLAPIENTRY eglCreatePlatformWindowSurfaceEXT_renderdoc_hooked(
+HOOK_EXPORT EGLDisplay EGLAPIENTRY eglCreatePlatformWindowSurfaceEXT_gfxdebug_hooked(
     EGLDisplay dpy, EGLConfig config, void *native_window, const EGLAttrib *attrib_list)
 {
-  return eglCreatePlatformWindowSurface_renderdoc_hooked(dpy, config, native_window, attrib_list);
+  return eglCreatePlatformWindowSurface_gfxdebug_hooked(dpy, config, native_window, attrib_list);
 }
 
-HOOK_EXPORT EGLBoolean EGLAPIENTRY eglMakeCurrent_renderdoc_hooked(EGLDisplay display,
+HOOK_EXPORT EGLBoolean EGLAPIENTRY eglMakeCurrent_gfxdebug_hooked(EGLDisplay display,
                                                                    EGLSurface draw, EGLSurface read,
                                                                    EGLContext ctx)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.MakeCurrent || !EGL.GetProcAddress)
       EGL.PopulateForReplay();
@@ -544,9 +544,9 @@ HOOK_EXPORT EGLBoolean EGLAPIENTRY eglMakeCurrent_renderdoc_hooked(EGLDisplay di
   return ret;
 }
 
-HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffers_renderdoc_hooked(EGLDisplay dpy, EGLSurface surface)
+HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffers_gfxdebug_hooked(EGLDisplay dpy, EGLSurface surface)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.SwapBuffers)
       EGL.PopulateForReplay();
@@ -586,9 +586,9 @@ HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffers_renderdoc_hooked(EGLDisplay dp
   }
 }
 
-HOOK_EXPORT const char *EGLAPIENTRY eglQueryString_renderdoc_hooked(EGLDisplay dpy, EGLint name)
+HOOK_EXPORT const char *EGLAPIENTRY eglQueryString_gfxdebug_hooked(EGLDisplay dpy, EGLint name)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.QueryString)
       EGL.PopulateForReplay();
@@ -625,12 +625,12 @@ HOOK_EXPORT const char *EGLAPIENTRY eglQueryString_renderdoc_hooked(EGLDisplay d
   return EGL.QueryString(dpy, name);
 }
 
-HOOK_EXPORT EGLBoolean EGLAPIENTRY eglPostSubBufferNV_renderdoc_hooked(EGLDisplay dpy,
+HOOK_EXPORT EGLBoolean EGLAPIENTRY eglPostSubBufferNV_gfxdebug_hooked(EGLDisplay dpy,
                                                                        EGLSurface surface, EGLint x,
                                                                        EGLint y, EGLint width,
                                                                        EGLint height)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.PostSubBufferNV)
       EGL.PopulateForReplay();
@@ -660,12 +660,12 @@ HOOK_EXPORT EGLBoolean EGLAPIENTRY eglPostSubBufferNV_renderdoc_hooked(EGLDispla
   }
 }
 
-HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageEXT_renderdoc_hooked(EGLDisplay dpy,
+HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageEXT_gfxdebug_hooked(EGLDisplay dpy,
                                                                                 EGLSurface surface,
                                                                                 EGLint *rects,
                                                                                 EGLint n_rects)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.SwapBuffersWithDamageEXT)
       EGL.PopulateForReplay();
@@ -695,12 +695,12 @@ HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageEXT_renderdoc_hooked(
   }
 }
 
-HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageKHR_renderdoc_hooked(EGLDisplay dpy,
+HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageKHR_gfxdebug_hooked(EGLDisplay dpy,
                                                                                 EGLSurface surface,
                                                                                 EGLint *rects,
                                                                                 EGLint n_rects)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.SwapBuffersWithDamageKHR)
       EGL.PopulateForReplay();
@@ -731,9 +731,9 @@ HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageKHR_renderdoc_hooked(
 }
 
 HOOK_EXPORT __eglMustCastToProperFunctionPointerType EGLAPIENTRY
-eglGetProcAddress_renderdoc_hooked(const char *func)
+eglGetProcAddress_gfxdebug_hooked(const char *func)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GfxDebug::Inst().IsReplayApp())
   {
     if(!EGL.GetProcAddress)
       EGL.PopulateForReplay();
@@ -757,7 +757,7 @@ eglGetProcAddress_renderdoc_hooked(const char *func)
 // return our egl hooks
 #define GPA_FUNCTION(name, isext, replayrequired) \
   if(!strcmp(func, "egl" STRINGIZE(name)))        \
-    return (__eglMustCastToProperFunctionPointerType)&CONCAT(egl, CONCAT(name, _renderdoc_hooked));
+    return (__eglMustCastToProperFunctionPointerType)&CONCAT(egl, CONCAT(name, _gfxdebug_hooked));
   EGL_HOOKED_SYMBOLS(GPA_FUNCTION)
 #undef GPA_FUNCTION
 
@@ -772,86 +772,86 @@ eglGetProcAddress_renderdoc_hooked(const char *func)
 // on posix systems, someone might declare a global variable with the same name as a function. When
 // doing this, it might mean that our code for "&eglSwapBuffers" looking up that global symbol will
 // instead find the location fo the function pointer instead of our hook function. For this reason
-// we always refer to the _renderdoc_hooked name, but we still must export the functions under their
+// we always refer to the _gfxdebug_hooked name, but we still must export the functions under their
 // real names and just forward to the hook implementation.
 HOOK_EXPORT EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api)
 {
-  return eglBindAPI_renderdoc_hooked(api);
+  return eglBindAPI_gfxdebug_hooked(api);
 }
 
 HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetDisplay(EGLNativeDisplayType display)
 {
-  return eglGetDisplay_renderdoc_hooked(display);
+  return eglGetDisplay_gfxdebug_hooked(display);
 }
 
 HOOK_EXPORT EGLDisplay EGLAPIENTRY eglGetPlatformDisplay(EGLenum platform, void *native_display,
                                                          const EGLAttrib *attrib_list)
 {
-  return eglGetPlatformDisplay_renderdoc_hooked(platform, native_display, attrib_list);
+  return eglGetPlatformDisplay_gfxdebug_hooked(platform, native_display, attrib_list);
 }
 
 HOOK_EXPORT EGLContext EGLAPIENTRY eglCreateContext(EGLDisplay display, EGLConfig config,
                                                     EGLContext shareContext, EGLint const *attribList)
 {
-  return eglCreateContext_renderdoc_hooked(display, config, shareContext, attribList);
+  return eglCreateContext_gfxdebug_hooked(display, config, shareContext, attribList);
 }
 
 HOOK_EXPORT EGLBoolean EGLAPIENTRY eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
 {
-  return eglDestroyContext_renderdoc_hooked(dpy, ctx);
+  return eglDestroyContext_gfxdebug_hooked(dpy, ctx);
 }
 
 HOOK_EXPORT EGLSurface EGLAPIENTRY eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config,
                                                           EGLNativeWindowType win,
                                                           const EGLint *attrib_list)
 {
-  return eglCreateWindowSurface_renderdoc_hooked(dpy, config, win, attrib_list);
+  return eglCreateWindowSurface_gfxdebug_hooked(dpy, config, win, attrib_list);
 }
 
 HOOK_EXPORT EGLSurface EGLAPIENTRY eglCreatePlatformWindowSurface(EGLDisplay dpy, EGLConfig config,
                                                                   void *native_window,
                                                                   const EGLAttrib *attrib_list)
 {
-  return eglCreatePlatformWindowSurface_renderdoc_hooked(dpy, config, native_window, attrib_list);
+  return eglCreatePlatformWindowSurface_gfxdebug_hooked(dpy, config, native_window, attrib_list);
 }
 
 HOOK_EXPORT EGLBoolean EGLAPIENTRY eglMakeCurrent(EGLDisplay display, EGLSurface draw,
                                                   EGLSurface read, EGLContext ctx)
 {
-  return eglMakeCurrent_renderdoc_hooked(display, draw, read, ctx);
+  return eglMakeCurrent_gfxdebug_hooked(display, draw, read, ctx);
 }
 
 HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffers(EGLDisplay dpy, EGLSurface surface)
 {
-  return eglSwapBuffers_renderdoc_hooked(dpy, surface);
+  return eglSwapBuffers_gfxdebug_hooked(dpy, surface);
 }
 
 HOOK_EXPORT const char *EGLAPIENTRY eglQueryString(EGLDisplay dpy, EGLint name)
 {
-  return eglQueryString_renderdoc_hooked(dpy, name);
+  return eglQueryString_gfxdebug_hooked(dpy, name);
 }
 
 HOOK_EXPORT EGLBoolean EGLAPIENTRY eglPostSubBufferNV(EGLDisplay dpy, EGLSurface surface, EGLint x,
                                                       EGLint y, EGLint width, EGLint height)
 {
-  return eglPostSubBufferNV_renderdoc_hooked(dpy, surface, x, y, width, height);
+  return eglPostSubBufferNV_gfxdebug_hooked(dpy, surface, x, y, width, height);
 }
 
 HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageEXT(EGLDisplay dpy, EGLSurface surface,
                                                                EGLint *rects, EGLint n_rects)
 {
-  return eglSwapBuffersWithDamageEXT_renderdoc_hooked(dpy, surface, rects, n_rects);
+  return eglSwapBuffersWithDamageEXT_gfxdebug_hooked(dpy, surface, rects, n_rects);
 }
 
 HOOK_EXPORT EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageKHR(EGLDisplay dpy, EGLSurface surface,
                                                                EGLint *rects, EGLint n_rects)
 {
-  return eglSwapBuffersWithDamageKHR_renderdoc_hooked(dpy, surface, rects, n_rects);
+  return eglSwapBuffersWithDamageKHR_gfxdebug_hooked(dpy, surface, rects, n_rects);
 }
 
 HOOK_EXPORT __eglMustCastToProperFunctionPointerType EGLAPIENTRY eglGetProcAddress(const char *func)
 {
-  return eglGetProcAddress_renderdoc_hooked(func);
+  return eglGetProcAddress_gfxdebug_hooked(func);
 }
 
 // on posix systems we need to export the whole of the EGL API, since we will have redirected any
@@ -995,7 +995,7 @@ static void EGLHooked(void *handle, const char *libName)
   eglhook.handle = handle;
 
   // as a hook callback this is only called while capturing
-  RDCASSERT(!RenderDoc::Inst().IsReplayApp());
+  RDCASSERT(!GfxDebug::Inst().IsReplayApp());
 
 // fetch non-hooked functions into our dispatch table
 #define EGL_FETCH(func, isext, replayrequired)                                                  \
@@ -1039,13 +1039,13 @@ static void EGLHooked(void *handle, const char *libName)
 
 bool ShouldHookEGL()
 {
-  rdcstr toggle = Process::GetEnvVariable("RENDERDOC_HOOK_EGL");
+  rdcstr toggle = Process::GetEnvVariable("GFXDEBUG_HOOK_EGL");
 
   // if the var is set to 0, then don't hook EGL
   if(toggle.size() >= 1 && toggle[0] == '0')
   {
     RDCLOG(
-        "EGL hooks disabled by RENDERDOC_HOOK_EGL environment variable - "
+        "EGL hooks disabled by GFXDEBUG_HOOK_EGL environment variable - "
         "if GLES emulator is in use, underlying API will be captured");
     return false;
   }
@@ -1131,7 +1131,7 @@ void EGLHook::RegisterHooks()
   LibraryHooks::RegisterFunctionHook(                         \
       "libEGL" LIBSUFFIX,                                     \
       FunctionHook("egl" STRINGIZE(func), (void **)&EGL.func, \
-                                   (void *)&CONCAT(egl, CONCAT(func, _renderdoc_hooked))));
+                                   (void *)&CONCAT(egl, CONCAT(func, _gfxdebug_hooked))));
   EGL_HOOKED_SYMBOLS(EGL_REGISTER)
 #undef EGL_REGISTER
 }
@@ -1148,7 +1148,7 @@ HOOK_EXPORT void AndroidGLESLayer_Initialize(void *layer_id,
   RDCLOG("Initialising Android GLES layer with ID %p", layer_id);
 
   // as a hook callback this is only called while capturing
-  RDCASSERT(!RenderDoc::Inst().IsReplayApp());
+  RDCASSERT(!GfxDebug::Inst().IsReplayApp());
 
 // populate EGL dispatch table with the next layer's function pointers. Fetch all 'hooked' and
 // non-hooked functions
@@ -1171,7 +1171,7 @@ HOOK_EXPORT void *AndroidGLESLayer_GetProcAddress(const char *funcName,
 // return our egl hooks
 #define GPA_FUNCTION(name, isext, replayrequired) \
   if(!strcmp(funcName, "egl" STRINGIZE(name)))    \
-    return (void *)&CONCAT(egl, CONCAT(name, _renderdoc_hooked));
+    return (void *)&CONCAT(egl, CONCAT(name, _gfxdebug_hooked));
   EGL_HOOKED_SYMBOLS(GPA_FUNCTION)
 #undef GPA_FUNCTION
 

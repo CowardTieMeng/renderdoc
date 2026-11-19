@@ -94,39 +94,39 @@ bool GetXlibKeyState(int key)
 
   KeySym ks = 0;
 
-  if(key >= eRENDERDOC_Key_A && key <= eRENDERDOC_Key_Z)
+  if(key >= eGFXDEBUG_Key_A && key <= eGFXDEBUG_Key_Z)
     ks = key;
-  if(key >= eRENDERDOC_Key_0 && key <= eRENDERDOC_Key_9)
+  if(key >= eGFXDEBUG_Key_0 && key <= eGFXDEBUG_Key_9)
     ks = key;
 
   switch(key)
   {
-    case eRENDERDOC_Key_Divide: ks = XK_KP_Divide; break;
-    case eRENDERDOC_Key_Multiply: ks = XK_KP_Multiply; break;
-    case eRENDERDOC_Key_Subtract: ks = XK_KP_Subtract; break;
-    case eRENDERDOC_Key_Plus: ks = XK_KP_Add; break;
-    case eRENDERDOC_Key_F1: ks = XK_F1; break;
-    case eRENDERDOC_Key_F2: ks = XK_F2; break;
-    case eRENDERDOC_Key_F3: ks = XK_F3; break;
-    case eRENDERDOC_Key_F4: ks = XK_F4; break;
-    case eRENDERDOC_Key_F5: ks = XK_F5; break;
-    case eRENDERDOC_Key_F6: ks = XK_F6; break;
-    case eRENDERDOC_Key_F7: ks = XK_F7; break;
-    case eRENDERDOC_Key_F8: ks = XK_F8; break;
-    case eRENDERDOC_Key_F9: ks = XK_F9; break;
-    case eRENDERDOC_Key_F10: ks = XK_F10; break;
-    case eRENDERDOC_Key_F11: ks = XK_F11; break;
-    case eRENDERDOC_Key_F12: ks = XK_F12; break;
-    case eRENDERDOC_Key_Home: ks = XK_Home; break;
-    case eRENDERDOC_Key_End: ks = XK_End; break;
-    case eRENDERDOC_Key_Insert: ks = XK_Insert; break;
-    case eRENDERDOC_Key_Delete: ks = XK_Delete; break;
-    case eRENDERDOC_Key_PageUp: ks = XK_Prior; break;
-    case eRENDERDOC_Key_PageDn: ks = XK_Next; break;
-    case eRENDERDOC_Key_Backspace: ks = XK_BackSpace; break;
-    case eRENDERDOC_Key_Tab: ks = XK_Tab; break;
-    case eRENDERDOC_Key_PrtScrn: ks = XK_Print; break;
-    case eRENDERDOC_Key_Pause: ks = XK_Pause; break;
+    case eGFXDEBUG_Key_Divide: ks = XK_KP_Divide; break;
+    case eGFXDEBUG_Key_Multiply: ks = XK_KP_Multiply; break;
+    case eGFXDEBUG_Key_Subtract: ks = XK_KP_Subtract; break;
+    case eGFXDEBUG_Key_Plus: ks = XK_KP_Add; break;
+    case eGFXDEBUG_Key_F1: ks = XK_F1; break;
+    case eGFXDEBUG_Key_F2: ks = XK_F2; break;
+    case eGFXDEBUG_Key_F3: ks = XK_F3; break;
+    case eGFXDEBUG_Key_F4: ks = XK_F4; break;
+    case eGFXDEBUG_Key_F5: ks = XK_F5; break;
+    case eGFXDEBUG_Key_F6: ks = XK_F6; break;
+    case eGFXDEBUG_Key_F7: ks = XK_F7; break;
+    case eGFXDEBUG_Key_F8: ks = XK_F8; break;
+    case eGFXDEBUG_Key_F9: ks = XK_F9; break;
+    case eGFXDEBUG_Key_F10: ks = XK_F10; break;
+    case eGFXDEBUG_Key_F11: ks = XK_F11; break;
+    case eGFXDEBUG_Key_F12: ks = XK_F12; break;
+    case eGFXDEBUG_Key_Home: ks = XK_Home; break;
+    case eGFXDEBUG_Key_End: ks = XK_End; break;
+    case eGFXDEBUG_Key_Insert: ks = XK_Insert; break;
+    case eGFXDEBUG_Key_Delete: ks = XK_Delete; break;
+    case eGFXDEBUG_Key_PageUp: ks = XK_Prior; break;
+    case eGFXDEBUG_Key_PageDn: ks = XK_Next; break;
+    case eGFXDEBUG_Key_Backspace: ks = XK_BackSpace; break;
+    case eGFXDEBUG_Key_Tab: ks = XK_Tab; break;
+    case eGFXDEBUG_Key_PrtScrn: ks = XK_Print; break;
+    case eGFXDEBUG_Key_Pause: ks = XK_Pause; break;
     default: break;
   }
 
@@ -148,7 +148,7 @@ bool GetXlibKeyState(int key)
 
 #else
 
-// if RENDERDOC_WINDOWING_XLIB is not enabled
+// if GFXDEBUG_WINDOWING_XLIB is not enabled
 
 void UseXlibDisplay(Display *dpy)
 {
@@ -189,39 +189,39 @@ bool GetXCBKeyState(int key)
 
   xcb_keysym_t ks = 0;
 
-  if(key >= eRENDERDOC_Key_A && key <= eRENDERDOC_Key_Z)
+  if(key >= eGFXDEBUG_Key_A && key <= eGFXDEBUG_Key_Z)
     ks = key;
-  if(key >= eRENDERDOC_Key_0 && key <= eRENDERDOC_Key_9)
+  if(key >= eGFXDEBUG_Key_0 && key <= eGFXDEBUG_Key_9)
     ks = key;
 
   switch(key)
   {
-    case eRENDERDOC_Key_Divide: ks = XK_KP_Divide; break;
-    case eRENDERDOC_Key_Multiply: ks = XK_KP_Multiply; break;
-    case eRENDERDOC_Key_Subtract: ks = XK_KP_Subtract; break;
-    case eRENDERDOC_Key_Plus: ks = XK_KP_Add; break;
-    case eRENDERDOC_Key_F1: ks = XK_F1; break;
-    case eRENDERDOC_Key_F2: ks = XK_F2; break;
-    case eRENDERDOC_Key_F3: ks = XK_F3; break;
-    case eRENDERDOC_Key_F4: ks = XK_F4; break;
-    case eRENDERDOC_Key_F5: ks = XK_F5; break;
-    case eRENDERDOC_Key_F6: ks = XK_F6; break;
-    case eRENDERDOC_Key_F7: ks = XK_F7; break;
-    case eRENDERDOC_Key_F8: ks = XK_F8; break;
-    case eRENDERDOC_Key_F9: ks = XK_F9; break;
-    case eRENDERDOC_Key_F10: ks = XK_F10; break;
-    case eRENDERDOC_Key_F11: ks = XK_F11; break;
-    case eRENDERDOC_Key_F12: ks = XK_F12; break;
-    case eRENDERDOC_Key_Home: ks = XK_Home; break;
-    case eRENDERDOC_Key_End: ks = XK_End; break;
-    case eRENDERDOC_Key_Insert: ks = XK_Insert; break;
-    case eRENDERDOC_Key_Delete: ks = XK_Delete; break;
-    case eRENDERDOC_Key_PageUp: ks = XK_Prior; break;
-    case eRENDERDOC_Key_PageDn: ks = XK_Next; break;
-    case eRENDERDOC_Key_Backspace: ks = XK_BackSpace; break;
-    case eRENDERDOC_Key_Tab: ks = XK_Tab; break;
-    case eRENDERDOC_Key_PrtScrn: ks = XK_Print; break;
-    case eRENDERDOC_Key_Pause: ks = XK_Pause; break;
+    case eGFXDEBUG_Key_Divide: ks = XK_KP_Divide; break;
+    case eGFXDEBUG_Key_Multiply: ks = XK_KP_Multiply; break;
+    case eGFXDEBUG_Key_Subtract: ks = XK_KP_Subtract; break;
+    case eGFXDEBUG_Key_Plus: ks = XK_KP_Add; break;
+    case eGFXDEBUG_Key_F1: ks = XK_F1; break;
+    case eGFXDEBUG_Key_F2: ks = XK_F2; break;
+    case eGFXDEBUG_Key_F3: ks = XK_F3; break;
+    case eGFXDEBUG_Key_F4: ks = XK_F4; break;
+    case eGFXDEBUG_Key_F5: ks = XK_F5; break;
+    case eGFXDEBUG_Key_F6: ks = XK_F6; break;
+    case eGFXDEBUG_Key_F7: ks = XK_F7; break;
+    case eGFXDEBUG_Key_F8: ks = XK_F8; break;
+    case eGFXDEBUG_Key_F9: ks = XK_F9; break;
+    case eGFXDEBUG_Key_F10: ks = XK_F10; break;
+    case eGFXDEBUG_Key_F11: ks = XK_F11; break;
+    case eGFXDEBUG_Key_F12: ks = XK_F12; break;
+    case eGFXDEBUG_Key_Home: ks = XK_Home; break;
+    case eGFXDEBUG_Key_End: ks = XK_End; break;
+    case eGFXDEBUG_Key_Insert: ks = XK_Insert; break;
+    case eGFXDEBUG_Key_Delete: ks = XK_Delete; break;
+    case eGFXDEBUG_Key_PageUp: ks = XK_Prior; break;
+    case eGFXDEBUG_Key_PageDn: ks = XK_Next; break;
+    case eGFXDEBUG_Key_Backspace: ks = XK_BackSpace; break;
+    case eGFXDEBUG_Key_Tab: ks = XK_Tab; break;
+    case eGFXDEBUG_Key_PrtScrn: ks = XK_Print; break;
+    case eGFXDEBUG_Key_Pause: ks = XK_Pause; break;
     default: break;
   }
 
@@ -254,7 +254,7 @@ bool GetXCBKeyState(int key)
 
 #else
 
-// if RENDERDOC_WINDOWING_XCB is not enabled
+// if GFXDEBUG_WINDOWING_XCB is not enabled
 
 void UseXcbConnection(xcb_connection_t *conn)
 {
@@ -283,7 +283,7 @@ std::map<wl_seat *, wl_keyboard *> seatKeyboard;
 bool inFocus = false;
 Threading::CriticalSection waylandLock;
 
-bool keyState[eRENDERDOC_Key_Max] = {};
+bool keyState[eGFXDEBUG_Key_Max] = {};
 
 void WaylandKeymapDummy(void *data, wl_keyboard *keyboard, uint32_t format, int fd, uint32_t size)
 {
@@ -319,72 +319,72 @@ void WaylandKeypress(void *data, wl_keyboard *keyboard, uint32_t serial, uint32_
   int keyIdx = -1;
   switch(key)
   {
-    case KEY_0: keyIdx = eRENDERDOC_Key_0; break;
-    case KEY_1: keyIdx = eRENDERDOC_Key_1; break;
-    case KEY_2: keyIdx = eRENDERDOC_Key_2; break;
-    case KEY_3: keyIdx = eRENDERDOC_Key_3; break;
-    case KEY_4: keyIdx = eRENDERDOC_Key_4; break;
-    case KEY_5: keyIdx = eRENDERDOC_Key_5; break;
-    case KEY_6: keyIdx = eRENDERDOC_Key_6; break;
-    case KEY_7: keyIdx = eRENDERDOC_Key_7; break;
-    case KEY_8: keyIdx = eRENDERDOC_Key_8; break;
-    case KEY_9: keyIdx = eRENDERDOC_Key_9; break;
-    case KEY_A: keyIdx = eRENDERDOC_Key_A; break;
-    case KEY_B: keyIdx = eRENDERDOC_Key_B; break;
-    case KEY_C: keyIdx = eRENDERDOC_Key_C; break;
-    case KEY_D: keyIdx = eRENDERDOC_Key_D; break;
-    case KEY_E: keyIdx = eRENDERDOC_Key_E; break;
-    case KEY_F: keyIdx = eRENDERDOC_Key_F; break;
-    case KEY_G: keyIdx = eRENDERDOC_Key_G; break;
-    case KEY_H: keyIdx = eRENDERDOC_Key_H; break;
-    case KEY_I: keyIdx = eRENDERDOC_Key_I; break;
-    case KEY_J: keyIdx = eRENDERDOC_Key_J; break;
-    case KEY_K: keyIdx = eRENDERDOC_Key_K; break;
-    case KEY_L: keyIdx = eRENDERDOC_Key_L; break;
-    case KEY_M: keyIdx = eRENDERDOC_Key_M; break;
-    case KEY_N: keyIdx = eRENDERDOC_Key_N; break;
-    case KEY_O: keyIdx = eRENDERDOC_Key_O; break;
-    case KEY_P: keyIdx = eRENDERDOC_Key_P; break;
-    case KEY_Q: keyIdx = eRENDERDOC_Key_Q; break;
-    case KEY_R: keyIdx = eRENDERDOC_Key_R; break;
-    case KEY_S: keyIdx = eRENDERDOC_Key_S; break;
-    case KEY_T: keyIdx = eRENDERDOC_Key_T; break;
-    case KEY_U: keyIdx = eRENDERDOC_Key_U; break;
-    case KEY_V: keyIdx = eRENDERDOC_Key_V; break;
-    case KEY_W: keyIdx = eRENDERDOC_Key_W; break;
-    case KEY_X: keyIdx = eRENDERDOC_Key_X; break;
-    case KEY_Y: keyIdx = eRENDERDOC_Key_Y; break;
-    case KEY_Z: keyIdx = eRENDERDOC_Key_Z; break;
+    case KEY_0: keyIdx = eGFXDEBUG_Key_0; break;
+    case KEY_1: keyIdx = eGFXDEBUG_Key_1; break;
+    case KEY_2: keyIdx = eGFXDEBUG_Key_2; break;
+    case KEY_3: keyIdx = eGFXDEBUG_Key_3; break;
+    case KEY_4: keyIdx = eGFXDEBUG_Key_4; break;
+    case KEY_5: keyIdx = eGFXDEBUG_Key_5; break;
+    case KEY_6: keyIdx = eGFXDEBUG_Key_6; break;
+    case KEY_7: keyIdx = eGFXDEBUG_Key_7; break;
+    case KEY_8: keyIdx = eGFXDEBUG_Key_8; break;
+    case KEY_9: keyIdx = eGFXDEBUG_Key_9; break;
+    case KEY_A: keyIdx = eGFXDEBUG_Key_A; break;
+    case KEY_B: keyIdx = eGFXDEBUG_Key_B; break;
+    case KEY_C: keyIdx = eGFXDEBUG_Key_C; break;
+    case KEY_D: keyIdx = eGFXDEBUG_Key_D; break;
+    case KEY_E: keyIdx = eGFXDEBUG_Key_E; break;
+    case KEY_F: keyIdx = eGFXDEBUG_Key_F; break;
+    case KEY_G: keyIdx = eGFXDEBUG_Key_G; break;
+    case KEY_H: keyIdx = eGFXDEBUG_Key_H; break;
+    case KEY_I: keyIdx = eGFXDEBUG_Key_I; break;
+    case KEY_J: keyIdx = eGFXDEBUG_Key_J; break;
+    case KEY_K: keyIdx = eGFXDEBUG_Key_K; break;
+    case KEY_L: keyIdx = eGFXDEBUG_Key_L; break;
+    case KEY_M: keyIdx = eGFXDEBUG_Key_M; break;
+    case KEY_N: keyIdx = eGFXDEBUG_Key_N; break;
+    case KEY_O: keyIdx = eGFXDEBUG_Key_O; break;
+    case KEY_P: keyIdx = eGFXDEBUG_Key_P; break;
+    case KEY_Q: keyIdx = eGFXDEBUG_Key_Q; break;
+    case KEY_R: keyIdx = eGFXDEBUG_Key_R; break;
+    case KEY_S: keyIdx = eGFXDEBUG_Key_S; break;
+    case KEY_T: keyIdx = eGFXDEBUG_Key_T; break;
+    case KEY_U: keyIdx = eGFXDEBUG_Key_U; break;
+    case KEY_V: keyIdx = eGFXDEBUG_Key_V; break;
+    case KEY_W: keyIdx = eGFXDEBUG_Key_W; break;
+    case KEY_X: keyIdx = eGFXDEBUG_Key_X; break;
+    case KEY_Y: keyIdx = eGFXDEBUG_Key_Y; break;
+    case KEY_Z: keyIdx = eGFXDEBUG_Key_Z; break;
 
-    case KEY_KPSLASH: keyIdx = eRENDERDOC_Key_Divide; break;
-    case KEY_KPASTERISK: keyIdx = eRENDERDOC_Key_Multiply; break;
-    case KEY_KPMINUS: keyIdx = eRENDERDOC_Key_Subtract; break;
-    case KEY_KPPLUS: keyIdx = eRENDERDOC_Key_Plus; break;
+    case KEY_KPSLASH: keyIdx = eGFXDEBUG_Key_Divide; break;
+    case KEY_KPASTERISK: keyIdx = eGFXDEBUG_Key_Multiply; break;
+    case KEY_KPMINUS: keyIdx = eGFXDEBUG_Key_Subtract; break;
+    case KEY_KPPLUS: keyIdx = eGFXDEBUG_Key_Plus; break;
 
-    case KEY_F1: keyIdx = eRENDERDOC_Key_F1; break;
-    case KEY_F2: keyIdx = eRENDERDOC_Key_F2; break;
-    case KEY_F3: keyIdx = eRENDERDOC_Key_F3; break;
-    case KEY_F4: keyIdx = eRENDERDOC_Key_F4; break;
-    case KEY_F5: keyIdx = eRENDERDOC_Key_F5; break;
-    case KEY_F6: keyIdx = eRENDERDOC_Key_F6; break;
-    case KEY_F7: keyIdx = eRENDERDOC_Key_F7; break;
-    case KEY_F8: keyIdx = eRENDERDOC_Key_F8; break;
-    case KEY_F9: keyIdx = eRENDERDOC_Key_F9; break;
-    case KEY_F10: keyIdx = eRENDERDOC_Key_F10; break;
-    case KEY_F11: keyIdx = eRENDERDOC_Key_F11; break;
-    case KEY_F12: keyIdx = eRENDERDOC_Key_F12; break;
+    case KEY_F1: keyIdx = eGFXDEBUG_Key_F1; break;
+    case KEY_F2: keyIdx = eGFXDEBUG_Key_F2; break;
+    case KEY_F3: keyIdx = eGFXDEBUG_Key_F3; break;
+    case KEY_F4: keyIdx = eGFXDEBUG_Key_F4; break;
+    case KEY_F5: keyIdx = eGFXDEBUG_Key_F5; break;
+    case KEY_F6: keyIdx = eGFXDEBUG_Key_F6; break;
+    case KEY_F7: keyIdx = eGFXDEBUG_Key_F7; break;
+    case KEY_F8: keyIdx = eGFXDEBUG_Key_F8; break;
+    case KEY_F9: keyIdx = eGFXDEBUG_Key_F9; break;
+    case KEY_F10: keyIdx = eGFXDEBUG_Key_F10; break;
+    case KEY_F11: keyIdx = eGFXDEBUG_Key_F11; break;
+    case KEY_F12: keyIdx = eGFXDEBUG_Key_F12; break;
 
-    case KEY_HOME: keyIdx = eRENDERDOC_Key_Home; break;
-    case KEY_END: keyIdx = eRENDERDOC_Key_End; break;
-    case KEY_INSERT: keyIdx = eRENDERDOC_Key_Insert; break;
-    case KEY_DELETE: keyIdx = eRENDERDOC_Key_Delete; break;
-    case KEY_PAGEUP: keyIdx = eRENDERDOC_Key_PageUp; break;
-    case KEY_PAGEDOWN: keyIdx = eRENDERDOC_Key_PageDn; break;
+    case KEY_HOME: keyIdx = eGFXDEBUG_Key_Home; break;
+    case KEY_END: keyIdx = eGFXDEBUG_Key_End; break;
+    case KEY_INSERT: keyIdx = eGFXDEBUG_Key_Insert; break;
+    case KEY_DELETE: keyIdx = eGFXDEBUG_Key_Delete; break;
+    case KEY_PAGEUP: keyIdx = eGFXDEBUG_Key_PageUp; break;
+    case KEY_PAGEDOWN: keyIdx = eGFXDEBUG_Key_PageDn; break;
 
-    case KEY_BACKSPACE: keyIdx = eRENDERDOC_Key_Backspace; break;
-    case KEY_TAB: keyIdx = eRENDERDOC_Key_Tab; break;
-    case KEY_SYSRQ: keyIdx = eRENDERDOC_Key_PrtScrn; break;
-    case KEY_PAUSE: keyIdx = eRENDERDOC_Key_Pause; break;
+    case KEY_BACKSPACE: keyIdx = eGFXDEBUG_Key_Backspace; break;
+    case KEY_TAB: keyIdx = eGFXDEBUG_Key_Tab; break;
+    case KEY_SYSRQ: keyIdx = eGFXDEBUG_Key_PrtScrn; break;
+    case KEY_PAUSE: keyIdx = eGFXDEBUG_Key_Pause; break;
   }
 
   if(keyIdx < 0)
@@ -607,7 +607,7 @@ rdcstr GetAppFolderFilename(const rdcstr &filename)
     homedir = "";
   }
 
-  rdcstr ret = homedir + "/.renderdoc/";
+  rdcstr ret = homedir + "/.gfxdebug/";
 
   mkdir(ret.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 

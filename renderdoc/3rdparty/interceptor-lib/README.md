@@ -2,7 +2,7 @@
 
 This interceptor-lib is taken from Google's [gapid project](https://github.com/google/gapid/tree/master/gapii/interceptor-lib), under the Apache 2.0 License.
 
-Minor modifications have been made to include it in RenderDoc's build system.
+Minor modifications have been made to include it in GfxDebug's build system.
 
 # LICENSE
 
@@ -10,7 +10,7 @@ See [LICENSE](LICENSE) file in this directory.
 
 # LLVM Build instructions
 
-To use this in RenderDoc you must set `-DUSE_INTERCEPTOR_LIB=On -DLLVM_DIR=/path/to/llvm` pointing to a compatible build of LLVM 4.0 for the target you are building. Below are instructions on how to build that compatible LLVM.
+To use this in GfxDebug you must set `-DUSE_INTERCEPTOR_LIB=On -DLLVM_DIR=/path/to/llvm` pointing to a compatible build of LLVM 4.0 for the target you are building. Below are instructions on how to build that compatible LLVM.
 
 You'll need the Android NDK r16b, and you'll need python available in your path.
 
@@ -79,4 +79,4 @@ cp -R ../lib/Target/AArch64/MCTargetDesc/ $TARGET_PATH/include/
 cp ./lib/Target/AArch64/AArch64*.inc  $TARGET_PATH/include/MCTargetDesc/
 ```
 
-Then you can set `-DUSE_INTERCEPTOR_LIB=On -DLLVM_DIR=/path/to/llvm/install_armXX/lib/cmake/llvm` when building renderdoc and you should see a line saying that LLVM is being used to compile interceptor-lib!
+Then you can set `-DUSE_INTERCEPTOR_LIB=On -DLLVM_DIR=/path/to/llvm/install_armXX/lib/cmake/llvm` when building gfxdebug and you should see a line saying that LLVM is being used to compile interceptor-lib!

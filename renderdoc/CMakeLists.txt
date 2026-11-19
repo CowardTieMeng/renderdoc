@@ -1,7 +1,7 @@
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(RDOC_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(RDOC_DEFINITIONS PRIVATE -DRENDERDOC_EXPORTS)
+set(RDOC_DEFINITIONS PRIVATE -DGFXDEBUG_EXPORTS)
 set(RDOC_INCLUDES
     PRIVATE ${RDOC_SOURCE_DIR}
     PRIVATE ${RDOC_SOURCE_DIR}/3rdparty)
@@ -10,7 +10,7 @@ set(RDOC_LIBRARIES)
 option(ENABLE_DLSYM_HOOKING "Enable dlsym() hooking via glibc internals" OFF)
 
 if(ENABLE_DLSYM_HOOKING)
-    set(RDOC_DEFINITIONS ${RDOC_DEFINITIONS} PRIVATE -DRENDERDOC_HOOK_DLSYM)
+    set(RDOC_DEFINITIONS ${RDOC_DEFINITIONS} PRIVATE -DGFXDEBUG_HOOK_DLSYM)
     message(WARNING "Enabling dlsym() hooking - may cause issues, segfaults, crashes, or bad behaviour. Only enable if absolutely required")
 endif()
 
@@ -562,7 +562,7 @@ if(ANDROID AND USE_INTERCEPTOR_LIB )
         add_subdirectory(3rdparty/interceptor-lib)
         list(APPEND renderdoc_objects $<TARGET_OBJECTS:interceptor_lib>)
         link_directories(${LLVM_DIR}/../..)
-        set(RDOC_DEFINITIONS ${RDOC_DEFINITIONS} PRIVATE -DRENDERDOC_HAVE_INTERCEPTOR_LIB)
+        set(RDOC_DEFINITIONS ${RDOC_DEFINITIONS} PRIVATE -DGFXDEBUG_HAVE_INTERCEPTOR_LIB)
 
         foreach(lib ${interceptor_libs})
             list(APPEND RDOC_LIBRARIES PRIVATE -l${lib})
@@ -669,7 +669,7 @@ if(ANDROID)
     endif()
     set_target_properties(renderdoc PROPERTIES LINK_FLAGS "${RDOC_LINK_FLAGS}")
     # rename output library
-    set_target_properties(renderdoc PROPERTIES OUTPUT_NAME "VkLayer_GLES_RenderDoc")
+    set_target_properties(renderdoc PROPERTIES OUTPUT_NAME "VkLayer_GLES_GfxDebug")
 
     if(STRIP_ANDROID_LIBRARY AND ANDROID_STRIP_TOOL AND RELEASE_MODE)
         add_custom_command(TARGET renderdoc POST_BUILD

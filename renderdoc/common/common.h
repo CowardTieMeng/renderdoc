@@ -34,14 +34,14 @@
 // fortunately not too messy as it's basically windows vs. everyone else.
 #if ENABLED(RDOC_WIN32)
 
-#define __PRETTY_FUNCTION_SIGNATURE__ __FUNCSIG__
+#define __PRETTY_FUNCTION_SIGNATURE__ ""
 #define OS_DEBUG_BREAK() __debugbreak()
 
 #else
 
 #include <signal.h>
 
-#define __PRETTY_FUNCTION_SIGNATURE__ __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION_SIGNATURE__ ""
 
 #if ENABLED(RDOC_SWITCH)
 
@@ -466,8 +466,8 @@ void rdclog_direct(time_t utcTime, uint32_t pid, LogType type, const char *proje
 
 #define FILL_AUTO_VALUE 0x10203040
 
-#define rdclog(type, ...)                                                                 \
-  rdclog_direct(time_t(FILL_AUTO_VALUE), FILL_AUTO_VALUE, type, RDCLOG_PROJECT, __FILE__, \
+#define rdclog(type, ...)                                                            \
+  rdclog_direct(time_t(FILL_AUTO_VALUE), FILL_AUTO_VALUE, type, RDCLOG_PROJECT, "", \
                 __LINE__, __VA_ARGS__)
 
 const char *rdclog_getfilename();

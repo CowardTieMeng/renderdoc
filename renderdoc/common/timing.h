@@ -125,4 +125,4 @@ private:
 };
 
 #define SCOPED_TIMER(...) \
-  ScopedTimer CONCAT(timer, __LINE__)(__FILE__, __LINE__, StringFormat::Fmt(__VA_ARGS__));
+  ScopedTimer CONCAT(timer, __LINE__)("", __LINE__, StringFormat::Fmt(__VA_ARGS__));

@@ -1117,7 +1117,7 @@ Invalid if the object is not actually a :class:`ResourceId`.
 :rtype: ResourceId
 )");
   inline ResourceId AsResourceId() const { return data.basic.id; }
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GFXDEBUG_QT_COMPAT)
   operator QVariant() const
   {
     switch(type.basetype)
@@ -1193,21 +1193,21 @@ protected:
   static void *alloc(size_t sz)
   {
     void *ret = NULL;
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
     ret = malloc(sz);
     if(ret == NULL)
-      RENDERDOC_OutOfMemory(sz);
+      GFXDEBUG_OutOfMemory(sz);
 #else
-    ret = RENDERDOC_AllocArrayMem(sz);
+    ret = GFXDEBUG_AllocArrayMem(sz);
 #endif
     return ret;
   }
   static void dealloc(void *p)
   {
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
     free(p);
 #else
-    RENDERDOC_FreeArrayMem(p);
+    GFXDEBUG_FreeArrayMem(p);
 #endif
   }
 
@@ -1239,7 +1239,7 @@ private:
 
 DECLARE_REFLECTION_STRUCT(SDObject);
 
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GFXDEBUG_QT_COMPAT)
 inline SDObject *makeSDObject(const rdcinflexiblestr &name, QVariant val)
 {
   SDObject *ret = new SDObject(name, "QVariant"_lit);
@@ -1590,21 +1590,21 @@ struct SDChunk : public SDObject
   void *operator new(size_t sz)
   {
     void *ret = NULL;
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
     ret = malloc(sz);
     if(ret == NULL)
-      RENDERDOC_OutOfMemory(sz);
+      GFXDEBUG_OutOfMemory(sz);
 #else
-    ret = RENDERDOC_AllocArrayMem(sz);
+    ret = GFXDEBUG_AllocArrayMem(sz);
 #endif
     return ret;
   }
   void operator delete(void *p)
   {
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
     free(p);
 #else
-    RENDERDOC_FreeArrayMem(p);
+    GFXDEBUG_FreeArrayMem(p);
 #endif
   }
   void *operator new[](size_t count) = delete;
@@ -1736,21 +1736,21 @@ private:
   {
     const size_t sz = count * sizeof(SDFile);
     void *ret = NULL;
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
     ret = malloc(sz);
     if(ret == NULL)
-      RENDERDOC_OutOfMemory(sz);
+      GFXDEBUG_OutOfMemory(sz);
 #else
-    ret = RENDERDOC_AllocArrayMem(sz);
+    ret = GFXDEBUG_AllocArrayMem(sz);
 #endif
     return ret;
   }
   static void deallocate(void *p)
   {
-#ifdef RENDERDOC_EXPORTS
+#ifdef GFXDEBUG_EXPORTS
     free(p);
 #else
-    RENDERDOC_FreeArrayMem(p);
+    GFXDEBUG_FreeArrayMem(p);
 #endif
   }
 

@@ -64,7 +64,7 @@ RDResult::operator ResultDetails() const
 
 // these entry points are for the replay/analysis side - not for the application.
 
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_NumVerticesPerPrimitive(Topology topology)
+extern "C" GFXDEBUG_API uint32_t GFXDEBUG_CC GFXDEBUG_NumVerticesPerPrimitive(Topology topology)
 {
   // strips/loops/fans have the same number of indices for a single primitive
   // as their list friends
@@ -120,7 +120,7 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_NumVerticesPerPrimitive
   return 0;
 }
 
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_VertexOffset(Topology topology,
+extern "C" GFXDEBUG_API uint32_t GFXDEBUG_CC GFXDEBUG_VertexOffset(Topology topology,
                                                                       uint32_t primitive)
 {
   // strips/loops/fans have the same number of indices for a single primitive
@@ -181,30 +181,30 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_VertexOffset(Topology t
       return primitive * 2;
   }
 
-  return primitive * RENDERDOC_NumVerticesPerPrimitive(topology);
+  return primitive * GFXDEBUG_NumVerticesPerPrimitive(topology);
 }
 
-extern "C" RENDERDOC_API float RENDERDOC_CC RENDERDOC_HalfToFloat(uint16_t half)
+extern "C" GFXDEBUG_API float GFXDEBUG_CC GFXDEBUG_HalfToFloat(uint16_t half)
 {
   return ConvertFromHalf(half);
 }
 
-extern "C" RENDERDOC_API uint16_t RENDERDOC_CC RENDERDOC_FloatToHalf(float f)
+extern "C" GFXDEBUG_API uint16_t GFXDEBUG_CC GFXDEBUG_FloatToHalf(float f)
 {
   return ConvertToHalf(f);
 }
 
-extern "C" RENDERDOC_API ICamera *RENDERDOC_CC RENDERDOC_InitCamera(CameraType type)
+extern "C" GFXDEBUG_API ICamera *GFXDEBUG_CC GFXDEBUG_InitCamera(CameraType type)
 {
   return new Camera(type);
 }
 
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetVersionString()
+extern "C" GFXDEBUG_API const char *GFXDEBUG_CC GFXDEBUG_GetVersionString()
 {
   return MAJOR_MINOR_VERSION_STRING;
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_IsReleaseBuild()
+extern "C" GFXDEBUG_API bool GFXDEBUG_CC GFXDEBUG_IsReleaseBuild()
 {
 #if ENABLED(RDOC_RELEASE)
   return true;
@@ -213,57 +213,57 @@ extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_IsReleaseBuild()
 #endif
 }
 
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetCommitHash()
+extern "C" GFXDEBUG_API const char *GFXDEBUG_CC GFXDEBUG_GetCommitHash()
 {
   return GitVersionHash;
 }
 
-extern "C" RENDERDOC_API DriverInformation RENDERDOC_CC RENDERDOC_GetDriverInformation(GraphicsAPI api)
+extern "C" GFXDEBUG_API DriverInformation GFXDEBUG_CC GFXDEBUG_GetDriverInformation(GraphicsAPI api)
 {
-  return RenderDoc::Inst().GetDriverInformation(api);
+  return GfxDebug::Inst().GetDriverInformation(api);
 }
 
-extern "C" RENDERDOC_API uint64_t RENDERDOC_CC RENDERDOC_GetCurrentProcessMemoryUsage()
+extern "C" GFXDEBUG_API uint64_t GFXDEBUG_CC GFXDEBUG_GetCurrentProcessMemoryUsage()
 {
   return Process::GetMemoryUsage();
 }
 
-extern "C" RENDERDOC_API const SDObject *RENDERDOC_CC RENDERDOC_GetConfigSetting(const rdcstr &name)
+extern "C" GFXDEBUG_API const SDObject *GFXDEBUG_CC GFXDEBUG_GetConfigSetting(const rdcstr &name)
 {
-  return RenderDoc::Inst().GetConfigSetting(name);
+  return GfxDebug::Inst().GetConfigSetting(name);
 }
 
-extern "C" RENDERDOC_API SDObject *RENDERDOC_CC RENDERDOC_SetConfigSetting(const rdcstr &name)
+extern "C" GFXDEBUG_API SDObject *GFXDEBUG_CC GFXDEBUG_SetConfigSetting(const rdcstr &name)
 {
-  return RenderDoc::Inst().SetConfigSetting(name);
+  return GfxDebug::Inst().SetConfigSetting(name);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SaveConfigSettings()
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_SaveConfigSettings()
 {
-  return RenderDoc::Inst().SaveConfigSettings();
+  return GfxDebug::Inst().SaveConfigSettings();
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SetColors(FloatVector darkChecker,
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_SetColors(FloatVector darkChecker,
                                                                FloatVector lightChecker,
                                                                bool darkTheme)
 {
-  RenderDoc::Inst().SetDarkCheckerboardColor(darkChecker);
-  RenderDoc::Inst().SetLightCheckerboardColor(lightChecker);
-  RenderDoc::Inst().SetDarkTheme(darkTheme);
+  GfxDebug::Inst().SetDarkCheckerboardColor(darkChecker);
+  GfxDebug::Inst().SetLightCheckerboardColor(lightChecker);
+  GfxDebug::Inst().SetDarkTheme(darkTheme);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SetDebugLogFile(const rdcstr &log)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_SetDebugLogFile(const rdcstr &log)
 {
   if(!log.empty())
   {
     RDCLOGFILE(log.c_str());
 
     // need to recreate the crash handler to propagate the new log filename.
-    RenderDoc::Inst().RecreateCrashHandler();
+    GfxDebug::Inst().RecreateCrashHandler();
   }
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_LogMessage(LogType type, const rdcstr &project,
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_LogMessage(LogType type, const rdcstr &project,
                                                                 const rdcstr &file,
                                                                 unsigned int line, const rdcstr &text)
 {
@@ -294,24 +294,24 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_LogMessage(LogType type, co
     RDCDUMP();
 }
 
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetLogFile()
+extern "C" GFXDEBUG_API const char *GFXDEBUG_CC GFXDEBUG_GetLogFile()
 {
   return RDCGETLOGFILE();
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_GetLogFileContents(uint64_t offset,
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_GetLogFileContents(uint64_t offset,
                                                                         rdcstr &logfile)
 {
   logfile = FileIO::logfile_readall(offset, RDCGETLOGFILE());
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_InitialiseReplay(GlobalEnvironment env,
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_InitialiseReplay(GlobalEnvironment env,
                                                                       const rdcarray<rdcstr> &args)
 {
-  RenderDoc::Inst().InitialiseReplay(env, args);
+  GfxDebug::Inst().InitialiseReplay(env, args);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_ShutdownReplay()
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_ShutdownReplay()
 {
   {
     SCOPED_LOCK(detailStringLock);
@@ -320,10 +320,10 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_ShutdownReplay()
     detailStrings.clear();
   }
 
-  RenderDoc::Inst().ShutdownReplay();
+  GfxDebug::Inst().ShutdownReplay();
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CreateBugReport(const rdcstr &logfile,
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_CreateBugReport(const rdcstr &logfile,
                                                                      const rdcstr &dumpfile,
                                                                      rdcstr &report)
 {
@@ -333,7 +333,7 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CreateBugReport(const rdcst
   if(report.empty())
   {
     report = FileIO::GetTempFolderFilename() +
-             StringFormat::sntimef(Timing::GetUTCTime(), "/renderdoc_report_%H%M%S.zip");
+             StringFormat::sntimef(Timing::GetUTCTime(), "/gfxdebug_report_%H%M%S.zip");
   }
 
   FileIO::Delete(report);
@@ -353,18 +353,18 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CreateBugReport(const rdcst
   mz_zip_writer_end(&zip);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_RegisterMemoryRegion(void *base, size_t size)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_RegisterMemoryRegion(void *base, size_t size)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(base, size);
+  GfxDebug::Inst().RegisterMemoryRegion(base, size);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UnregisterMemoryRegion(void *base)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_UnregisterMemoryRegion(void *base)
 {
-  RenderDoc::Inst().UnregisterMemoryRegion(base);
+  GfxDebug::Inst().UnregisterMemoryRegion(base);
 }
 
-extern "C" RENDERDOC_API ExecuteResult RENDERDOC_CC
-RENDERDOC_ExecuteAndInject(const rdcstr &app, const rdcstr &workingDir, const rdcstr &cmdLine,
+extern "C" GFXDEBUG_API ExecuteResult GFXDEBUG_CC
+GFXDEBUG_ExecuteAndInject(const rdcstr &app, const rdcstr &workingDir, const rdcstr &cmdLine,
                            const rdcarray<EnvironmentModification> &env, const rdcstr &capturefile,
                            const CaptureOptions &opts, bool waitForExit)
 {
@@ -377,29 +377,29 @@ RENDERDOC_ExecuteAndInject(const rdcstr &app, const rdcstr &workingDir, const rd
   return ret;
 }
 
-extern "C" RENDERDOC_API ResultDetails RENDERDOC_CC RENDERDOC_StartGlobalHook(
+extern "C" GFXDEBUG_API ResultDetails GFXDEBUG_CC GFXDEBUG_StartGlobalHook(
     const rdcstr &pathmatch, const rdcstr &capturefile, const CaptureOptions &opts)
 {
   return Process::StartGlobalHook(pathmatch, capturefile, opts);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StopGlobalHook()
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_StopGlobalHook()
 {
   Process::StopGlobalHook();
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_IsGlobalHookActive()
+extern "C" GFXDEBUG_API bool GFXDEBUG_CC GFXDEBUG_IsGlobalHookActive()
 {
   return Process::IsGlobalHookActive();
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_CanGlobalHook()
+extern "C" GFXDEBUG_API bool GFXDEBUG_CC GFXDEBUG_CanGlobalHook()
 {
   return Process::CanGlobalHook();
 }
 
-extern "C" RENDERDOC_API ExecuteResult RENDERDOC_CC
-RENDERDOC_InjectIntoProcess(uint32_t pid, const rdcarray<EnvironmentModification> &env,
+extern "C" GFXDEBUG_API ExecuteResult GFXDEBUG_CC
+GFXDEBUG_InjectIntoProcess(uint32_t pid, const rdcarray<EnvironmentModification> &env,
                             const rdcstr &capturefile, const CaptureOptions &opts, bool waitForExit)
 {
   rdcpair<RDResult, uint32_t> status =
@@ -411,26 +411,26 @@ RENDERDOC_InjectIntoProcess(uint32_t pid, const rdcarray<EnvironmentModification
   return ret;
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_FreeArrayMem(void *mem)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_FreeArrayMem(void *mem)
 {
   free(mem);
 }
 
 // not exported, this is needed for calling from the container allocate functions
-void RENDERDOC_OutOfMemory(uint64_t sz)
+void GFXDEBUG_OutOfMemory(uint64_t sz)
 {
   RDCFATAL("Allocation failed for %llu bytes", sz);
 }
 
-extern "C" RENDERDOC_API void *RENDERDOC_CC RENDERDOC_AllocArrayMem(uint64_t sz)
+extern "C" GFXDEBUG_API void *GFXDEBUG_CC GFXDEBUG_AllocArrayMem(uint64_t sz)
 {
   void *ret = malloc((size_t)sz);
   if(ret == NULL)
-    RENDERDOC_OutOfMemory(sz);
+    GFXDEBUG_OutOfMemory(sz);
   return ret;
 }
 
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(const rdcstr &URL,
+extern "C" GFXDEBUG_API uint32_t GFXDEBUG_CC GFXDEBUG_EnumerateRemoteTargets(const rdcstr &URL,
                                                                                 uint32_t nextIdent)
 {
   rdcstr host = "localhost";
@@ -443,11 +443,11 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(
   // otherwise we're called with the last successful ident, so increment
   // before continuing to enumerate.
   if(nextIdent == 0)
-    nextIdent = RenderDoc_FirstTargetControlPort;
+    nextIdent = GfxDebug_FirstTargetControlPort;
   else
     nextIdent++;
 
-  IDeviceProtocolHandler *protocol = RenderDoc::Inst().GetDeviceProtocol(deviceID);
+  IDeviceProtocolHandler *protocol = GfxDebug::Inst().GetDeviceProtocol(deviceID);
 
   if(protocol)
   {
@@ -464,7 +464,7 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(
       return 0;
   }
 
-  for(; nextIdent <= RenderDoc_LastTargetControlPort; nextIdent++)
+  for(; nextIdent <= GfxDebug_LastTargetControlPort; nextIdent++)
   {
     uint16_t port = (uint16_t)nextIdent;
     if(protocol)
@@ -497,21 +497,21 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(
   return 0;
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC
-RENDERDOC_GetSupportedDeviceProtocols(rdcarray<rdcstr> *supportedProtocols)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC
+GFXDEBUG_GetSupportedDeviceProtocols(rdcarray<rdcstr> *supportedProtocols)
 {
-  *supportedProtocols = RenderDoc::Inst().GetSupportedDeviceProtocols();
+  *supportedProtocols = GfxDebug::Inst().GetSupportedDeviceProtocols();
 }
 
-extern "C" RENDERDOC_API IDeviceProtocolController *RENDERDOC_CC
-RENDERDOC_GetDeviceProtocolController(const rdcstr &protocol)
+extern "C" GFXDEBUG_API IDeviceProtocolController *GFXDEBUG_CC
+GFXDEBUG_GetDeviceProtocolController(const rdcstr &protocol)
 {
-  return RenderDoc::Inst().GetDeviceProtocol(protocol);
+  return GfxDebug::Inst().GetDeviceProtocol(protocol);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_BecomeRemoteServer(
-    const rdcstr &listenhost, uint16_t port, RENDERDOC_KillCallback killReplay,
-    RENDERDOC_PreviewWindowCallback previewWindow)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_BecomeRemoteServer(
+    const rdcstr &listenhost, uint16_t port, GFXDEBUG_KillCallback killReplay,
+    GFXDEBUG_PreviewWindowCallback previewWindow)
 {
   // ensure a sensible default if no callback is provided, that just never kills
   if(!killReplay)
@@ -525,18 +525,18 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_BecomeRemoteServer(
     };
 
   if(port == 0)
-    port = RenderDoc_RemoteServerPort;
+    port = GfxDebug_RemoteServerPort;
 
-  RenderDoc::Inst().BecomeRemoteServer(listenhost.empty() ? "0.0.0.0" : listenhost, port,
+  GfxDebug::Inst().BecomeRemoteServer(listenhost.empty() ? "0.0.0.0" : listenhost, port,
                                        killReplay, previewWindow);
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_CanSelfHostedCapture(const rdcstr &dllname)
+extern "C" GFXDEBUG_API bool GFXDEBUG_CC GFXDEBUG_CanSelfHostedCapture(const rdcstr &dllname)
 {
   return Process::IsModuleLoaded(dllname);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StartSelfHostCapture(const rdcstr &dllname)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_StartSelfHostCapture(const rdcstr &dllname)
 {
   if(!Process::IsModuleLoaded(dllname))
     return;
@@ -546,15 +546,15 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StartSelfHostCapture(const 
   if(module == NULL)
     return;
 
-  pRENDERDOC_GetAPI get =
-      (pRENDERDOC_GetAPI)Process::GetFunctionAddress(module, "RENDERDOC_GetAPI");
+  pGFXDEBUG_GetAPI get =
+      (pGFXDEBUG_GetAPI)Process::GetFunctionAddress(module, "GFXDEBUG_GetAPI");
 
   if(get == NULL)
     return;
 
-  RENDERDOC_API_1_0_0 *rdoc = NULL;
+  GFXDEBUG_API_1_0_0 *rdoc = NULL;
 
-  get(eRENDERDOC_API_Version_1_0_0, (void **)&rdoc);
+  get(eGFXDEBUG_API_Version_1_0_0, (void **)&rdoc);
 
   if(rdoc == NULL)
     return;
@@ -562,7 +562,7 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StartSelfHostCapture(const 
   rdoc->StartFrameCapture(NULL, NULL);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndSelfHostCapture(const rdcstr &dllname)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_EndSelfHostCapture(const rdcstr &dllname)
 {
   if(!Process::IsModuleLoaded(dllname))
     return;
@@ -572,15 +572,15 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndSelfHostCapture(const rd
   if(module == NULL)
     return;
 
-  pRENDERDOC_GetAPI get =
-      (pRENDERDOC_GetAPI)Process::GetFunctionAddress(module, "RENDERDOC_GetAPI");
+  pGFXDEBUG_GetAPI get =
+      (pGFXDEBUG_GetAPI)Process::GetFunctionAddress(module, "GFXDEBUG_GetAPI");
 
   if(get == NULL)
     return;
 
-  RENDERDOC_API_1_0_0 *rdoc = NULL;
+  GFXDEBUG_API_1_0_0 *rdoc = NULL;
 
-  get(eRENDERDOC_API_Version_1_0_0, (void **)&rdoc);
+  get(eGFXDEBUG_API_Version_1_0_0, (void **)&rdoc);
 
   if(rdoc == NULL)
     return;
@@ -588,14 +588,14 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndSelfHostCapture(const rd
   rdoc->EndFrameCapture(NULL, NULL);
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC
-RENDERDOC_NeedVulkanLayerRegistration(VulkanLayerRegistrationInfo *info)
+extern "C" GFXDEBUG_API bool GFXDEBUG_CC
+GFXDEBUG_NeedVulkanLayerRegistration(VulkanLayerRegistrationInfo *info)
 {
   VulkanLayerFlags flags = VulkanLayerFlags::NoFlags;
   rdcarray<rdcstr> myJSONs;
   rdcarray<rdcstr> otherJSONs;
 
-  bool ret = RenderDoc::Inst().NeedVulkanLayerRegistration(flags, myJSONs, otherJSONs);
+  bool ret = GfxDebug::Inst().NeedVulkanLayerRegistration(flags, myJSONs, otherJSONs);
 
   if(info)
   {
@@ -613,12 +613,12 @@ RENDERDOC_NeedVulkanLayerRegistration(VulkanLayerRegistrationInfo *info)
   return ret;
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateVulkanLayerRegistration(bool systemLevel)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_UpdateVulkanLayerRegistration(bool systemLevel)
 {
-  RenderDoc::Inst().UpdateVulkanLayerRegistration(systemLevel);
+  GfxDebug::Inst().UpdateVulkanLayerRegistration(systemLevel);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateInstalledVersionNumber()
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_UpdateInstalledVersionNumber()
 {
 #if ENABLED(RDOC_WIN32)
   HKEY key = NULL;
@@ -676,11 +676,11 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateInstalledVersionNumbe
         Publisher[0] = 0;
 
       // if this is our key, set the version number
-      if(!strcmp(DisplayName, "RenderDoc") && !strcmp(Publisher, "Baldur Karlsson"))
+      if(!strcmp(DisplayName, "GfxDebug") && !strcmp(Publisher, "Baldur Karlsson"))
       {
-        DWORD Version = (RENDERDOC_VERSION_MAJOR << 24) | (RENDERDOC_VERSION_MINOR << 16);
-        DWORD VersionMajor = RENDERDOC_VERSION_MAJOR;
-        DWORD VersionMinor = RENDERDOC_VERSION_MINOR;
+        DWORD Version = (GFXDEBUG_VERSION_MAJOR << 24) | (GFXDEBUG_VERSION_MINOR << 16);
+        DWORD VersionMajor = GFXDEBUG_VERSION_MAJOR;
+        DWORD VersionMinor = GFXDEBUG_VERSION_MINOR;
         rdcstr DisplayVersion = MAJOR_MINOR_VERSION_STRING ".0";
 
         RegSetValueExA(subkey, "Version", 0, REG_DWORD, (const BYTE *)&Version, sizeof(Version));
@@ -874,7 +874,7 @@ static rdcstr ResourceFormatName(const ResourceFormat &fmt)
   return ret + "_UNKNOWN";
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_ResourceFormatName(const ResourceFormat &fmt,
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_ResourceFormatName(const ResourceFormat &fmt,
                                                                         rdcstr &name)
 {
   name = ResourceFormatName(fmt);
@@ -886,21 +886,21 @@ static void TestPrintMsg(const rdcstr &msg)
   OSUtility::WriteOutput(OSUtility::Output_StdErr, msg.c_str());
 }
 
-extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(const rdcarray<rdcstr> &args)
+extern "C" GFXDEBUG_API int GFXDEBUG_CC GFXDEBUG_RunFunctionalTests(const rdcarray<rdcstr> &args)
 {
 #if ENABLED(RDOC_WIN32)
   const char *moduledir = "/pymodules";
-  const char *modulename = "renderdoc.pyd";
+  const char *modulename = "gfxdebug.pyd";
   rdcstr pythonlibs[] = {"python3?.dll"};
 #elif ENABLED(RDOC_LINUX)
   const char *moduledir = "";
-  const char *modulename = "renderdoc.so";
+  const char *modulename = "gfxdebug.so";
   // we don't care about pymalloc or not
   rdcstr pythonlibs[] = {"libpython3.?m.so.1.0", "libpython3.?.so.1.0", "libpython3.?m.so",
                          "libpython3.?.so"};
 #elif ENABLED(RDOC_APPLE)
   const char *moduledir = "";
-  const char *modulename = "renderdoc.so";
+  const char *modulename = "gfxdebug.so";
   rdcstr pythonlibs[] = {"libpython3.?.dylib"};
 #else
   const char *moduledir = "";
@@ -985,7 +985,7 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(const rdc
     return 1;
   }
 
-  typedef int(RENDERDOC_CC * PFN_Py_Main)(int, wchar_t **);
+  typedef int(GFXDEBUG_CC * PFN_Py_Main)(int, wchar_t **);
 
   PFN_Py_Main mainFunc = (PFN_Py_Main)Process::GetFunctionAddress(handle, "Py_Main");
 
@@ -1007,10 +1007,10 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(const rdc
                          // specify script path
                          StringFormat::UTF82Wide(scriptPath),
                          // specify native library path
-                         L"--renderdoc",
+                         L"--gfxdebug",
                          StringFormat::UTF82Wide(libPath),
                          // specify python module path
-                         L"--pyrenderdoc",
+                         L"--pygfxdebug",
                          StringFormat::UTF82Wide(modulePath),
                      });
 
@@ -1023,12 +1023,12 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(const rdc
   return mainFunc((int)wideArgStrings.size(), wideArgStrings.data());
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_BeginProfileRegion(const rdcstr &name)
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_BeginProfileRegion(const rdcstr &name)
 {
   Superluminal::BeginProfileRange(name);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndProfileRegion()
+extern "C" GFXDEBUG_API void GFXDEBUG_CC GFXDEBUG_EndProfileRegion()
 {
   Superluminal::EndProfileRange();
 }

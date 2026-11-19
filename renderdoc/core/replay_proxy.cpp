@@ -209,7 +209,7 @@ struct RemoteExecution
     return CONCAT(Proxied_, name)(m_Writer, m_Reader, ##__VA_ARGS__);
 
 ReplayProxy::ReplayProxy(ReadSerialiser &reader, WriteSerialiser &writer, IRemoteDriver *remoteDriver,
-                         IReplayDriver *replayDriver, RENDERDOC_PreviewWindowCallback previewWindow)
+                         IReplayDriver *replayDriver, GFXDEBUG_PreviewWindowCallback previewWindow)
     : m_Reader(reader),
       m_Writer(writer),
       m_Proxy(NULL),
@@ -2886,8 +2886,8 @@ void ReplayProxy::RefreshPreviewWindow()
     int32_t winHeight = 1;
     m_Replay->GetOutputWindowDimensions(m_PreviewOutput, winWidth, winHeight);
 
-    m_Replay->RenderCheckerboard(RenderDoc::Inst().DarkCheckerboardColor(),
-                                 RenderDoc::Inst().LightCheckerboardColor());
+    m_Replay->RenderCheckerboard(GfxDebug::Inst().DarkCheckerboardColor(),
+                                 GfxDebug::Inst().LightCheckerboardColor());
 
     const ActionDescription *curDraw = FindAction(m_FrameRecord.actionList, m_EventID);
 

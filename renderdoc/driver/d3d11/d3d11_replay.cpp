@@ -54,7 +54,7 @@ static const char *DXBCDisassemblyTarget = "DXBC";
 
 D3D11Replay::D3D11Replay(WrappedID3D11Device *d)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(D3D11Replay));
+  GfxDebug::Inst().RegisterMemoryRegion(this, sizeof(D3D11Replay));
 
   m_pDevice = d;
   m_pImmediateContext = d->GetImmediateContext();
@@ -69,7 +69,7 @@ D3D11Replay::D3D11Replay(WrappedID3D11Device *d)
 
 D3D11Replay::~D3D11Replay()
 {
-  RenderDoc::Inst().UnregisterMemoryRegion(this);
+  GfxDebug::Inst().UnregisterMemoryRegion(this);
 }
 
 void D3D11Replay::Shutdown()
@@ -232,53 +232,53 @@ void D3D11Replay::InitReplayOnDevice(IDXGIFactory *factory)
 
 void D3D11Replay::CreateResources()
 {
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.0f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.0f);
 
   m_pDevice->GetShaderCache()->SetCaching(true);
 
   InitStreamOut();
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.1f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.1f);
 
   m_General.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.2f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.2f);
 
   m_TexRender.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.3f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.3f);
 
   m_Overlay.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.4f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.4f);
 
   m_MeshRender.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.5f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.5f);
 
   m_VertexPick.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.6f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.6f);
 
   m_PixelPick.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.65f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.65f);
 
   m_ShaderDebug.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.7f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.7f);
 
   m_Histogram.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.8f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.8f);
 
   m_PixelHistory.Init(m_pDevice);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.9f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.9f);
 
   m_pDevice->GetShaderCache()->SetCaching(false);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 1.0f);
+  GfxDebug::Inst().SetProgress(LoadProgress::DebugManagerInit, 1.0f);
 }
 
 void D3D11Replay::DestroyResources()
@@ -4089,7 +4089,7 @@ RDResult D3D11_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRepl
     {
       RETURN_ERROR_RESULT(ResultCode::APIIncompatibleVersion,
                           "D3D11 capture is incompatible version %llu, newest supported by this "
-                          "build of RenderDoc is %llu",
+                          "build of GfxDebug is %llu",
                           ver, D3D11InitParams::CurrentVersion);
     }
 
@@ -4292,7 +4292,7 @@ RDResult D3D11_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRepl
       if(SUCCEEDED(hr) && maxFeatureLevel < D3D_FEATURE_LEVEL_11_0)
       {
         RDCWARN(
-            "Couldn't create FEATURE_LEVEL_11_0 device - RenderDoc requires FEATURE_LEVEL_11_0 "
+            "Couldn't create FEATURE_LEVEL_11_0 device - GfxDebug requires FEATURE_LEVEL_11_0 "
             "availability - falling back to WARP rasterizer");
         useWarp = warpFallback = true;
       }
@@ -4446,7 +4446,7 @@ RDResult D3D11_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRepl
     {
       wrappedDev->AddDebugMessage(
           MessageCategory::Initialization, MessageSeverity::High, MessageSource::RuntimeWarning,
-          "Couldn't create FEATURE_LEVEL_11_0 device - RenderDoc requires FEATURE_LEVEL_11_0 "
+          "Couldn't create FEATURE_LEVEL_11_0 device - GfxDebug requires FEATURE_LEVEL_11_0 "
           "availability - falling back to WARP rasterizer.\n"
           "Performance and usability will be significantly degraded.");
     }
@@ -4461,7 +4461,7 @@ RDResult D3D11_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRepl
 
   if(flags & D3D11_CREATE_DEVICE_DEBUG)
     error +=
-        "\n\nDevelopment RenderDoc builds require D3D debug layers available, "
+        "\n\nDevelopment GfxDebug builds require D3D debug layers available, "
         "ensure you have the windows SDK or windows feature needed.";
 
   RETURN_ERROR_RESULT(ResultCode::APIHardwareUnsupported, "%s", error.c_str());

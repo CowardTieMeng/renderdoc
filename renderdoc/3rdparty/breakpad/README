@@ -2,7 +2,7 @@ Breakpad is a set of client and server components which implement a
 crash-reporting system.
 
 ** NOTE - this folder is a stripped down local version to be loaded
-** from within renderdoc. For the full source go to the original
+** from within gfxdebug. For the full source go to the original
 ** repository, http://code.google.com/p/google-breakpad/
 
 -----

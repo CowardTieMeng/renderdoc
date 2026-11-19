@@ -2899,7 +2899,7 @@ bytebuf FindAndLoadDebugBlob(bool lz4, const rdcstr &searchFilePath, rdcstr &fou
   // Try to retrieve debug file from the externally referenced files in the capture
   if(originalShaderFile == NULL)
   {
-    if(!RenderDoc::Inst().GetTrackedFileData(searchFilePath, ret))
+    if(!GfxDebug::Inst().GetTrackedFileData(searchFilePath, ret))
     {
       loadingLog += StringFormat::Fmt(
           "\nFile not found in files embedded in the capture using nickname '%s'\n",
@@ -2987,7 +2987,7 @@ bool VulkanCreationInfo::ShaderModule::Reinit()
     if(reflTest.Parse(debugBytecode.data(), debugBytecode.size()))
     {
       spirv = reflTest;
-      RenderDoc::Inst().AddTrackedFileReference(searchFilePath, foundFilePath);
+      GfxDebug::Inst().AddTrackedFileReference(searchFilePath, foundFilePath);
       loadingLog += StringFormat::Fmt("Debug data parsed successfully (%u bytes)\n",
                                       (uint32_t)debugBytecode.size());
 
